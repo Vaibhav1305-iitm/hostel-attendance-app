@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hostel Attendance System</title>
+
+    <!-- PWA Features (disabled for local testing) -->
+    <!-- <link rel="manifest" href="manifest.json"> -->
+    <link rel="apple-touch-icon" href="hostel_app_icon.png">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <style>
+        :root {
+            /* Light Theme Colors (Default) */
+            --md-sys-color-primary: #006a6a;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-primary-container: #6ff7f6;
+            --md-sys-color-on-primary-container: #002020;
+            --md-sys-color-secondary: #4a6363;
+            --md-sys-color-on-secondary: #ffffff;
+            --md-sys-color-secondary-container: #cce8e7;
+            --md-sys-color-on-secondary-container: #051f1f;
+            --md-sys-color-tertiary: #4b607c;
+            --md-sys-color-on-tertiary: #ffffff;
+            --md-sys-color-tertiary-container: #d3e4ff;
+            --md-sys-color-on-tertiary-container: #041c35;
+            --md-sys-color-error: #ba1a1a;
+            --md-sys-color-on-error: #ffffff;
+            --md-sys-color-background: #fafdfc;
+            --md-sys-color-on-background: #191c1c;
+            --md-sys-color-surface: #fafdfc;
+            --md-sys-color-on-surface: #191c1c;
+            --md-sys-color-surface-variant: #dae5e4;
+            --md-sys-color-on-surface-variant: #3f4948;
+            --md-sys-color-outline: #6f7979;
+
+            /* Status Colors */
+            --color-present: #1e8e3e;
+            /* Google Green */
+            --color-present-container: #d7f5dd;
+            --color-absent: #d93025;
+            /* Google Red */
+            --color-absent-container: #fce8e6;
+            --color-leave: #f9ab00;
+            /* Google Yellow */
+            --color-leave-container: #fef7e0;
+
+            --drawer-width: 300px;
+            --top-bar-height: 64px;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --md-sys-color-primary: #4cdada;
+            --md-sys-color-on-primary: #003737;
+            --md-sys-color-primary-container: #004f4f;
+            --md-sys-color-on-primary-container: #6ff7f6;
+            --md-sys-color-secondary: #b0cccb;
+            --md-sys-color-on-secondary: #1b3534;
+            --md-sys-color-secondary-container: #334b4b;
+            --md-sys-color-on-secondary-container: #cce8e7;
+            --md-sys-color-tertiary: #b3c8e8;
+            --md-sys-color-on-tertiary: #1c3148;
+            --md-sys-color-tertiary-container: #334863;
+            --md-sys-color-on-tertiary-container: #d3e4ff;
+            --md-sys-color-error: #ffb4ab;
+            --md-sys-color-on-error: #690005;
+            --md-sys-color-background: #191c1c;
+            --md-sys-color-on-background: #e0e3e2;
+            --md-sys-color-surface: #191c1c;
+            --md-sys-color-on-surface: #e0e3e2;
+            --md-sys-color-surface-variant: #3f4948;
+            --md-sys-color-on-surface-variant: #bec9c8;
+            --md-sys-color-outline: #889392;
+
+            /* Status Colors Dark */
+            --color-present: #81c995;
+            --color-present-container: #0d3b1e;
+            --color-absent: #f28b82;
+            --color-absent-container: #5c1410;
+            --color-leave: #fdd663;
+            --color-leave-container: #5f4200;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--md-sys-color-background);
+            color: var(--md-sys-color-on-background);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-size: 16px;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            /* Space for FABs */
+        }
+
+        /* --- Layout --- */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Navigation Drawer --- */
+        .drawer-scrim {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1200;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .drawer-scrim.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--drawer-width);
+            height: 100%;
+            height: 100dvh;
+            /* Dynamic viewport height for mobile */
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            z-index: 1300;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            border-top-right-radius: 16px;
+            border-bottom-right-radius: 16px;
+            overflow: hidden;
+        }
+
+        .nav-drawer.open {
+            transform: translateX(0);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Lock body scroll when drawer is open */
+        body.drawer-open {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        .drawer-header {
+            padding: 24px 16px 12px;
+            font-family: 'Google Sans', sans-serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--md-sys-color-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .drawer-content {
+            padding: 12px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .drawer-item {
+            display: flex;
+            align-items: center;
+            height: 56px;
+            padding: 0 16px 0 24px;
+            border-radius: 28px;
+            cursor: pointer;
+            color: var(--md-sys-color-on-surface-variant);
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 4px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .drawer-item:hover {
+            background-color: rgba(var(--md-sys-color-on-surface-variant), 0.08);
+            /* Computed color logic approximation */
+            background-color: #efefef;
+            /* Fallback */
+        }
+
+        .drawer-item.active {
+            background-color: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-secondary-container);
+        }
+
+        .drawer-item .material-symbols-outlined {
+            margin-right: 12px;
+            font-size: 24px;
+            font-variation-settings: 'FILL' 0;
+        }
+
+        .drawer-item.active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .drawer-divider {
+            height: 1px;
+            background-color: var(--md-sys-color-outline);
+            margin: 8px 16px;
+            opacity: 0.2;
+        }
+
+        .drawer-label {
+            padding: 16px 24px 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* --- Top App Bar (Search Pill Style) --- */
+        .top-app-bar-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 8px 16px;
+            background-color: var(--md-sys-color-background);
+        }
+
+        .search-pill {
+            display: flex;
+            align-items: center;
+            height: 48px;
+            background-color: var(--md-sys-color-surface-variant);
+            border-radius: 24px;
+            padding: 0 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s;
+        }
+
+        .search-pill.elevated {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background-color: var(--md-sys-color-surface);
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .icon-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        /* User Avatar in Search Pill */
+        .user-avatar-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 4px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .search-content {
+            flex: 1;
+            margin: 0 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .app-title {
+            font-family: 'Google Sans', sans-serif;
+            font-size: 16px;
+            color: var(--md-sys-color-on-surface);
+            line-height: normal;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--md-sys-color-on-surface-variant);
+            line-height: normal;
+        }
+
+        /* --- Action Area (Date, Verify) --- */
+        .action-area {
+            padding: 0 16px 16px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .date-input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 8px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: transparent;
+            color: var(--md-sys-color-on-surface);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .date-input-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--md-sys-color-on-surface-variant);
+            pointer-events: none;
+        }
+
+        .verification-card {
+            background-color: var(--md-sys-color-tertiary-container);
+            color: var(--md-sys-color-on-tertiary-container);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .verification-card.verified {
+            background-color: var(--color-present-container);
+            color: #00210e;
+            border: 1px solid var(--color-present);
+        }
+
+        .verification-label {
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Student List --- */
+        .student-list-container {
+            padding: 0 16px 100px;
+            /* Bottom padding for FAB */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .list-header {
+            font-size: 14px;
+            color: var(--md-sys-color-primary);
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-card {
+            display: flex;
+            align-items: center;
+            background-color: var(--md-sys-color-surface);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--md-sys-color-outline);
+            border-color: rgba(111, 121, 121, 0.2);
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: 500;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .student-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .student-id {
+            font-size: 12px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-chip {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--md-sys-color-outline);
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--md-sys-color-on-surface-variant);
+            transition: all 0.2s;
+        }
+
+        .status-chip.active {
+            color: white;
+            border: none;
+        }
+
+        .status-chip.status-P.active {
+            background-color: var(--color-present);
+        }
+
+        .status-chip.status-A.active {
+            background-color: var(--color-absent);
+        }
+
+        .status-chip.status-L.active {
+            background-color: var(--color-leave);
+            color: black;
+        }
+
+        /* --- Floating Action Buttons --- */
+        .fab {
+            height: 56px;
+            border-radius: 16px;
+            background-color: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            border: none;
+            display: flex;
+            align-items: center;
+            padding: 0 24px 0 20px;
+            font-family: 'Google Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+            gap: 12px;
+        }
+
+        .fab:active {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+            transform: scale(0.98);
+        }
+
+        .fab.small {
+            height: 48px;
+            padding: 0;
+            width: 48px;
+            justify-content: center;
+            background-color: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-secondary-container);
+            border-radius: 12px;
+        }
+
+        .fab-icon {
+            font-size: 24px;
+        }
+
+        .fab-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-end;
+            z-index: 1100;
+        }
+
+        /* --- Snackbar --- */
+        .snackbar {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #323232;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 0.3s;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .snackbar.success {
+            background-color: #1e8e3e;
+        }
+
+        .snackbar.error {
+            background-color: #d93025;
+        }
+
+        /* Switch Toggle */
+        .switch {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Desktop specific tweaks */
+        @media (min-width: 600px) {
+            .app-container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: var(--md-sys-color-surface);
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .drawer-scrim {
+                display: none;
+                /* In Gmail desktop, drawer pushes content. Here we keep it mobile style centered */
+            }
+
+            .nav-drawer {
+                position: absolute;
+                /* Relative to app container if we wanted, but fixed is easier overlay for now */
+            }
+
+            .fab-container {
+                position: fixed;
+                right: calc(50% - 276px);
+                /* Center 600px / 2 = 300 - 24px margin */
+                bottom: 24px;
+            }
+        }
+
+        /* Stats Chips */
+        .stats-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .stat-chip {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .stat-chip strong {
+            font-size: 14px;
+        }
+
+        /* Admin Tabs and Tracking */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .admin-tab {
+            background: none;
+            border: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface-variant);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .admin-tab.active {
+            color: var(--md-sys-color-primary);
+            border-bottom-color: var(--md-sys-color-primary);
+        }
+
+        .tracking-table-container {
+            overflow-x: auto;
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            margin-top: 12px;
+        }
+
+        .tracking-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 600px;
+        }
+
+        .tracking-table th,
+        .tracking-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .tracking-table th {
+            background: var(--md-sys-color-surface-variant);
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .tracking-search-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.present {
+            background: var(--color-present-container);
+            color: #006020;
+        }
+
+        .badge.absent {
+            background: var(--color-absent-container);
+            color: var(--color-absent);
+        }
+
+        .badge.leave {
+            background: var(--color-leave-container);
+            color: #805600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation Drawer -->
+    <div class="drawer-scrim" id="drawerScrim" onclick="closeDrawer()"></div>
+    <nav class="nav-drawer" id="navDrawer">
+        <div class="drawer-header">
+            <span class="material-symbols-outlined">school</span>
+            Attendance
+        </div>
+
+        <div class="drawer-content">
+            <div class="drawer-label">Shifts</div>
+
+            <a class="drawer-item active" onclick="switchCategory('Yoga')" id="nav-Yoga">
+                <span class="material-symbols-outlined">self_improvement</span>
+                Yoga
+                <span id="nav-indicator-Yoga" style="margin-left: auto; font-size: 18px;"></span>
+            </a>
+            <a class="drawer-item" onclick="switchCategory('Mess Day')" id="nav-Mess Day">
+                <span class="material-symbols-outlined">restaurant</span>
+                Mess Day
+                <span id="nav-indicator-Mess Day" style="margin-left: auto; font-size: 18px;"></span>
+            </a>
+            <a class="drawer-item" onclick="switchCategory('Mess Night')" id="nav-Mess Night">
+                <span class="material-symbols-outlined">bedtime</span>
+                Mess Night
+                <span id="nav-indicator-Mess Night" style="margin-left: auto; font-size: 18px;"></span>
+            </a>
+            <a class="drawer-item" onclick="switchCategory('Night Shift')" id="nav-Night Shift">
+                <span class="material-symbols-outlined">nights_stay</span>
+                Night Shift
+                <span id="nav-indicator-Night Shift" style="margin-left: auto; font-size: 18px;"></span>
+            </a>
+
+            <div class="drawer-divider"></div>
+            <div class="drawer-label">Actions</div>
+
+            <a class="drawer-item" onclick="openAddStudentModal()" style="color: var(--md-sys-color-primary);">
+                <span class="material-symbols-outlined">person_add</span>
+                Add Student
+            </a>
+            <a class="drawer-item" onclick="resetAttendance()">
+                <span class="material-symbols-outlined">restart_alt</span>
+                Reset Current
+            </a>
+            <a class="drawer-item" onclick="downloadAttendance()">
+                <span class="material-symbols-outlined">download</span>
+                Download CSV
+            </a>
+            <a class="drawer-item" onclick="downloadOverallAttendance()">
+                <span class="material-symbols-outlined">table_view</span>
+                Download Excel
+            </a>
+
+            <a class="drawer-item" onclick="openAdminLogin()">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                Admin Panel
+            </a>
+
+            <div class="drawer-divider"></div>
+            <div class="drawer-label">Settings</div>
+
+            <a class="drawer-item" onclick="toggleTheme()">
+                <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+                <span id="themeText">Dark Mode</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <div class="main-content">
+            <!-- Top App Bar (Search Pill) -->
+            <div class="top-app-bar-container">
+                <div class="search-pill" id="searchPill">
+                    <button class="icon-btn" onclick="openDrawer()">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div class="search-content">
+                        <div class="app-title" id="headerTitle">Yoga</div>
+                        <div class="subtitle" id="headerDate">Select Date</div>
+                    </div>
+                    <!-- Profile / Theme Toggle Shortcut -->
+                    <button class="user-avatar-btn" onclick="toggleTheme()" title="Toggle Theme">
+                        <span id="userInitial">A</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Area -->
+            <div class="action-area">
+                <!-- Date Selection -->
+
+                <div class="control-row">
+                    <div class="date-input-container">
+                        <span class="material-symbols-outlined date-input-icon">calendar_today</span>
+                        <input type="date" id="attendanceDate" class="date-input">
+                    </div>
+                </div>
+
+                <div class="control-row">
+                    <div class="date-input-container">
+                        <span class="material-symbols-outlined date-input-icon">search</span>
+                        <input type="text" id="studentSearch" class="date-input" placeholder="Search student...">
+                    </div>
+                </div>
+
+                <!-- Verification Card -->
+                <div class="verification-card" id="verificationCard" onclick="toggleVerification()">
+                    <div class="verification-label">
+                        <span class="material-symbols-outlined" id="verifyIcon">check_circle_outline</span>
+                        <span id="verifyText">Mark Yoga as Verified</span>
+                    </div>
+                    <div class="switch">
+                        <span class="material-symbols-outlined" id="verifyCheckmark" style="opacity: 0;">done</span>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-chip">P <strong id="presentCount">0</strong></div>
+                    <div class="stat-chip">A <strong id="absentCount">0</strong></div>
+                    <div class="stat-chip">L <strong id="leaveCount">0</strong></div>
+                </div>
+
+                <div class="list-header">
+                    <span>Students</span>
+                    <span id="totalStudentsCount" style="font-size: 12px; opacity: 0.7;">0 total</span>
+                </div>
+            </div>
+
+            <!-- Student List -->
+            <div id="studentList" class="student-list-container">
+                <div class="student-card" style="justify-content: center; color: var(--md-sys-color-outline);">
+                    No data loaded. Upload CSV to begin.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FABs -->
+    <div class="fab-container">
+        <button class="fab small" onclick="saveAttendance()" aria-label="Save">
+            <span class="material-symbols-outlined fab-icon">save</span>
+        </button>
+
+        <button class="fab" onclick="syncToGoogleSheet()">
+            <span class="material-symbols-outlined fab-icon">cloud_sync</span>
+            Sync All
+        </button>
+    </div>
+
+    <div id="messageArea"></div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
+        <div
+            style="background:var(--md-sys-color-surface); border-radius:24px; padding:24px; width:90%; max-width:400px; box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+                <span class="material-symbols-outlined"
+                    style="color:var(--md-sys-color-primary); font-size:28px;">person_add</span>
+                <h2 style="margin:0; font-size:20px; color:var(--md-sys-color-on-surface);">Add New Student</h2>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <input type="text" id="newStudentName" placeholder="Full Name *"
+                    style="padding:14px 16px; border-radius:12px; border:1px solid var(--md-sys-color-outline); background:transparent; color:var(--md-sys-color-on-surface); font-size:16px;">
+                <input type="text" id="newStudentAppNumber" placeholder="Application Number"
+                    style="padding:14px 16px; border-radius:12px; border:1px solid var(--md-sys-color-outline); background:transparent; color:var(--md-sys-color-on-surface); font-size:16px;">
+                <input type="text" id="newStudentAppId" placeholder="Application ID"
+                    style="padding:14px 16px; border-radius:12px; border:1px solid var(--md-sys-color-outline); background:transparent; color:var(--md-sys-color-on-surface); font-size:16px;">
+                <input type="text" id="newStudentHostelId" placeholder="Hostel ID"
+                    style="padding:14px 16px; border-radius:12px; border:1px solid var(--md-sys-color-outline); background:transparent; color:var(--md-sys-color-on-surface); font-size:16px;">
+                <input type="text" id="newStudentAllocation" placeholder="Hostel Allocation (Room/Block)"
+                    style="padding:14px 16px; border-radius:12px; border:1px solid var(--md-sys-color-outline); background:transparent; color:var(--md-sys-color-on-surface); font-size:16px;">
+            </div>
+
+            <div id="addStudentError"
+                style="color:var(--md-sys-color-error); font-size:14px; margin-top:12px; display:none;"></div>
+
+            <div style="display:flex; gap:12px; margin-top:20px; justify-content:flex-end;">
+                <button onclick="closeAddStudentModal()"
+                    style="padding:12px 24px; border-radius:20px; border:none; background:transparent; color:var(--md-sys-color-primary); font-weight:500; font-size:14px; cursor:pointer;">
+                    Cancel
+                </button>
+                <button onclick="saveNewStudent()"
+                    style="padding:12px 24px; border-radius:20px; border:none; background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); font-weight:500; font-size:14px; cursor:pointer;">
+                    Add Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Dashboard Modal -->
+    <div id="studentDashboardModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; justify-content:center; align-items:center; padding:16px;">
+        <div
+            style="background:var(--md-sys-color-surface); border-radius:24px; padding:24px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="material-symbols-outlined"
+                        style="color:var(--md-sys-color-primary); font-size:28px;">analytics</span>
+                    <div>
+                        <h2 id="dashboardStudentName"
+                            style="margin:0; font-size:18px; color:var(--md-sys-color-on-surface);"></h2>
+                        <div id="dashboardCategory"
+                            style="font-size:12px; color:var(--md-sys-color-on-surface-variant);"></div>
+                    </div>
+                </div>
+                <button onclick="closeStudentDashboard()"
+                    style="background:none; border:none; cursor:pointer; padding:8px;">
+                    <span class="material-symbols-outlined"
+                        style="color:var(--md-sys-color-on-surface-variant);">close</span>
+                </button>
+            </div>
+
+            <!-- Summary Stats -->
+            <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+                <div
+                    style="flex:1; min-width:80px; background:var(--color-present-container); padding:12px; border-radius:12px; text-align:center;">
+                    <div style="font-size:24px; font-weight:700; color:var(--color-present);" id="dashPresent">0</div>
+                    <div style="font-size:12px; color:var(--color-present);">Present</div>
+                </div>
+                <div
+                    style="flex:1; min-width:80px; background:var(--color-absent-container); padding:12px; border-radius:12px; text-align:center;">
+                    <div style="font-size:24px; font-weight:700; color:var(--color-absent);" id="dashAbsent">0</div>
+                    <div style="font-size:12px; color:var(--color-absent);">Absent</div>
+                </div>
+                <div
+                    style="flex:1; min-width:80px; background:var(--color-leave-container); padding:12px; border-radius:12px; text-align:center;">
+                    <div style="font-size:24px; font-weight:700; color:#805600;" id="dashLeave">0</div>
+                    <div style="font-size:12px; color:#805600;">Leave</div>
+                </div>
+            </div>
+
+            <!-- Date Details Sections -->
+            <div id="dashboardDateDetails"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        // --- State & Config ---
+        let students = [];
+        let attendanceByCategory = {};
+        let attendance = {};
+        let currentCategory = 'Yoga';
+        let csvData = [];
+        let loadedFromSheets = {};
+        let studentSearchQuery = '';
+        let verifiedCategories = {};
+        const CATEGORIES = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
+        const STORAGE_KEY = 'hostel_attendance_saved_v1';
+        let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLrD98LEE_PQtqySBKqrZLyKvqzM3nXCAEMyYmejkLqwexp6cUTmDlIljQEazc7_8i/exec';
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', function () {
+            initTheme();
+            setTodayDate();
+            document.getElementById('attendanceDate').addEventListener('change', handleDateChange);
+            document.getElementById('studentSearch').addEventListener('input', function () {
+                studentSearchQuery = (this.value || '').trim().toLowerCase();
+                renderStudentList();
+            });
+
+            // Scroll effect
+            window.addEventListener('scroll', () => {
+                const pill = document.getElementById('searchPill');
+                if (!pill) return;
+                if (window.scrollY > 10) {
+                    pill.classList.add('elevated');
+                } else {
+                    pill.classList.remove('elevated');
+                }
+            });
+
+            // Auto-fetch students from Google Sheets on load
+            fetchStudentsFromSheet();
+        });
+
+        // --- Theme Logic ---
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateThemeIcon(next);
+            closeDrawer();
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            if (!icon || !text) return;
+            if (theme === 'dark') {
+                icon.textContent = 'light_mode';
+                text.textContent = 'Light Mode';
+            } else {
+                icon.textContent = 'dark_mode';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // --- Drawer Logic ---
+        let scrollPosition = 0;
+
+        function openDrawer() {
+            const d = document.getElementById('navDrawer');
+            const s = document.getElementById('drawerScrim');
+            // Save scroll position and lock body
+            scrollPosition = window.pageYOffset;
+            document.body.style.top = `-${scrollPosition}px`;
+            document.body.classList.add('drawer-open');
+            if (d) d.classList.add('open');
+            if (s) s.classList.add('open');
+        }
+
+        function closeDrawer() {
+            const d = document.getElementById('navDrawer');
+            const s = document.getElementById('drawerScrim');
+            if (d) d.classList.remove('open');
+            if (s) s.classList.remove('open');
+            // Restore scroll position
+            document.body.classList.remove('drawer-open');
+            document.body.style.top = '';
+            window.scrollTo(0, scrollPosition);
+        }
+
+        // --- Swipe Gesture to Open/Close Drawer ---
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let isSwiping = false;
+
+        document.addEventListener('touchstart', function (e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            isSwiping = true;
+        }, { passive: true });
+
+        document.addEventListener('touchend', function (e) {
+            if (!isSwiping) return;
+            touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            handleSwipeGesture(touchStartX, touchEndX, touchStartY, touchEndY);
+            isSwiping = false;
+        }, { passive: true });
+
+        function handleSwipeGesture(startX, endX, startY, endY) {
+            const diffX = endX - startX;
+            const diffY = Math.abs(endY - startY);
+            const minSwipeDistance = 80; // Minimum swipe distance
+
+            // Only trigger if horizontal swipe is greater than vertical (not scrolling)
+            if (Math.abs(diffX) > diffY && Math.abs(diffX) > minSwipeDistance) {
+                const drawer = document.getElementById('navDrawer');
+                const isDrawerOpen = drawer && drawer.classList.contains('open');
+
+                // Swipe right to open (from left half of screen)
+                if (diffX > 0 && startX < window.innerWidth / 2 && !isDrawerOpen) {
+                    openDrawer();
+                }
+                // Swipe left to close
+                else if (diffX < 0 && isDrawerOpen) {
+                    closeDrawer();
+                }
+            }
+        }
+
+        // --- Core Logic ---
+        function setTodayDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            const dateEl = document.getElementById('attendanceDate');
+            if (dateEl) dateEl.value = dateStr;
+            const hDate = document.getElementById('headerDate');
+            if (hDate) hDate.textContent = new Date(dateStr).toDateString();
+        }
+
+        function handleDateChange() {
+            const dateStr = document.getElementById('attendanceDate').value;
+            if (!dateStr) return;
+
+            const hDate = document.getElementById('headerDate');
+            if (hDate) hDate.textContent = new Date(dateStr).toDateString();
+
+            loadedFromSheets[dateStr] = loadedFromSheets[dateStr] || {};
+
+            if (students.length > 0) {
+                initializeAllCategoriesAttendance();
+                applySavedAttendanceForDate(dateStr);
+                loadVerificationState(dateStr);
+                ensureCategoryAttendance(currentCategory);
+                attendance = attendanceByCategory[currentCategory];
+                loadAttendanceData().then(() => {
+                    updateVerificationUI();
+                });
+            } else {
+                renderStudentList();
+                loadVerificationState(dateStr);
+            }
+        }
+
+        function switchCategory(newCategory) {
+            currentCategory = newCategory;
+
+            // Update Title
+            const t = document.getElementById('headerTitle');
+            if (t) t.textContent = newCategory;
+
+            // Update Drawer Active State
+            document.querySelectorAll('.drawer-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.textContent.includes(newCategory) && !el.textContent.includes('Download') && !el.textContent.includes('Reset') && !el.textContent.includes('Mode')) {
+                    el.classList.add('active');
+                }
+            });
+            // Specific ID fallback
+            const navId = `nav-${newCategory}`;
+            const activeItem = document.getElementById(navId);
+            if (activeItem) activeItem.classList.add('active');
+
+            closeDrawer();
+
+            ensureCategoryAttendance(currentCategory);
+            attendance = attendanceByCategory[currentCategory];
+
+            const date = document.getElementById('attendanceDate').value;
+            if (date && students.length > 0) {
+                loadedFromSheets[date] = loadedFromSheets[date] || {};
+                if (!loadedFromSheets[date][currentCategory]) {
+                    loadAttendanceData();
+                }
+            }
+
+            renderStudentList();
+            updateVerificationUI();
+        }
+
+        // --- Fetch Students from Google Sheets (with caching) ---
+        const STUDENTS_CACHE_KEY = 'hostel_students_cache_v1';
+
+        async function fetchStudentsFromSheet() {
+            // 1. First, try to load from cache for instant display
+            const cached = loadStudentsFromCache();
+            if (cached && cached.length > 0) {
+                students = cached;
+                initializeAllCategoriesAttendance();
+                attendance = attendanceByCategory[currentCategory];
+                renderStudentList();
+                showMessage('Loading updates...', 'info');
+            } else {
+                showMessage('Loading students...', 'info');
+            }
+
+            // 2. Then fetch fresh data from server in background
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'get_students' })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    const freshStudents = (json.students || []).map(s => ({
+                        name: s.name,
+                        appId: s.appNumber || s.appId || 'N/A'
+                    }));
+
+                    // Save to cache for next time
+                    saveStudentsToCache(freshStudents);
+
+                    // Update only if data changed
+                    if (JSON.stringify(freshStudents) !== JSON.stringify(students)) {
+                        students = freshStudents;
+                        if (students.length > 0) {
+                            initializeAllCategoriesAttendance();
+                            attendance = attendanceByCategory[currentCategory];
+                            handleDateChange();
+                        } else {
+                            renderStudentList();
+                        }
+                    }
+
+                    if (students.length > 0) {
+                        showMessage(`✓ ${students.length} students ready`, 'success');
+                    } else {
+                        showMessage('No students found. Add students to get started.', 'info');
+                    }
+                } else {
+                    if (!cached || cached.length === 0) {
+                        showMessage(`Error: ${json.error}`, 'error');
+                        renderStudentList();
+                    }
+                }
+            } catch (e) {
+                if (!cached || cached.length === 0) {
+                    showMessage(`Network Error: ${e.message}`, 'error');
+                    renderStudentList();
+                } else {
+                    showMessage('Using cached data (offline)', 'info');
+                }
+            }
+        }
+
+        function saveStudentsToCache(studentsList) {
+            try {
+                localStorage.setItem(STUDENTS_CACHE_KEY, JSON.stringify({
+                    timestamp: Date.now(),
+                    students: studentsList
+                }));
+            } catch (e) { /* ignore storage errors */ }
+        }
+
+        function loadStudentsFromCache() {
+            try {
+                const cached = localStorage.getItem(STUDENTS_CACHE_KEY);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    // Cache valid for 24 hours
+                    if (data.timestamp && (Date.now() - data.timestamp) < 24 * 60 * 60 * 1000) {
+                        return data.students || [];
+                    }
+                }
+            } catch (e) { /* ignore parse errors */ }
+            return null;
+        }
+
+        // --- Add Student Modal Functions ---
+        function openAddStudentModal() {
+            closeDrawer();
+            const modal = document.getElementById('addStudentModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                // Clear previous values
+                document.getElementById('newStudentName').value = '';
+                document.getElementById('newStudentAppNumber').value = '';
+                document.getElementById('newStudentAppId').value = '';
+                document.getElementById('newStudentHostelId').value = '';
+                document.getElementById('newStudentAllocation').value = '';
+                document.getElementById('addStudentError').style.display = 'none';
+            }
+        }
+
+        function closeAddStudentModal() {
+            const modal = document.getElementById('addStudentModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function saveNewStudent() {
+            const name = document.getElementById('newStudentName').value.trim();
+            const appNumber = document.getElementById('newStudentAppNumber').value.trim();
+            const appId = document.getElementById('newStudentAppId').value.trim();
+            const hostelId = document.getElementById('newStudentHostelId').value.trim();
+            const allocation = document.getElementById('newStudentAllocation').value.trim();
+            const errorDiv = document.getElementById('addStudentError');
+
+            if (!name) {
+                errorDiv.textContent = 'Student name is required';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            errorDiv.style.display = 'none';
+            showMessage('Adding student...', 'info');
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'add_student',
+                        student: { name, appNumber, appId, hostelId, allocation }
+                    })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    closeAddStudentModal();
+                    // Add to local cache immediately for faster next load
+                    const newStudent = { name, appId: appNumber || appId || 'N/A' };
+                    students.push(newStudent);
+                    saveStudentsToCache(students);
+                    initializeAllCategoriesAttendance();
+                    attendance = attendanceByCategory[currentCategory];
+                    renderStudentList();
+                    showMessage('✓ Student added successfully!', 'success');
+                } else {
+                    errorDiv.textContent = json.error || 'Failed to add student';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (e) {
+                errorDiv.textContent = `Network Error: ${e.message}`;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // --- Rendering ---
+        function renderStudentList() {
+            const listDiv = document.getElementById('studentList');
+            listDiv.innerHTML = '';
+
+            const countEl = document.getElementById('totalStudentsCount');
+            if (countEl) countEl.textContent = `${students.length} total`;
+
+            if (students.length === 0) {
+                listDiv.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--md-sys-color-outline);">
+                <span class="material-symbols-outlined" style="font-size: 48px; display:block; margin-bottom:16px;">group</span>
+                No students found.<br>Use "Add Student" from the menu to add students.
+            </div>`;
+                updateStats();
+                return;
+            }
+
+            ensureCategoryAttendance(currentCategory);
+            attendance = attendanceByCategory[currentCategory];
+
+            const q = (studentSearchQuery || '').trim().toLowerCase();
+            const filteredStudents = !q ? students : students.filter(s => {
+                return (s.name || '').toLowerCase().includes(q) || (s.appId || '').toLowerCase().includes(q);
+            });
+
+            filteredStudents.forEach(student => {
+                const status = attendance[student.name] || 'Present';
+                const item = document.createElement('div');
+                item.className = 'student-card';
+
+                // Avatar Color
+                const firstChar = student.name.charAt(0).toUpperCase();
+                const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#009688', '#4caf50', '#ff9800', '#ff5722', '#795548'];
+                let colorIndex = 0;
+                if (student.name.length > 0) {
+                    colorIndex = (student.name.charCodeAt(0) + student.name.charCodeAt(Math.min(1, student.name.length - 1))) % colors.length;
+                }
+                const avatarColor = colors[colorIndex];
+
+                item.innerHTML = `
+                <div class="student-avatar" style="background-color: ${avatarColor}; color: white;">${firstChar}</div>
+                <div class="student-info">
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-id">${student.appId}</div>
+                </div>
+                <div class="status-actions">
+                    <button class="status-chip status-P ${status === 'Present' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Present')">P</button>
+                    <button class="status-chip status-A ${status === 'Absent' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Absent')">A</button>
+                    <button class="status-chip status-L ${status === 'Leave' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Leave')">L</button>
+                </div>
+            `;
+                listDiv.appendChild(item);
+            });
+
+            updateStats();
+        }
+
+        function updateStatus(studentName, status) {
+            ensureCategoryAttendance(currentCategory);
+            attendanceByCategory[currentCategory][studentName] = status;
+            attendance = attendanceByCategory[currentCategory];
+            renderStudentList();
+        }
+
+        function updateStats() {
+            let p = 0, a = 0, l = 0;
+            Object.values(attendance).forEach(s => {
+                if (s === 'Present') p++;
+                else if (s === 'Absent') a++;
+                else if (s === 'Leave') l++;
+            });
+            const pEl = document.getElementById('presentCount'); if (pEl) pEl.textContent = p;
+            const aEl = document.getElementById('absentCount'); if (aEl) aEl.textContent = a;
+            const lEl = document.getElementById('leaveCount'); if (lEl) lEl.textContent = l;
+        }
+
+        // --- Verification Logic ---
+        function toggleVerification() {
+            if (!verifiedCategories) verifiedCategories = {};
+            verifiedCategories[currentCategory] = !verifiedCategories[currentCategory];
+            updateVerificationUI();
+            saveVerificationState();
+        }
+
+        function updateVerificationUI() {
+            const card = document.getElementById('verificationCard');
+            const icon = document.getElementById('verifyIcon');
+            const text = document.getElementById('verifyText');
+            const check = document.getElementById('verifyCheckmark');
+
+            if (!card) return;
+
+            const isVerified = verifiedCategories[currentCategory];
+
+            if (isVerified) {
+                card.classList.add('verified');
+                icon.textContent = 'verified';
+                text.textContent = `${currentCategory} Verified`;
+                check.style.opacity = '1';
+            } else {
+                card.classList.remove('verified');
+                icon.textContent = 'check_circle_outline';
+                text.textContent = `Mark ${currentCategory} as Verified`;
+                check.style.opacity = '0';
+            }
+
+            // Update Nav Indicators
+            CATEGORIES.forEach(c => {
+                const ind = document.getElementById(`nav-indicator-${c}`);
+                if (ind) {
+                    ind.textContent = verifiedCategories[c] ? 'check_circle' : '';
+                    if (verifiedCategories[c]) ind.style.color = 'var(--color-present)';
+                }
+            });
+        }
+
+        function saveVerificationState() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) return;
+            const store = getSavedStore();
+            store[date] = store[date] || {};
+            store[date].verified = verifiedCategories;
+            setSavedStore(store);
+        }
+
+        function loadVerificationState(date) {
+            const store = getSavedStore();
+            verifiedCategories = (store[date] && store[date].verified) || {};
+            CATEGORIES.forEach(c => {
+                if (typeof verifiedCategories[c] === 'undefined') verifiedCategories[c] = false;
+            });
+            updateVerificationUI();
+        }
+
+        // --- Persistence & Helpers ---
+        function safeParseJSON(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+        function getSavedStore() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = safeParseJSON(raw);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        }
+        function setSavedStore(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+        function initializeAllCategoriesAttendance() {
+            attendanceByCategory = {};
+            loadedFromSheets = {};
+            CATEGORIES.forEach(c => {
+                attendanceByCategory[c] = {};
+                students.forEach(s => attendanceByCategory[c][s.name] = 'Present');
+            });
+        }
+
+        function ensureCategoryAttendance(cat) {
+            if (!attendanceByCategory[cat]) attendanceByCategory[cat] = {};
+            students.forEach(s => {
+                if (!attendanceByCategory[cat][s.name]) attendanceByCategory[cat][s.name] = 'Present';
+            });
+        }
+
+        function applySavedAttendanceForDate(date) {
+            CATEGORIES.forEach(c => {
+                const store = getSavedStore();
+                const saved = store?.[date]?.[c];
+                if (saved && typeof saved === 'object') {
+                    ensureCategoryAttendance(c);
+                    students.forEach(s => {
+                        const v = saved[s.name];
+                        if (['Present', 'Absent', 'Leave'].includes(v)) attendanceByCategory[c][s.name] = v;
+                    });
+                    if (!loadedFromSheets[date]) loadedFromSheets[date] = {};
+                    loadedFromSheets[date][c] = true;
+                }
+            });
+        }
+
+        // --- CSV Parsing ---
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const values = lines[i].split(',').map(v => v.trim());
+                const row = {};
+                for (let j = 0; j < headers.length; j++) {
+                    row[headers[j]] = values[j] || '';
+                }
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        function csvEscape(v) {
+            v = String(v || '');
+            if (/[\n\r",]/.test(v)) return `"${v.replace(/"/g, '""')}"`;
+            return v;
+        }
+
+        // --- Actions: Save, Download, Sync ---
+        function saveAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data to save', 'error');
+            try {
+                ensureCategoryAttendance(currentCategory);
+                const store = getSavedStore();
+                store[date] = store[date] || {};
+                store[date][currentCategory] = { ...attendanceByCategory[currentCategory] };
+                setSavedStore(store);
+                showMessage(`Saved ${currentCategory} for ${date}`, 'success');
+            } catch (e) { showMessage(e.message, 'error'); }
+        }
+
+        async function loadAttendanceData() {
+            const date = document.getElementById('attendanceDate').value;
+            loadedFromSheets[date] = loadedFromSheets[date] || {};
+            if (loadedFromSheets[date][currentCategory]) return renderStudentList();
+
+            if (typeof GOOGLE_SCRIPT_URL === 'undefined') return renderStudentList();
+            renderStudentList();
+        }
+
+        function downloadAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data', 'error');
+
+            const timeValueByCategory = {
+                'Yoga': 'Morning',
+                'Mess Day': 'Morning',
+                'Mess Night': 'Night',
+                'Night Shift': 'Night'
+            };
+            const timeValue = timeValueByCategory[currentCategory] || currentCategory;
+
+            let csv = 'Full Name,Application: Application Number,Application: ID,Hostel Id,Hostel Allocation,Time,Status,Reason,Date\n';
+
+            students.forEach(s => {
+                const status = attendance[s.name] || 'Present';
+                // Find original row data if available
+                let originalRow = null;
+                for (let row of csvData) {
+                    if (row['Full Name'] === s.name) {
+                        originalRow = row;
+                        break;
+                    }
+                }
+
+                if (originalRow) {
+                    csv += `${csvEscape(originalRow['Full Name'])},${csvEscape(originalRow['Application: Application Number'])},${csvEscape(originalRow['Application: ID'])},${csvEscape(originalRow['Hostel Id'])},${csvEscape(originalRow['Hostel Allocation'])},${csvEscape(timeValue)},${csvEscape(status)},${csvEscape(originalRow['Reason'])},${csvEscape(date)}\n`;
+                } else {
+                    csv += `${csvEscape(s.name)},${csvEscape(s.appId)},,,,${csvEscape(timeValue)},${csvEscape(status)},,${csvEscape(date)}\n`;
+                }
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `attendance_${currentCategory}_${date}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showMessage('CSV Downloaded', 'success');
+        }
+
+        function downloadOverallAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data', 'error');
+
+            try {
+                const timeValueByCategory = { 'Yoga': 'Morning', 'Mess Day': 'Morning', 'Mess Night': 'Night', 'Night Shift': 'Night' };
+                const wb = XLSX.utils.book_new();
+
+                CATEGORIES.forEach(cat => {
+                    ensureCategoryAttendance(cat);
+                    const catAtt = attendanceByCategory[cat];
+                    const aoa = [['Full Name', 'Application: Application Number', 'Application: ID', 'Hostel Id', 'Hostel Allocation', 'Time', 'Status', 'Reason', 'Date']];
+
+                    students.forEach(s => {
+                        const status = catAtt[s.name] || 'Present';
+                        let originalRow = null;
+                        for (let row of csvData) {
+                            if (row['Full Name'] === s.name) {
+                                originalRow = row;
+                                break;
+                            }
+                        }
+
+                        aoa.push([
+                            originalRow ? (originalRow['Full Name'] || s.name) : s.name,
+                            originalRow ? (originalRow['Application: Application Number'] || s.appId) : s.appId,
+                            originalRow ? (originalRow['Application: ID'] || '') : '',
+                            originalRow ? (originalRow['Hostel Id'] || '') : '',
+                            originalRow ? (originalRow['Hostel Allocation'] || '') : '',
+                            timeValueByCategory[cat] || cat,
+                            status,
+                            originalRow ? (originalRow['Reason'] || '') : '',
+                            date
+                        ]);
+                    });
+                    const ws = XLSX.utils.aoa_to_sheet(aoa);
+                    XLSX.utils.book_append_sheet(wb, ws, cat);
+                });
+                XLSX.writeFile(wb, `Overall_Attendance_${date}.xlsx`);
+                showMessage('Overall Excel Downloaded', 'success');
+            } catch (e) { showMessage(e.message, 'error'); }
+        }
+
+        async function syncToGoogleSheet() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data to sync', 'error');
+
+            const unverified = CATEGORIES.filter(c => !verifiedCategories[c]);
+            if (unverified.length > 0) return showMessage(`Verify first: ${unverified.join(', ')}`, 'error');
+
+            if (!confirm(`Sync ALL 4 Categories for ${date}?`)) return;
+
+            showMessage('Syncing...', 'info');
+
+            const timeValueByCategory = {
+                'Yoga': 'Morning',
+                'Mess Day': 'Morning',
+                'Mess Night': 'Night',
+                'Night Shift': 'Night'
+            };
+
+            // Prepare Map for faster lookup of original CSV data
+            const studentDataMap = new Map();
+            csvData.forEach(row => {
+                if (row['Full Name']) {
+                    studentDataMap.set(row['Full Name'], row);
+                }
+            });
+
+            // Prepare batches by category
+            const batches = {};
+
+            for (const cat of CATEGORIES) {
+                ensureCategoryAttendance(cat);
+                const catAtt = attendanceByCategory[cat];
+                const timeValue = timeValueByCategory[cat] || cat;
+
+                const rows = [];
+                students.forEach(s => {
+                    const status = catAtt[s.name] || 'Present';
+                    const originalRow = studentDataMap.get(s.name) || {};
+
+                    rows.push([
+                        originalRow['Full Name'] || s.name,
+                        originalRow['Application: Application Number'] || s.appId,
+                        originalRow['Application: ID'] || '',
+                        originalRow['Hostel Id'] || '',
+                        originalRow['Hostel Allocation'] || '',
+                        timeValue,
+                        status,
+                        originalRow['Reason'] || '',
+                        date
+                    ]);
+                });
+
+                batches[cat] = rows;
+            }
+
+            const payload = {
+                action: "sync_batched_multi_sheet",
+                batches: batches
+            };
+
+            try {
+                // Send as text/plain to avoid CORS Preflight
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    showMessage('Sync Completed Successfully', 'success');
+                } else {
+                    showMessage(`Sync Failed: ${json.error}`, 'error');
+                }
+            } catch (e) {
+                showMessage(`Network Error: ${e.message}`, 'error');
+            }
+        }
+
+        function resetAttendance() {
+            if (confirm('Reset current list to Present?')) {
+                students.forEach(s => attendanceByCategory[currentCategory][s.name] = 'Present');
+                attendance = attendanceByCategory[currentCategory];
+                renderStudentList();
+                showMessage('Reset Complete', 'info');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const area = document.getElementById('messageArea');
+            const d = document.createElement('div');
+            d.className = `snackbar ${type}`;
+            d.textContent = msg;
+            area.innerHTML = '';
+            area.appendChild(d);
+            setTimeout(() => {
+                d.style.opacity = '0';
+                setTimeout(() => area.innerHTML = '', 300);
+            }, 3000);
+        }
+
+        // --- Admin Panel Logic ---
+        function openAdminLogin() {
+            closeDrawer();
+            const p = prompt("Enter Admin Password:");
+            if (p === 'admin123') {
+                showAdminPanel();
+            } else if (p !== null) {
+                alert("Incorrect Password");
+            }
+        }
+
+        function showAdminPanel() {
+            const main = document.querySelector('.main-content');
+            main.innerHTML = `
+                <div class="top-app-bar-container">
+                    <div class="search-pill elevated" style="background:var(--md-sys-color-surface);">
+                        <button class="icon-btn" onclick="location.reload()">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                        </button>
+                        <div class="search-content">
+                            <div class="app-title">Admin Panel <span style="font-size:12px; background:#e0f2f1; color:#00695c; padding:2px 6px; border-radius:4px; margin-left:8px;">v5.0</span></div>
+                            <div class="subtitle">Manage & Reports</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding: 16px 0;">
+                     <div class="admin-tabs">
+                        <button class="admin-tab active" id="tab-reports" onclick="switchAdminTab('reports')">Result Download</button>
+                        <button class="admin-tab" id="tab-tracking" onclick="switchAdminTab('tracking')">Student Tracking</button>
+                    </div>
+
+                    <!-- Reports View -->
+                    <div id="admin-view-reports" style="padding: 0 16px;">
+                        <div class="student-card" style="flex-direction:column; align-items:flex-start; gap:16px;">
+                            <h3 style="margin-top:0; color:var(--md-sys-color-primary);">Download Daily Data</h3>
+                            <p style="font-size:14px; color:var(--md-sys-color-on-surface-variant);">Select a date to fetch data from the Google Sheet and download as Excel.</p>
+                            
+                            <div class="date-input-container" style="width:100%; margin-bottom:16px;">
+                                <span class="material-symbols-outlined date-input-icon">calendar_today</span>
+                                <input type="date" id="reportDate" class="date-input">
+                            </div>
+
+                            <button class="fab" onclick="fetchAndDownloadReport()" style="width:100%; justify-content:center; position:static; margin:0;">
+                                <span class="material-symbols-outlined">cloud_download</span>
+                                Download Report
+                            </button>
+                            <div id="adminMsg" style="margin-top:12px; font-weight:500;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Tracking View -->
+                    <div id="admin-view-tracking" style="display:none; padding: 0 16px;">
+                        <!-- Date Filter Row -->
+                         <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
+                            <div class="date-input-container" style="flex:1; min-width:140px;">
+                                <span style="font-size:12px; position:absolute; top:-18px; left:4px; color:gray;">From</span>
+                                <span class="material-symbols-outlined date-input-icon">date_range</span>
+                                <input type="date" id="trackStartDate" class="date-input">
+                            </div>
+                            <div class="date-input-container" style="flex:1; min-width:140px; margin-top:0;">
+                                <span style="font-size:12px; position:absolute; top:-18px; left:4px; color:gray;">To (Optional)</span>
+                                <span class="material-symbols-outlined date-input-icon">event</span>
+                                <input type="date" id="trackEndDate" class="date-input">
+                            </div>
+                            <button class="fab small" onclick="filterTrackingData()" style="height:48px; width:48px; margin:0;" title="Filter">
+                                <span class="material-symbols-outlined">filter_list</span>
+                            </button>
+                         </div>
+
+                         <div class="tracking-search-bar">
+                             <div class="date-input-container" style="flex:1; min-width: 200px;">
+                                <span class="material-symbols-outlined date-input-icon">search</span>
+                                <input type="text" id="trackSearch" class="date-input" placeholder="Search Student Name or ID..." oninput="filterAndRenderTracking()">
+                            </div>
+                            <select id="trackCategory" class="date-input" style="width:auto; min-width:120px;" onchange="filterAndRenderTracking()">
+                                <option value="All">All Categories</option>
+                                <option value="Yoga">Yoga</option>
+                                <option value="Mess Day">Mess Day</option>
+                                <option value="Mess Night">Mess Night</option>
+                                <option value="Night Shift">Night Shift</option>
+                            </select>
+                         </div>
+                         
+                         <div style="display:flex; justify-content:flex-end; margin-bottom:8px; gap: 12px; flex-wrap:wrap;">
+                             <button onclick="refreshTrackingData()" style="background:none; border:none; color:var(--md-sys-color-tertiary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                                <span class="material-symbols-outlined">refresh</span> Refresh
+                            </button>
+                             <button onclick="downloadTrackingPDF()" style="background:none; border:none; color:var(--md-sys-color-primary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                                <span class="material-symbols-outlined">picture_as_pdf</span> Export PDF
+                            </button>
+                            <button onclick="downloadTrackingExcel()" style="background:none; border:none; color:var(--md-sys-color-primary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
+                                <span class="material-symbols-outlined">description</span> Export Excel
+                            </button>
+                         </div>
+
+                         <div id="trackingLoading" style="text-align:center; padding: 20px; display:none;">
+                            Fetching Data... <br>
+                            <span style="font-size:12px; color:gray;">(Running Google Script)</span>
+                         </div>
+                         <div id="trackingContent"></div>
+                    </div>
+                </div>
+            `;
+            const today = new Date();
+            const str = today.toISOString().split('T')[0];
+            document.getElementById('reportDate').value = str;
+        }
+
+        function downloadTrackingExcel() {
+            // Debug Alert - To verify new code is loaded
+            // alert("Starting Export V3 (clean columns)"); 
+
+            if (!window.trackingDataCache) return alert("No data to export");
+
+            // Get current filter values to export exactly what the user sees
+            const query = document.getElementById('trackSearch').value.toLowerCase();
+            const category = document.getElementById('trackCategory').value;
+            const startDate = document.getElementById('trackStartDate').value || "All Time";
+            const endDate = document.getElementById('trackEndDate').value || "Present";
+
+            // Filter data based on current view
+            const dataToExport = window.trackingDataCache.filter(item => {
+                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                    (item.id && String(item.id).toLowerCase().includes(query));
+                const matchesCat = category === 'All' || item.category === category;
+                return matchesSearch && matchesCat;
+            });
+
+            if (dataToExport.length === 0) return alert("No data matches your filter to export");
+
+            // Build Excel Content (Array of Arrays)
+            const exportData = [
+                ["Student Tracking Report"],
+                ["Generated Date:", new Date().toLocaleDateString()],
+                ["Period:", `From: ${startDate}  To: ${endDate}`],
+                ["Category Filter:", category],
+                [], // Spacer
+                ["Student Name", "Category", "Present", "Absent", "Leave", "Total Days"] // Headers (REMOVED ID)
+            ];
+
+            dataToExport.forEach(item => {
+                exportData.push([
+                    item.name,
+                    // item.id, // Removed ID as per user request
+                    item.category,
+                    item.present,
+                    item.absent,
+                    item.leave,
+                    item.total
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 30 }, // Name
+                // { wch: 20 }, // ID (Removed)
+                { wch: 15 }, // Category
+                { wch: 10 }, // Present
+                { wch: 10 }, // Absent
+                { wch: 10 }, // Leave
+                { wch: 12 }  // Total
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Tracking Data");
+
+            // Filename with date range
+            const filename = `Values_Report_${startDate}_to_${endDate}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            document.getElementById('admin-view-reports').style.display = tab === 'reports' ? 'block' : 'none';
+            document.getElementById('admin-view-tracking').style.display = tab === 'tracking' ? 'block' : 'none';
+
+            if (tab === 'tracking' && !window.trackingDataCache) {
+                fetchTrackingData();
+            }
+        }
+
+        // Tracking Cache Keys
+        const TRACKING_CACHE_KEY = 'hostel_tracking_cache_v2';
+        const TRACKING_CACHE_TIME_KEY = 'hostel_tracking_cache_time_v2';
+
+        // Load from browser cache instantly
+        function loadTrackingFromCache() {
+            try {
+                const cached = localStorage.getItem(TRACKING_CACHE_KEY);
+                if (cached) {
+                    return JSON.parse(cached);
+                }
+            } catch (e) { }
+            return null;
+        }
+
+        // Save to browser cache
+        function saveTrackingToCache(data) {
+            try {
+                localStorage.setItem(TRACKING_CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(TRACKING_CACHE_TIME_KEY, Date.now().toString());
+            } catch (e) { }
+        }
+
+        // Get cache age in minutes
+        function getTrackingCacheAge() {
+            try {
+                const time = localStorage.getItem(TRACKING_CACHE_TIME_KEY);
+                if (time) {
+                    const mins = Math.floor((Date.now() - parseInt(time)) / 60000);
+                    return mins;
+                }
+            } catch (e) { }
+            return null;
+        }
+
+        async function fetchTrackingData(startDate, endDate) {
+            const loader = document.getElementById('trackingLoading');
+            const content = document.getElementById('trackingContent');
+
+            // If it's filtered fetch (dates provided), skip cache
+            if (startDate || endDate) {
+                loader.style.display = 'block';
+                content.innerHTML = '';
+                await fetchFreshTrackingData(startDate, endDate);
+                return;
+            }
+
+            // STALE-WHILE-REVALIDATE: Show cached data instantly
+            const cachedData = loadTrackingFromCache();
+            const cacheAge = getTrackingCacheAge();
+
+            if (cachedData && cachedData.length > 0) {
+                window.trackingDataCache = cachedData;
+                filterAndRenderTracking();
+
+                // Show cache age indicator
+                const ageText = cacheAge !== null ?
+                    (cacheAge < 1 ? 'Just now' : `${cacheAge} min ago`) : '';
+                if (ageText) {
+                    const notice = document.createElement('div');
+                    notice.id = 'cacheNotice';
+                    notice.style.cssText = 'text-align:center; font-size:12px; color:gray; margin-bottom:8px;';
+                    notice.innerHTML = `📦 Showing cached data (${ageText}) - <a href="#" onclick="forceFreshFetch(); return false;" style="color:var(--md-sys-color-primary);">Refresh</a>`;
+                    content.insertBefore(notice, content.firstChild);
+                }
+
+                // Fetch fresh data in background (if cache > 5 mins old)
+                if (cacheAge === null || cacheAge >= 5) {
+                    fetchFreshTrackingData(startDate, endDate, true);
+                }
+            } else {
+                // No cache, need to fetch
+                loader.style.display = 'block';
+                content.innerHTML = '';
+                await fetchFreshTrackingData(startDate, endDate);
+            }
+        }
+
+        async function fetchFreshTrackingData(startDate, endDate, isBackground = false) {
+            const loader = document.getElementById('trackingLoading');
+            const content = document.getElementById('trackingContent');
+
+            if (!isBackground) {
+                loader.style.display = 'block';
+            }
+
+            try {
+                const payload = { action: "get_tracking_data" };
+                if (startDate) payload.startDate = startDate;
+                if (endDate) payload.endDate = endDate;
+
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    window.trackingDataCache = json.data;
+
+                    // Save to cache (only if no date filter)
+                    if (!startDate && !endDate) {
+                        saveTrackingToCache(json.data);
+                    }
+
+                    // Remove cache notice if exists
+                    const notice = document.getElementById('cacheNotice');
+                    if (notice) notice.remove();
+
+                    filterAndRenderTracking();
+
+                    if (isBackground) {
+                        showMessage('✓ Data updated', 'success');
+                    }
+                } else if (!isBackground) {
+                    content.innerHTML = `<div style="color:red; text-align:center;">Error: ${json.error}</div>`;
+                }
+            } catch (e) {
+                if (!isBackground) {
+                    content.innerHTML = `<div style="color:red; text-align:center;">Network Error: ${e.message}</div>`;
+                }
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function forceFreshFetch() {
+            const loader = document.getElementById('trackingLoading');
+            loader.style.display = 'block';
+            fetchFreshTrackingData(null, null);
+        }
+
+        async function refreshTrackingData() {
+            const loader = document.getElementById('trackingLoading');
+            const content = document.getElementById('trackingContent');
+            loader.style.display = 'block';
+            content.innerHTML = '<div style="text-align:center; color:var(--md-sys-color-primary);">Refreshing & storing data...</div>';
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "refresh_tracking" })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    window.trackingDataCache = json.data;
+                    filterAndRenderTracking();
+                    showMessage('Tracking data refreshed!', 'success');
+                } else {
+                    content.innerHTML = `<div style="color:red; text-align:center;">Error: ${json.error}</div>`;
+                }
+            } catch (e) {
+                content.innerHTML = `<div style="color:red; text-align:center;">Network Error: ${e.message}</div>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function renderTrackingTable(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('trackingContent').innerHTML = '<div style="text-align:center; padding:20px;">No records found.</div>';
+                return;
+            }
+
+            let html = `
+             <div class="tracking-table-container">
+                <table class="tracking-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Category</th>
+                            <th>Present</th>
+                            <th>Absent</th>
+                            <th>Leave</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+             `;
+
+            data.forEach((item, index) => {
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:500; cursor:pointer;" onclick="showStudentDashboard(${index})">${item.name || 'Unknown'}</div>
+                            <div style="font-size:12px; color:gray;">${item.category}</div>
+                        </td>
+                        <td>${item.category}</td>
+                        <td><span class="badge present" style="cursor:pointer;" onclick="showStudentDashboard(${index}, 'present')">${item.present}</span></td>
+                        <td><span class="badge absent" style="cursor:pointer;" onclick="showStudentDashboard(${index}, 'absent')">${item.absent}</span></td>
+                        <td><span class="badge leave" style="cursor:pointer;" onclick="showStudentDashboard(${index}, 'leave')">${item.leave}</span></td>
+                        <td><strong>${item.total}</strong></td>
+                    </tr>
+                 `;
+            });
+
+            html += `</tbody></table></div>`;
+            document.getElementById('trackingContent').innerHTML = html;
+        }
+
+        // Apply date filter - fetches new data from backend
+        function filterTrackingData() {
+            const startDate = document.getElementById('trackStartDate')?.value || '';
+            const endDate = document.getElementById('trackEndDate')?.value || '';
+
+            // Fetch from backend with date filter
+            fetchTrackingData(startDate, endDate);
+        }
+
+        // Apply local filters (search, category) without backend call
+        function filterAndRenderTracking() {
+            if (!window.trackingDataCache) return;
+
+            const query = (document.getElementById('trackSearch')?.value || '').toLowerCase();
+            const category = document.getElementById('trackCategory')?.value || 'All';
+
+            const filtered = window.trackingDataCache.filter(item => {
+                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                    (item.id && String(item.id).toLowerCase().includes(query));
+                const matchesCat = category === 'All' || item.category === category;
+
+                return matchesSearch && matchesCat;
+            });
+
+            renderTrackingTable(filtered);
+        }
+
+        // --- Student Dashboard Functions ---
+        function showStudentDashboard(index, focusType) {
+            // Get data from filtered view
+            const query = document.getElementById('trackSearch')?.value?.toLowerCase() || '';
+            const category = document.getElementById('trackCategory')?.value || 'All';
+
+            let dataSource = window.trackingDataCache || [];
+            if (query || category !== 'All') {
+                dataSource = dataSource.filter(item => {
+                    const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                        (item.id && String(item.id).toLowerCase().includes(query));
+                    const matchesCat = category === 'All' || item.category === category;
+                    return matchesSearch && matchesCat;
+                });
+            }
+
+            const student = dataSource[index];
+            if (!student) return;
+
+            // Update modal header
+            document.getElementById('dashboardStudentName').textContent = student.name;
+            document.getElementById('dashboardCategory').textContent = student.category;
+
+            // Update summary counts
+            document.getElementById('dashPresent').textContent = student.present || 0;
+            document.getElementById('dashAbsent').textContent = student.absent || 0;
+            document.getElementById('dashLeave').textContent = student.leave || 0;
+
+            // Build date details HTML
+            let detailsHtml = '';
+
+            // Present dates
+            detailsHtml += buildDateSection('✅ Present Days', student.presentDates || [], 'present', focusType === 'present', student.present);
+
+            // Absent dates
+            detailsHtml += buildDateSection('❌ Absent Days', student.absentDates || [], 'absent', focusType === 'absent', student.absent);
+
+            // Leave dates
+            detailsHtml += buildDateSection('🟡 Leave Days', student.leaveDates || [], 'leave', focusType === 'leave', student.leave);
+
+            document.getElementById('dashboardDateDetails').innerHTML = detailsHtml;
+
+            // Show modal
+            const modal = document.getElementById('studentDashboardModal');
+            modal.style.display = 'flex';
+        }
+
+        function buildDateSection(title, dates, type, isExpanded, count) {
+            const colors = {
+                present: { bg: 'var(--color-present-container)', text: 'var(--color-present)' },
+                absent: { bg: 'var(--color-absent-container)', text: 'var(--color-absent)' },
+                leave: { bg: 'var(--color-leave-container)', text: '#805600' }
+            };
+            const color = colors[type] || colors.present;
+            const actualCount = count || (dates ? dates.length : 0);
+
+            if (!dates || dates.length === 0) {
+                // If count exists but no dates array (backend not updated)
+                if (actualCount > 0) {
+                    return `
+                        <div style="margin-bottom:16px;">
+                            <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (${actualCount})</div>
+                            <div style="color:var(--md-sys-color-on-surface-variant); font-size:14px; padding:12px; background:var(--md-sys-color-surface-variant); border-radius:8px;">
+                                ⚠️ Please redeploy Code.gs to see date details
+                            </div>
+                        </div>
+                    `;
+                }
+                return `
+                    <div style="margin-bottom:16px;">
+                        <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (0)</div>
+                        <div style="color:var(--md-sys-color-on-surface-variant); font-size:14px; padding:12px; background:var(--md-sys-color-surface-variant); border-radius:8px;">No records</div>
+                    </div>
+                `;
+            }
+
+            const displayStyle = isExpanded ? '' : (dates.length > 6 ? 'max-height:120px; overflow-y:auto;' : '');
+
+            let datesHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px; ${displayStyle}">`;
+            dates.forEach(dateStr => {
+                const formattedDate = formatDateShort(dateStr);
+                datesHtml += `<span style="background:${color.bg}; color:${color.text}; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500;">${formattedDate}</span>`;
+            });
+            datesHtml += '</div>';
+
+            return `
+                <div style="margin-bottom:16px;">
+                    <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (${dates.length})</div>
+                    ${datesHtml}
+                </div>
+            `;
+        }
+
+        function formatDateShort(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${months[date.getMonth()]} ${date.getDate()}`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function closeStudentDashboard() {
+            document.getElementById('studentDashboardModal').style.display = 'none';
+        }
+
+        async function fetchAndDownloadReport() {
+            const date = document.getElementById('reportDate').value;
+            if (!date) return;
+
+            const msg = document.getElementById('adminMsg');
+            msg.textContent = "Fetching from Google Sheet...";
+            msg.style.color = "blue";
+
+            try {
+                // Use text/plain to avoid preflight options failure
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "fetch_reports", date: date })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    msg.textContent = "Generating Excel...";
+                    generateReportExcel(json.data, date);
+                    msg.textContent = "Download Started!";
+                    msg.style.color = "green";
+                } else {
+                    msg.textContent = "Error: " + json.error;
+                    msg.style.color = "red";
+                }
+            } catch (e) {
+                msg.textContent = "Network Error: " + e.message;
+                msg.style.color = "red";
+            }
+        }
+
+        function generateReportExcel(data, date) {
+            const wb = XLSX.utils.book_new();
+            let hasData = false;
+
+            for (const [sheetName, rows] of Object.entries(data)) {
+                if (rows && rows.length > 0) {
+                    hasData = true;
+                    const ws = XLSX.utils.aoa_to_sheet(rows);
+                    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                }
+            }
+
+            if (!hasData) {
+                alert("No data found for this date.");
+                return;
+            }
+
+            XLSX.writeFile(wb, `Attendance_Report_${date}.xlsx`);
+        }
+
+        function downloadTrackingExcel() {
+            // Debug Alert - To verify new code is loaded
+            // alert("Starting Export V3 (clean columns)"); 
+
+            if (!window.trackingDataCache) return alert("No data to export");
+
+            // Get current filter values to export exactly what the user sees
+            const query = document.getElementById('trackSearch').value.toLowerCase();
+            const category = document.getElementById('trackCategory').value;
+            const startDate = document.getElementById('trackStartDate').value || "All Time";
+            const endDate = document.getElementById('trackEndDate').value || "Present";
+
+            // Filter data based on current view
+            const dataToExport = window.trackingDataCache.filter(item => {
+                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                    (item.id && String(item.id).toLowerCase().includes(query));
+                const matchesCat = category === 'All' || item.category === category;
+                return matchesSearch && matchesCat;
+            });
+
+            if (dataToExport.length === 0) return alert("No data matches your filter to export");
+
+            // Build Excel Content (Array of Arrays)
+            const exportData = [
+                ["Student Tracking Report"],
+                ["Generated Date:", new Date().toLocaleDateString()],
+                ["Period:", `From: ${startDate}  To: ${endDate}`],
+                ["Category Filter:", category],
+                [], // Spacer
+                ["Student Name", "Category", "Present", "Absent", "Leave", "Total Days"] // Headers (REMOVED ID)
+            ];
+
+            dataToExport.forEach(item => {
+                exportData.push([
+                    item.name,
+                    // item.id, // Removed ID as per user request
+                    item.category,
+                    item.present,
+                    item.absent,
+                    item.leave,
+                    item.total
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+
+            // Set column widths
+            ws['!cols'] = [
+                { wch: 30 }, // Name
+                // { wch: 20 }, // ID (Removed)
+                { wch: 15 }, // Category
+                { wch: 10 }, // Present
+                { wch: 10 }, // Absent
+                { wch: 10 }, // Leave
+                { wch: 12 }  // Total
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Tracking Data");
+
+            // Filename with date range
+            const filename = `Values_Report_${startDate}_to_${endDate}.xlsx`;
+            XLSX.writeFile(wb, filename);
+        }
+
+        function downloadTrackingPDF() {
+            if (!window.trackingDataCache) return alert("No data to export");
+
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    return alert("PDF Library not loaded yet. Please wait a moment or reload.");
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const query = document.getElementById('trackSearch').value.toLowerCase();
+                const category = document.getElementById('trackCategory').value;
+                const startDate = document.getElementById('trackStartDate').value || "All Time";
+                const endDate = document.getElementById('trackEndDate').value || "Present";
+
+                // Filter data
+                const dataToExport = window.trackingDataCache.filter(item => {
+                    const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                        (item.id && String(item.id).toLowerCase().includes(query));
+                    const matchesCat = category === 'All' || item.category === category;
+                    return matchesSearch && matchesCat;
+                });
+
+                if (dataToExport.length === 0) return alert("No data matches your filter");
+
+                // Header Info
+                doc.setFontSize(16);
+                doc.text("Student Tracking Report", 14, 20);
+
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+                doc.text(`Period: ${startDate} to ${endDate}`, 14, 35);
+                doc.text(`Category: ${category}`, 14, 40);
+
+                // Table Data
+                const tableBody = dataToExport.map(item => [
+                    item.name,
+                    item.category,
+                    item.present,
+                    item.absent,
+                    item.leave,
+                    item.total
+                ]);
+
+                doc.autoTable({
+                    startY: 45,
+                    head: [['Student Name', 'Category', 'Present', 'Absent', 'Leave', 'Total Days']],
+                    body: tableBody,
+                    theme: 'grid',
+                    headStyles: { fillColor: [0, 106, 106] },
+                    styles: { fontSize: 9 },
+                    columnStyles: {
+                        0: { cellWidth: 50 }, // Name
+                        1: { cellWidth: 30 }  // Category
+                    }
+                });
+
+                doc.save(`Tracking_Report_${startDate}_to_${endDate}.pdf`);
+            } catch (e) {
+                alert("PDF Error: " + e.message);
+                console.error(e);
+            }
+        }
+
+    </script>
+</body>
+
+</html>
