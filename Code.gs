@@ -383,7 +383,7 @@ function getStudents() {
     // Create sheet with headers if it doesn't exist
     if (!sheet) {
       sheet = ss.insertSheet('Students');
-      sheet.appendRow(['Full Name', 'Application Number', 'Application ID', 'Hostel Id', 'Hostel Allocation', 'Added Date']);
+      sheet.appendRow(['Full Name', 'Application: Application Number', 'Application: ID', 'Hostel Id', 'Hostel Allocation', 'Added Date']);
       // Return empty array since sheet was just created
       return ContentService.createTextOutput(JSON.stringify({ 
         result: 'success', 
@@ -449,7 +449,7 @@ function addStudent(studentData) {
     // Create sheet with headers if it doesn't exist
     if (!sheet) {
       sheet = ss.insertSheet('Students');
-      sheet.appendRow(['Full Name', 'Application Number', 'Application ID', 'Hostel Id', 'Hostel Allocation', 'Added Date']);
+      sheet.appendRow(['Full Name', 'Application: Application Number', 'Application: ID', 'Hostel Id', 'Hostel Allocation', 'Added Date']);
     }
     
     // Check for duplicates

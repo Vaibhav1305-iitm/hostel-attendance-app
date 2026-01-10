@@ -1192,7 +1192,10 @@
                 if (json.result === 'success') {
                     const freshStudents = (json.students || []).map(s => ({
                         name: s.name,
-                        appId: s.appNumber || s.appId || 'N/A'
+                        appNumber: s.appNumber || '',
+                        appId: s.appId || s.appNumber || 'N/A',
+                        hostelId: s.hostelId || '',
+                        allocation: s.allocation || ''
                     }));
 
                     // Save to cache for next time
@@ -1304,8 +1307,14 @@
 
                 if (json.result === 'success') {
                     closeAddStudentModal();
-                    // Add to local cache immediately for faster next load
-                    const newStudent = { name, appId: appNumber || appId || 'N/A' };
+                    // Add to local cache immediately for faster next load with full data
+                    const newStudent = {
+                        name,
+                        appNumber: appNumber || '',
+                        appId: appId || appNumber || 'N/A',
+                        hostelId: hostelId || '',
+                        allocation: allocation || ''
+                    };
                     students.push(newStudent);
                     saveStudentsToCache(students);
                     initializeAllCategoriesAttendance();
@@ -1559,20 +1568,8 @@
 
             students.forEach(s => {
                 const status = attendance[s.name] || 'Present';
-                // Find original row data if available
-                let originalRow = null;
-                for (let row of csvData) {
-                    if (row['Full Name'] === s.name) {
-                        originalRow = row;
-                        break;
-                    }
-                }
-
-                if (originalRow) {
-                    csv += `${csvEscape(originalRow['Full Name'])},${csvEscape(originalRow['Application: Application Number'])},${csvEscape(originalRow['Application: ID'])},${csvEscape(originalRow['Hostel Id'])},${csvEscape(originalRow['Hostel Allocation'])},${csvEscape(timeValue)},${csvEscape(status)},${csvEscape(originalRow['Reason'])},${csvEscape(date)}\n`;
-                } else {
-                    csv += `${csvEscape(s.name)},${csvEscape(s.appId)},,,,${csvEscape(timeValue)},${csvEscape(status)},,${csvEscape(date)}\n`;
-                }
+                // Use student data directly from students array
+                csv += `${csvEscape(s.name)},${csvEscape(s.appNumber || '')},${csvEscape(s.appId || '')},${csvEscape(s.hostelId || '')},${csvEscape(s.allocation || '')},${csvEscape(timeValue)},${csvEscape(status)},,${csvEscape(date)}\n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1601,23 +1598,16 @@
 
                     students.forEach(s => {
                         const status = catAtt[s.name] || 'Present';
-                        let originalRow = null;
-                        for (let row of csvData) {
-                            if (row['Full Name'] === s.name) {
-                                originalRow = row;
-                                break;
-                            }
-                        }
-
+                        // Use student data directly from students array
                         aoa.push([
-                            originalRow ? (originalRow['Full Name'] || s.name) : s.name,
-                            originalRow ? (originalRow['Application: Application Number'] || s.appId) : s.appId,
-                            originalRow ? (originalRow['Application: ID'] || '') : '',
-                            originalRow ? (originalRow['Hostel Id'] || '') : '',
-                            originalRow ? (originalRow['Hostel Allocation'] || '') : '',
+                            s.name,
+                            s.appNumber || '',
+                            s.appId || '',
+                            s.hostelId || '',
+                            s.allocation || '',
                             timeValueByCategory[cat] || cat,
                             status,
-                            originalRow ? (originalRow['Reason'] || '') : '',
+                            '',
                             date
                         ]);
                     });
@@ -1666,17 +1656,16 @@
                 const rows = [];
                 students.forEach(s => {
                     const status = catAtt[s.name] || 'Present';
-                    const originalRow = studentDataMap.get(s.name) || {};
-
+                    // Use student data directly from students array
                     rows.push([
-                        originalRow['Full Name'] || s.name,
-                        originalRow['Application: Application Number'] || s.appId,
-                        originalRow['Application: ID'] || '',
-                        originalRow['Hostel Id'] || '',
-                        originalRow['Hostel Allocation'] || '',
+                        s.name,
+                        s.appNumber || '',
+                        s.appId || '',
+                        s.hostelId || '',
+                        s.allocation || '',
                         timeValue,
                         status,
-                        originalRow['Reason'] || '',
+                        '',
                         date
                     ]);
                 });
