@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
     <link
         href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500;700&display=swap"
         rel="stylesheet">
@@ -23,75 +23,72 @@
 
     <style>
         :root {
-            /* Light Theme Colors (Default) */
-            --md-sys-color-primary: #006a6a;
+            /* Apple iOS Light Theme Colors */
+            --md-sys-color-primary: #007AFF;
             --md-sys-color-on-primary: #ffffff;
-            --md-sys-color-primary-container: #6ff7f6;
-            --md-sys-color-on-primary-container: #002020;
-            --md-sys-color-secondary: #4a6363;
+            --md-sys-color-primary-container: #007AFF;
+            --md-sys-color-on-primary-container: #ffffff;
+            --md-sys-color-secondary: #8E8E93;
             --md-sys-color-on-secondary: #ffffff;
-            --md-sys-color-secondary-container: #cce8e7;
-            --md-sys-color-on-secondary-container: #051f1f;
-            --md-sys-color-tertiary: #4b607c;
+            --md-sys-color-secondary-container: #E5E5EA;
+            --md-sys-color-on-secondary-container: #1C1C1E;
+            --md-sys-color-tertiary: #5856D6;
             --md-sys-color-on-tertiary: #ffffff;
-            --md-sys-color-tertiary-container: #d3e4ff;
-            --md-sys-color-on-tertiary-container: #041c35;
-            --md-sys-color-error: #ba1a1a;
+            --md-sys-color-tertiary-container: #E8E8F0;
+            --md-sys-color-on-tertiary-container: #1C1C1E;
+            --md-sys-color-error: #FF3B30;
             --md-sys-color-on-error: #ffffff;
-            --md-sys-color-background: #fafdfc;
-            --md-sys-color-on-background: #191c1c;
-            --md-sys-color-surface: #fafdfc;
-            --md-sys-color-on-surface: #191c1c;
-            --md-sys-color-surface-variant: #dae5e4;
-            --md-sys-color-on-surface-variant: #3f4948;
-            --md-sys-color-outline: #6f7979;
+            --md-sys-color-background: #F2F2F7;
+            --md-sys-color-on-background: #1C1C1E;
+            --md-sys-color-surface: #FFFFFF;
+            --md-sys-color-on-surface: #1C1C1E;
+            --md-sys-color-surface-variant: #E5E5EA;
+            --md-sys-color-on-surface-variant: #8E8E93;
+            --md-sys-color-outline: #C6C6C8;
 
-            /* Status Colors */
-            --color-present: #1e8e3e;
-            /* Google Green */
-            --color-present-container: #d7f5dd;
-            --color-absent: #d93025;
-            /* Google Red */
-            --color-absent-container: #fce8e6;
-            --color-leave: #f9ab00;
-            /* Google Yellow */
-            --color-leave-container: #fef7e0;
+            /* Apple Status Colors */
+            --color-present: #34C759;
+            --color-present-container: #E3F9E8;
+            --color-absent: #FF3B30;
+            --color-absent-container: #FFE5E3;
+            --color-leave: #FF9500;
+            --color-leave-container: #FFF4E5;
 
             --drawer-width: 300px;
             --top-bar-height: 64px;
         }
 
         [data-theme="dark"] {
-            /* Dark Theme Colors */
-            --md-sys-color-primary: #4cdada;
-            --md-sys-color-on-primary: #003737;
-            --md-sys-color-primary-container: #004f4f;
-            --md-sys-color-on-primary-container: #6ff7f6;
-            --md-sys-color-secondary: #b0cccb;
-            --md-sys-color-on-secondary: #1b3534;
-            --md-sys-color-secondary-container: #334b4b;
-            --md-sys-color-on-secondary-container: #cce8e7;
-            --md-sys-color-tertiary: #b3c8e8;
-            --md-sys-color-on-tertiary: #1c3148;
-            --md-sys-color-tertiary-container: #334863;
-            --md-sys-color-on-tertiary-container: #d3e4ff;
-            --md-sys-color-error: #ffb4ab;
-            --md-sys-color-on-error: #690005;
-            --md-sys-color-background: #191c1c;
-            --md-sys-color-on-background: #e0e3e2;
-            --md-sys-color-surface: #191c1c;
-            --md-sys-color-on-surface: #e0e3e2;
-            --md-sys-color-surface-variant: #3f4948;
-            --md-sys-color-on-surface-variant: #bec9c8;
-            --md-sys-color-outline: #889392;
+            /* Apple iOS Dark Theme Colors */
+            --md-sys-color-primary: #0A84FF;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-primary-container: #0A84FF;
+            --md-sys-color-on-primary-container: #ffffff;
+            --md-sys-color-secondary: #8E8E93;
+            --md-sys-color-on-secondary: #ffffff;
+            --md-sys-color-secondary-container: #3A3A3C;
+            --md-sys-color-on-secondary-container: #E5E5EA;
+            --md-sys-color-tertiary: #5E5CE6;
+            --md-sys-color-on-tertiary: #ffffff;
+            --md-sys-color-tertiary-container: #2C2C2E;
+            --md-sys-color-on-tertiary-container: #E5E5EA;
+            --md-sys-color-error: #FF453A;
+            --md-sys-color-on-error: #ffffff;
+            --md-sys-color-background: #000000;
+            --md-sys-color-on-background: #FFFFFF;
+            --md-sys-color-surface: #1C1C1E;
+            --md-sys-color-on-surface: #FFFFFF;
+            --md-sys-color-surface-variant: #2C2C2E;
+            --md-sys-color-on-surface-variant: #8E8E93;
+            --md-sys-color-outline: #48484A;
 
-            /* Status Colors Dark */
-            --color-present: #81c995;
-            --color-present-container: #0d3b1e;
-            --color-absent: #f28b82;
-            --color-absent-container: #5c1410;
-            --color-leave: #fdd663;
-            --color-leave-container: #5f4200;
+            /* Apple Status Colors Dark */
+            --color-present: #30D158;
+            --color-present-container: #1A3D24;
+            --color-absent: #FF453A;
+            --color-absent-container: #3D1A18;
+            --color-leave: #FF9F0A;
+            --color-leave-container: #3D2E0A;
         }
 
         * {
@@ -102,14 +99,14 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Roboto', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
             background-color: var(--md-sys-color-background);
             color: var(--md-sys-color-on-background);
             transition: background-color 0.3s ease, color 0.3s ease;
-            font-size: 16px;
+            font-size: 17px;
             overflow-x: hidden;
-            padding-bottom: 80px;
-            /* Space for FABs */
+            padding-bottom: 100px;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* --- Layout --- */
@@ -250,24 +247,23 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 8px 16px;
+            padding: 12px 16px 20px 16px;
             background-color: var(--md-sys-color-background);
         }
 
         .search-pill {
             display: flex;
             align-items: center;
-            height: 48px;
+            height: 36px;
             background-color: var(--md-sys-color-surface-variant);
-            border-radius: 24px;
-            padding: 0 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.2s;
+            border-radius: 10px;
+            padding: 0 12px;
+            box-shadow: none;
+            transition: background-color 0.2s;
         }
 
         .search-pill.elevated {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            background-color: var(--md-sys-color-surface);
+            background-color: var(--md-sys-color-surface-variant);
         }
 
         .icon-btn {
@@ -314,21 +310,24 @@
         }
 
         .app-title {
-            font-family: 'Google Sans', sans-serif;
-            font-size: 16px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
             color: var(--md-sys-color-on-surface);
-            line-height: normal;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--md-sys-color-on-surface-variant);
             line-height: normal;
+            margin-top: 2px;
         }
 
         /* --- Action Area (Date, Verify) --- */
         .action-area {
-            padding: 0 16px 16px;
+            padding: 8px 16px 16px;
         }
 
         .control-row {
@@ -413,24 +412,37 @@
             display: flex;
             align-items: center;
             background-color: var(--md-sys-color-surface);
-            padding: 12px;
+            padding: 12px 16px;
             border-radius: 12px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--md-sys-color-outline);
-            border-color: rgba(111, 121, 121, 0.2);
+            border: none;
+            border-bottom: 1px solid var(--md-sys-color-outline);
+            margin-bottom: 1px;
+        }
+
+        .student-card:first-child {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .student-card:last-child {
+            border-bottom: none;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
         }
 
         .student-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
-            font-weight: 500;
-            margin-right: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            margin-right: 12px;
             flex-shrink: 0;
+            background-color: var(--md-sys-color-primary);
+            color: white;
         }
 
         .student-info {
@@ -439,105 +451,117 @@
         }
 
         .student-name {
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 17px;
+            font-weight: 400;
             color: var(--md-sys-color-on-surface);
             margin-bottom: 2px;
-            white-space: nowrap;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.25;
+            word-break: break-word;
         }
 
         .student-id {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--md-sys-color-on-surface-variant);
         }
 
         .status-actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .status-chip {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid var(--md-sys-color-outline);
+            width: 34px;
+            height: 34px;
+            border-radius: 17px;
+            border: 2px solid var(--md-sys-color-outline);
             background: transparent;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             color: var(--md-sys-color-on-surface-variant);
-            transition: all 0.2s;
+            transition: all 0.15s ease;
         }
 
         .status-chip.active {
             color: white;
             border: none;
+            transform: scale(1.05);
         }
 
         .status-chip.status-P.active {
             background-color: var(--color-present);
+            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4);
         }
 
         .status-chip.status-A.active {
             background-color: var(--color-absent);
+            box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
         }
 
         .status-chip.status-L.active {
             background-color: var(--color-leave);
-            color: black;
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.4);
         }
 
-        /* --- Floating Action Buttons --- */
+        /* --- iOS Style Action Buttons --- */
         .fab {
-            height: 56px;
-            border-radius: 16px;
-            background-color: var(--md-sys-color-primary-container);
-            color: var(--md-sys-color-on-primary-container);
+            height: 50px;
+            border-radius: 25px;
+            background-color: var(--md-sys-color-primary);
+            color: white;
             border: none;
             display: flex;
             align-items: center;
-            padding: 0 24px 0 20px;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            justify-content: center;
+            padding: 0 24px;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             cursor: pointer;
-            transition: box-shadow 0.2s, transform 0.2s;
-            gap: 12px;
+            transition: all 0.2s ease;
+            gap: 8px;
         }
 
         .fab:active {
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-            transform: scale(0.98);
+            transform: scale(0.96);
+            opacity: 0.9;
         }
 
         .fab.small {
-            height: 48px;
+            height: 44px;
             padding: 0;
-            width: 48px;
+            width: 44px;
             justify-content: center;
-            background-color: var(--md-sys-color-secondary-container);
-            color: var(--md-sys-color-on-secondary-container);
-            border-radius: 12px;
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-primary);
+            border-radius: 22px;
+            border: 1px solid var(--md-sys-color-outline);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .fab-icon {
-            font-size: 24px;
+            font-size: 20px;
         }
 
         .fab-container {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 34px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            flex-direction: column;
-            gap: 16px;
-            align-items: flex-end;
+            flex-direction: row;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
             z-index: 1100;
         }
 
@@ -785,62 +809,81 @@
 
     <div class="app-container">
         <div class="main-content">
-            <!-- Top App Bar (Search Pill) -->
+            <!-- iOS Style Header -->
             <div class="top-app-bar-container">
-                <div class="search-pill" id="searchPill">
-                    <button class="icon-btn" onclick="openDrawer()">
-                        <span class="material-symbols-outlined">menu</span>
-                    </button>
-                    <div class="search-content">
-                        <div class="app-title" id="headerTitle">Yoga</div>
-                        <div class="subtitle" id="headerDate">Select Date</div>
+                <!-- Large Title Row -->
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="icon-btn" onclick="openDrawer()" style="margin-left: -8px;">
+                            <span class="material-symbols-outlined">menu</span>
+                        </button>
+                        <div>
+                            <div class="app-title" id="headerTitle">Yoga</div>
+                            <div class="subtitle" id="headerDate">Select Date</div>
+                        </div>
                     </div>
-                    <!-- Profile / Theme Toggle Shortcut -->
                     <button class="user-avatar-btn" onclick="toggleTheme()" title="Toggle Theme">
                         <span id="userInitial">A</span>
                     </button>
                 </div>
+                <!-- iOS Search Bar -->
+                <div class="search-pill" id="searchPill" style="margin-bottom: 16px;">
+                    <span class="material-symbols-outlined"
+                        style="color: var(--md-sys-color-on-surface-variant); font-size: 20px;">search</span>
+                    <input type="text" id="studentSearch" placeholder="Search student..."
+                        style="flex: 1; border: none; background: transparent; outline: none; font-size: 17px; color: var(--md-sys-color-on-surface); font-family: inherit; margin-left: 8px;">
+                </div>
             </div>
 
             <!-- Action Area -->
-            <div class="action-area">
-                <!-- Date Selection -->
-
+            <div class="action-area" style="padding-top: 16px; margin-top: 8px;">
+                <!-- Date Selection - iOS Style -->
                 <div class="control-row">
-                    <div class="date-input-container">
-                        <span class="material-symbols-outlined date-input-icon">calendar_today</span>
-                        <input type="date" id="attendanceDate" class="date-input">
+                    <div class="date-input-container"
+                        style="background: var(--md-sys-color-surface); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--md-sys-color-outline);">
+                        <span class="material-symbols-outlined"
+                            style="color: var(--md-sys-color-primary);">calendar_today</span>
+                        <input type="date" id="attendanceDate"
+                            style="border: none; background: transparent; font-size: 17px; color: var(--md-sys-color-on-surface); font-family: inherit; flex: 1; outline: none;">
                     </div>
                 </div>
 
-                <div class="control-row">
-                    <div class="date-input-container">
-                        <span class="material-symbols-outlined date-input-icon">search</span>
-                        <input type="text" id="studentSearch" class="date-input" placeholder="Search student...">
-                    </div>
-                </div>
-
-                <!-- Verification Card -->
-                <div class="verification-card" id="verificationCard" onclick="toggleVerification()">
+                <!-- Verification Card - iOS Style -->
+                <div class="verification-card" id="verificationCard" onclick="toggleVerification()"
+                    style="background: var(--md-sys-color-surface); border: 1px solid var(--md-sys-color-outline);">
                     <div class="verification-label">
                         <span class="material-symbols-outlined" id="verifyIcon">check_circle_outline</span>
-                        <span id="verifyText">Mark Yoga as Verified</span>
+                        <span id="verifyText">Mark as Verified</span>
                     </div>
                     <div class="switch">
-                        <span class="material-symbols-outlined" id="verifyCheckmark" style="opacity: 0;">done</span>
+                        <span class="material-symbols-outlined" id="verifyCheckmark"
+                            style="opacity: 0; color: var(--color-present);">done</span>
                     </div>
                 </div>
 
-                <!-- Stats -->
-                <div class="stats-row">
-                    <div class="stat-chip">P <strong id="presentCount">0</strong></div>
-                    <div class="stat-chip">A <strong id="absentCount">0</strong></div>
-                    <div class="stat-chip">L <strong id="leaveCount">0</strong></div>
+                <!-- Stats - iOS Segmented Style -->
+                <div class="stats-row"
+                    style="background: var(--md-sys-color-surface); border-radius: 10px; padding: 8px; display: flex; gap: 4px; border: 1px solid var(--md-sys-color-outline);">
+                    <div class="stat-chip"
+                        style="flex: 1; justify-content: center; background: var(--color-present-container); color: var(--color-present); border-radius: 8px; padding: 8px;">
+                        <span style="font-weight: 400;">Present</span>
+                        <strong id="presentCount">0</strong>
+                    </div>
+                    <div class="stat-chip"
+                        style="flex: 1; justify-content: center; background: var(--color-absent-container); color: var(--color-absent); border-radius: 8px; padding: 8px;">
+                        <span style="font-weight: 400;">Absent</span>
+                        <strong id="absentCount">0</strong>
+                    </div>
+                    <div class="stat-chip"
+                        style="flex: 1; justify-content: center; background: var(--color-leave-container); color: #B86E00; border-radius: 8px; padding: 8px;">
+                        <span style="font-weight: 400;">Leave</span>
+                        <strong id="leaveCount">0</strong>
+                    </div>
                 </div>
 
-                <div class="list-header">
-                    <span>Students</span>
-                    <span id="totalStudentsCount" style="font-size: 12px; opacity: 0.7;">0 total</span>
+                <div class="list-header" style="margin-top: 16px; color: var(--md-sys-color-on-surface-variant);">
+                    <span style="text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;">Students</span>
+                    <span id="totalStudentsCount" style="font-size: 13px;">0 total</span>
                 </div>
             </div>
 
@@ -856,13 +899,13 @@
 
     <!-- FABs -->
     <div class="fab-container">
-        <button class="fab small" onclick="saveAttendance()" aria-label="Save">
-            <span class="material-symbols-outlined fab-icon">save</span>
-        </button>
-
         <button class="fab" onclick="syncToGoogleSheet()">
             <span class="material-symbols-outlined fab-icon">cloud_sync</span>
             Sync All
+        </button>
+
+        <button class="fab small" onclick="saveAttendance()" aria-label="Save">
+            <span class="material-symbols-outlined fab-icon">save</span>
         </button>
     </div>
 
@@ -1363,12 +1406,28 @@
 
                 // Avatar Color
                 const firstChar = student.name.charAt(0).toUpperCase();
-                const colors = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#009688', '#4caf50', '#ff9800', '#ff5722', '#795548'];
+                const colors = ['#007AFF', '#5856D6', '#AF52DE', '#FF2D55', '#FF9500', '#FFCC00', '#34C759', '#00C7BE', '#30B0C7', '#5AC8FA'];
                 let colorIndex = 0;
                 if (student.name.length > 0) {
                     colorIndex = (student.name.charCodeAt(0) + student.name.charCodeAt(Math.min(1, student.name.length - 1))) % colors.length;
                 }
                 const avatarColor = colors[colorIndex];
+
+                // Single status icon based on current status
+                let statusIcon, statusColor, statusBg;
+                if (status === 'Present') {
+                    statusIcon = 'check_circle';
+                    statusColor = '#34C759';
+                    statusBg = '#E3F9E8';
+                } else if (status === 'Absent') {
+                    statusIcon = 'cancel';
+                    statusColor = '#FF3B30';
+                    statusBg = '#FFE5E3';
+                } else {
+                    statusIcon = 'schedule';
+                    statusColor = '#FF9500';
+                    statusBg = '#FFF4E5';
+                }
 
                 item.innerHTML = `
                 <div class="student-avatar" style="background-color: ${avatarColor}; color: white;">${firstChar}</div>
@@ -1376,16 +1435,31 @@
                     <div class="student-name">${student.name}</div>
                     <div class="student-id">${student.appId}</div>
                 </div>
-                <div class="status-actions">
-                    <button class="status-chip status-P ${status === 'Present' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Present')">P</button>
-                    <button class="status-chip status-A ${status === 'Absent' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Absent')">A</button>
-                    <button class="status-chip status-L ${status === 'Leave' ? 'active' : ''}" onclick="updateStatus('${student.name}', 'Leave')">L</button>
-                </div>
+                <button class="status-icon-btn" onclick="cycleStatus('${student.name}')" 
+                    style="width: 44px; height: 44px; border-radius: 22px; border: none; 
+                    background: ${statusBg}; display: flex; align-items: center; justify-content: center; 
+                    cursor: pointer; transition: transform 0.15s ease;">
+                    <span class="material-symbols-outlined" style="font-size: 28px; color: ${statusColor}; font-variation-settings: 'FILL' 1;">${statusIcon}</span>
+                </button>
             `;
                 listDiv.appendChild(item);
             });
 
             updateStats();
+        }
+
+        // Cycle through Present → Absent → Leave → Present
+        function cycleStatus(studentName) {
+            ensureCategoryAttendance(currentCategory);
+            const currentStatus = attendanceByCategory[currentCategory][studentName] || 'Present';
+            let newStatus;
+            if (currentStatus === 'Present') newStatus = 'Absent';
+            else if (currentStatus === 'Absent') newStatus = 'Leave';
+            else newStatus = 'Present';
+
+            attendanceByCategory[currentCategory][studentName] = newStatus;
+            attendance = attendanceByCategory[currentCategory];
+            renderStudentList();
         }
 
         function updateStatus(studentName, status) {
@@ -2290,70 +2364,7 @@
             XLSX.writeFile(wb, `Attendance_Report_${date}.xlsx`);
         }
 
-        function downloadTrackingExcel() {
-            // Debug Alert - To verify new code is loaded
-            // alert("Starting Export V3 (clean columns)"); 
 
-            if (!window.trackingDataCache) return alert("No data to export");
-
-            // Get current filter values to export exactly what the user sees
-            const query = document.getElementById('trackSearch').value.toLowerCase();
-            const category = document.getElementById('trackCategory').value;
-            const startDate = document.getElementById('trackStartDate').value || "All Time";
-            const endDate = document.getElementById('trackEndDate').value || "Present";
-
-            // Filter data based on current view
-            const dataToExport = window.trackingDataCache.filter(item => {
-                const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
-                    (item.id && String(item.id).toLowerCase().includes(query));
-                const matchesCat = category === 'All' || item.category === category;
-                return matchesSearch && matchesCat;
-            });
-
-            if (dataToExport.length === 0) return alert("No data matches your filter to export");
-
-            // Build Excel Content (Array of Arrays)
-            const exportData = [
-                ["Student Tracking Report"],
-                ["Generated Date:", new Date().toLocaleDateString()],
-                ["Period:", `From: ${startDate}  To: ${endDate}`],
-                ["Category Filter:", category],
-                [], // Spacer
-                ["Student Name", "Category", "Present", "Absent", "Leave", "Total Days"] // Headers (REMOVED ID)
-            ];
-
-            dataToExport.forEach(item => {
-                exportData.push([
-                    item.name,
-                    // item.id, // Removed ID as per user request
-                    item.category,
-                    item.present,
-                    item.absent,
-                    item.leave,
-                    item.total
-                ]);
-            });
-
-            const ws = XLSX.utils.aoa_to_sheet(exportData);
-
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 30 }, // Name
-                // { wch: 20 }, // ID (Removed)
-                { wch: 15 }, // Category
-                { wch: 10 }, // Present
-                { wch: 10 }, // Absent
-                { wch: 10 }, // Leave
-                { wch: 12 }  // Total
-            ];
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Tracking Data");
-
-            // Filename with date range
-            const filename = `Values_Report_${startDate}_to_${endDate}.xlsx`;
-            XLSX.writeFile(wb, filename);
-        }
 
         function downloadTrackingPDF() {
             if (!window.trackingDataCache) return alert("No data to export");
