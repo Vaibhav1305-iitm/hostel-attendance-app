@@ -1,3 +1,9 @@
+// ============================================
+// EXTERNAL HOSTEL SHEET CONFIGURATION
+// ============================================
+const EXTERNAL_STUDENTS_SHEET_ID = '1g8J61vJLWh_sP0by9biJVACR0EGtC8XGlft9mmHLkps';
+const EXTERNAL_STUDENTS_SHEET_GID = 1897721584;
+
 function doGet(e) {
   return HtmlService.createHtmlOutputFromFile('index')
       .setTitle('Hostel Attendance System')
@@ -28,7 +34,8 @@ function doPost(e) {
         warnings: result.warnings 
       })).setMimeType(ContentService.MimeType.JSON);
     } else if (json.action === "get_students") {
-      return getStudents();
+      // Now fetches from external hostel sheet
+      return fetchExternalStudents();
     } else if (json.action === "add_student") {
       return addStudent(json.student);
     }
@@ -486,6 +493,92 @@ function addStudent(studentData) {
     return ContentService.createTextOutput(JSON.stringify({ 
       result: 'error', 
       error: error.toString() 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ============================================
+// FETCH STUDENTS FROM EXTERNAL HOSTEL SHEET
+// ============================================
+/**
+ * Fetches student data directly from hostel's master Google Sheet
+ * Auto-syncs whenever app loads - no manual updates needed
+ */
+function fetchExternalStudents() {
+  try {
+    // Open the external hostel sheet
+    const externalSS = SpreadsheetApp.openById(EXTERNAL_STUDENTS_SHEET_ID);
+    
+    // Get sheet by GID
+    const sheets = externalSS.getSheets();
+    let targetSheet = null;
+    for (let sheet of sheets) {
+      if (sheet.getSheetId() === EXTERNAL_STUDENTS_SHEET_GID) {
+        targetSheet = sheet;
+        break;
+      }
+    }
+    
+    if (!targetSheet) {
+      // Fallback to first sheet if GID not found
+      targetSheet = sheets[0];
+    }
+    
+    const data = targetSheet.getDataRange().getValues();
+    
+    if (data.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify({ 
+        result: 'success', 
+        students: [],
+        source: 'external_hostel_sheet'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // Find column indices from header row
+    const headers = data[0].map(h => String(h).trim());
+    
+    // Map exact column names (with flexibility for slight variations)
+    const findCol = (keywords) => {
+      return headers.findIndex(h => {
+        const lower = h.toLowerCase();
+        return keywords.some(k => lower.includes(k.toLowerCase()));
+      });
+    };
+    
+    const colName = findCol(['full name', 'name']);
+    const colAppNumber = findCol(['application: application number', 'application number', 'app number']);
+    const colAppId = findCol(['application: id', 'application id', 'app id']);
+    const colHostelId = findCol(['hostel id']);
+    const colAllocation = findCol(['hostel allocation', 'allocation']);
+    
+    // Parse students
+    const students = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const name = colName >= 0 ? String(row[colName] || '').trim() : '';
+      
+      if (name) { // Only add if name exists
+        students.push({
+          name: name,
+          appNumber: colAppNumber >= 0 ? String(row[colAppNumber] || '').trim() : '',
+          appId: colAppId >= 0 ? String(row[colAppId] || '').trim() : '',
+          hostelId: colHostelId >= 0 ? String(row[colHostelId] || '').trim() : '',
+          allocation: colAllocation >= 0 ? String(row[colAllocation] || '').trim() : ''
+        });
+      }
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'success', 
+      students: students,
+      source: 'external_hostel_sheet',
+      count: students.length
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'error', 
+      error: 'Failed to fetch from hostel sheet: ' + error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
 }
