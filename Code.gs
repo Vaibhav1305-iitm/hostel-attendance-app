@@ -100,14 +100,13 @@ function calculateTrackingData(startDateStr, endDateStr) {
 
   // Date filter strings are used directly for comparison (avoids timezone issues)
 
-  // Get all students from Students sheet first
-  const studentsSheet = ss.getSheetByName('Students');
+  // Get all students from EXTERNAL hostel sheet (same source as attendance app)
+  const externalStudents = getExternalStudentsData();
   const allStudents = {};
   
-  if (studentsSheet) {
-    const studentsData = studentsSheet.getDataRange().getValues();
-    for (let i = 1; i < studentsData.length; i++) {
-      const name = studentsData[i][0];
+  if (externalStudents && externalStudents.length > 0) {
+    externalStudents.forEach(student => {
+      const name = student.name;
       if (name) {
         const nameKey = String(name).trim().toLowerCase();
         // Initialize tracking for each category
@@ -115,7 +114,7 @@ function calculateTrackingData(startDateStr, endDateStr) {
           const key = `${nameKey}_${cat}`;
           allStudents[key] = {
             name: String(name).trim(),
-            id: studentsData[i][1] || studentsData[i][2] || '',
+            id: student.appNumber || student.appId || '',
             category: cat,
             present: 0,
             absent: 0,
@@ -127,7 +126,7 @@ function calculateTrackingData(startDateStr, endDateStr) {
           };
         });
       }
-    }
+    });
   }
 
   // Process each attendance sheet
@@ -580,5 +579,74 @@ function fetchExternalStudents() {
       result: 'error', 
       error: 'Failed to fetch from hostel sheet: ' + error.toString()
     })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ============================================
+// HELPER: GET EXTERNAL STUDENTS DATA (Internal Use)
+// ============================================
+/**
+ * Returns array of student objects from external hostel sheet
+ * Used internally by calculateTrackingData() for consistent student data
+ */
+function getExternalStudentsData() {
+  try {
+    const externalSS = SpreadsheetApp.openById(EXTERNAL_STUDENTS_SHEET_ID);
+    
+    // Get sheet by GID
+    const sheets = externalSS.getSheets();
+    let targetSheet = null;
+    for (let sheet of sheets) {
+      if (sheet.getSheetId() === EXTERNAL_STUDENTS_SHEET_GID) {
+        targetSheet = sheet;
+        break;
+      }
+    }
+    
+    if (!targetSheet) {
+      targetSheet = sheets[0];
+    }
+    
+    const data = targetSheet.getDataRange().getValues();
+    
+    if (data.length <= 1) return [];
+    
+    // Find column indices from header row
+    const headers = data[0].map(h => String(h).trim());
+    
+    const findCol = (keywords) => {
+      return headers.findIndex(h => {
+        const lower = h.toLowerCase();
+        return keywords.some(k => lower.includes(k.toLowerCase()));
+      });
+    };
+    
+    const colName = findCol(['full name', 'name']);
+    const colAppNumber = findCol(['application: application number', 'application number', 'app number']);
+    const colAppId = findCol(['application: id', 'application id', 'app id']);
+    const colHostelId = findCol(['hostel id']);
+    const colAllocation = findCol(['hostel allocation', 'allocation']);
+    
+    // Parse students
+    const students = [];
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      const name = colName >= 0 ? String(row[colName] || '').trim() : '';
+      
+      if (name) {
+        students.push({
+          name: name,
+          appNumber: colAppNumber >= 0 ? String(row[colAppNumber] || '').trim() : '',
+          appId: colAppId >= 0 ? String(row[colAppId] || '').trim() : '',
+          hostelId: colHostelId >= 0 ? String(row[colHostelId] || '').trim() : '',
+          allocation: colAllocation >= 0 ? String(row[colAllocation] || '').trim() : ''
+        });
+      }
+    }
+    
+    return students;
+  } catch (error) {
+    Logger.log('Error fetching external students: ' + error.toString());
+    return [];
   }
 }

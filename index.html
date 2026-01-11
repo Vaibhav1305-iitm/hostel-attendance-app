@@ -735,6 +735,348 @@
             background: var(--color-leave-container);
             color: #805600;
         }
+
+        /* ADMIN PANEL v6.0 STYLES */
+        .admin-header {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            padding: 20px 16px;
+            color: white;
+            border-radius: 0 0 24px 24px;
+            margin-bottom: 16px;
+        }
+
+        .admin-header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .admin-header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .admin-tabs-new {
+            display: flex;
+            gap: 4px;
+            padding: 0 12px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .admin-tabs-new::-webkit-scrollbar {
+            display: none;
+        }
+
+        .admin-tab-new {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: none;
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 70px;
+            gap: 4px;
+        }
+
+        .admin-tab-new .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+        .admin-tab-new.active {
+            background: var(--md-sys-color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .admin-section {
+            padding: 0 16px;
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .stats-cards-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--md-sys-color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--md-sys-color-outline);
+        }
+
+        .stat-card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--md-sys-color-primary);
+        }
+
+        .stat-card-label {
+            font-size: 13px;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-top: 4px;
+        }
+
+        .ranking-card {
+            background: var(--md-sys-color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--md-sys-color-outline);
+        }
+
+        .ranking-position {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .ranking-position.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #fff;
+        }
+
+        .ranking-position.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: #fff;
+        }
+
+        .ranking-position.bronze {
+            background: linear-gradient(135deg, #CD7F32, #B87333);
+            color: #fff;
+        }
+
+        .ranking-position.normal {
+            background: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .ranking-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ranking-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--md-sys-color-on-surface);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ranking-category {
+            font-size: 12px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .ranking-score {
+            text-align: right;
+        }
+
+        .ranking-score-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .ranking-score-label {
+            font-size: 11px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .score-excellent {
+            color: #34C759;
+        }
+
+        .score-good {
+            color: #007AFF;
+        }
+
+        .score-warning {
+            color: #FF9500;
+        }
+
+        .score-danger {
+            color: #FF3B30;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--md-sys-color-surface-variant);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .ai-card {
+            background: var(--md-sys-color-surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+        }
+
+        .ai-card.critical {
+            border-left-color: #FF3B30;
+            background: linear-gradient(90deg, rgba(255, 59, 48, 0.08) 0%, var(--md-sys-color-surface) 100%);
+        }
+
+        .ai-card.warning {
+            border-left-color: #FF9500;
+            background: linear-gradient(90deg, rgba(255, 149, 0, 0.08) 0%, var(--md-sys-color-surface) 100%);
+        }
+
+        .ai-card.info {
+            border-left-color: #007AFF;
+            background: linear-gradient(90deg, rgba(0, 122, 255, 0.08) 0%, var(--md-sys-color-surface) 100%);
+        }
+
+        .ai-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ai-card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-card.critical .ai-card-icon {
+            background: rgba(255, 59, 48, 0.15);
+            color: #FF3B30;
+        }
+
+        .ai-card.warning .ai-card-icon {
+            background: rgba(255, 149, 0, 0.15);
+            color: #FF9500;
+        }
+
+        .ai-card.info .ai-card-icon {
+            background: rgba(0, 122, 255, 0.15);
+            color: #007AFF;
+        }
+
+        .ai-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .ai-card-students {
+            font-size: 13px;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .ai-card-suggestion {
+            font-size: 13px;
+            color: var(--md-sys-color-on-surface);
+            padding: 8px 12px;
+            background: var(--md-sys-color-surface-variant);
+            border-radius: 8px;
+        }
+
+        .medal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .medal-badge.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #fff;
+        }
+
+        .medal-badge.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: #fff;
+        }
+
+        .medal-badge.bronze {
+            background: linear-gradient(135deg, #CD7F32, #B87333);
+            color: #fff;
+        }
+
+        .medal-badge.at-risk {
+            background: rgba(255, 59, 48, 0.15);
+            color: #FF3B30;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .empty-state .material-symbols-outlined {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .filter-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: var(--md-sys-color-surface);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .filter-pill.active {
+            background: var(--md-sys-color-primary);
+            color: white;
+            border-color: var(--md-sys-color-primary);
+        }
     </style>
 </head>
 
@@ -1806,98 +2148,742 @@
         function showAdminPanel() {
             const main = document.querySelector('.main-content');
             main.innerHTML = `
-                <div class="top-app-bar-container">
-                    <div class="search-pill elevated" style="background:var(--md-sys-color-surface);">
-                        <button class="icon-btn" onclick="location.reload()">
-                            <span class="material-symbols-outlined">arrow_back</span>
+                <!-- Admin Header -->
+                <div class="admin-header">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button onclick="location.reload()" style="background:rgba(255,255,255,0.2); border:none; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                            <span class="material-symbols-outlined" style="color:white;">arrow_back</span>
                         </button>
-                        <div class="search-content">
-                            <div class="app-title">Admin Panel <span style="font-size:12px; background:#e0f2f1; color:#00695c; padding:2px 6px; border-radius:4px; margin-left:8px;">v5.0</span></div>
-                            <div class="subtitle">Manage & Reports</div>
+                        <div>
+                            <div class="admin-header-title">Admin Panel</div>
+                            <div class="admin-header-subtitle">v6.0 • Rankings & AI Insights</div>
                         </div>
                     </div>
                 </div>
-                <div style="padding: 16px 0;">
-                     <div class="admin-tabs">
-                        <button class="admin-tab active" id="tab-reports" onclick="switchAdminTab('reports')">Result Download</button>
-                        <button class="admin-tab" id="tab-tracking" onclick="switchAdminTab('tracking')">Student Tracking</button>
-                    </div>
 
-                    <!-- Reports View -->
-                    <div id="admin-view-reports" style="padding: 0 16px;">
-                        <div class="student-card" style="flex-direction:column; align-items:flex-start; gap:16px;">
-                            <h3 style="margin-top:0; color:var(--md-sys-color-primary);">Download Daily Data</h3>
-                            <p style="font-size:14px; color:var(--md-sys-color-on-surface-variant);">Select a date to fetch data from the Google Sheet and download as Excel.</p>
-                            
-                            <div class="date-input-container" style="width:100%; margin-bottom:16px;">
-                                <span class="material-symbols-outlined date-input-icon">calendar_today</span>
-                                <input type="date" id="reportDate" class="date-input">
-                            </div>
+                <!-- Tab Navigation -->
+                <div class="admin-tabs-new">
+                    <button class="admin-tab-new active" id="tab-overview" onclick="switchAdminTabNew('overview')">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Overview
+                    </button>
+                    <button class="admin-tab-new" id="tab-rankings" onclick="switchAdminTabNew('rankings')">
+                        <span class="material-symbols-outlined">leaderboard</span>
+                        Rankings
+                    </button>
+                    <button class="admin-tab-new" id="tab-ai" onclick="switchAdminTabNew('ai')">
+                        <span class="material-symbols-outlined">psychology</span>
+                        AI Insights
+                    </button>
+                    <button class="admin-tab-new" id="tab-reports" onclick="switchAdminTabNew('reports')">
+                        <span class="material-symbols-outlined">download</span>
+                        Reports
+                    </button>
+                </div>
 
-                            <button class="fab" onclick="fetchAndDownloadReport()" style="width:100%; justify-content:center; position:static; margin:0;">
-                                <span class="material-symbols-outlined">cloud_download</span>
-                                Download Report
-                            </button>
-                            <div id="adminMsg" style="margin-top:12px; font-weight:500;"></div>
+                <!-- Overview Section -->
+                <div id="section-overview" class="admin-section active">
+                    <div class="stats-cards-row">
+                        <div class="stat-card">
+                            <div class="stat-card-value" id="totalStudentsOverview">-</div>
+                            <div class="stat-card-label" id="totalStudentsLabel">📊 Total Students</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value" id="avgAttendanceOverview">-</div>
+                            <div class="stat-card-label" id="avgAttendanceLabel">📈 Avg Attendance</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value score-excellent" id="sectionStudentsCount">-</div>
+                            <div class="stat-card-label" id="sectionStudentsLabel">🧑‍🎓 Section Students</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value score-danger" id="atRiskCount">-</div>
+                            <div class="stat-card-label" id="atRiskLabel">⚠️ At Risk</div>
                         </div>
                     </div>
+                    <div id="overviewContent" style="margin-top:16px;">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined">sync</span>
+                            <div>Loading data...</div>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Tracking View -->
-                    <div id="admin-view-tracking" style="display:none; padding: 0 16px;">
-                        <!-- Date Filter Row -->
-                         <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center;">
-                            <div class="date-input-container" style="flex:1; min-width:140px;">
-                                <span style="font-size:12px; position:absolute; top:-18px; left:4px; color:gray;">From</span>
-                                <span class="material-symbols-outlined date-input-icon">date_range</span>
-                                <input type="date" id="trackStartDate" class="date-input">
-                            </div>
-                            <div class="date-input-container" style="flex:1; min-width:140px; margin-top:0;">
-                                <span style="font-size:12px; position:absolute; top:-18px; left:4px; color:gray;">To (Optional)</span>
-                                <span class="material-symbols-outlined date-input-icon">event</span>
-                                <input type="date" id="trackEndDate" class="date-input">
-                            </div>
-                            <button class="fab small" onclick="filterTrackingData()" style="height:48px; width:48px; margin:0;" title="Filter">
-                                <span class="material-symbols-outlined">filter_list</span>
-                            </button>
-                         </div>
+                <!-- Rankings Section -->
+                <div id="section-rankings" class="admin-section">
+                    <div class="filter-pills" id="rankingFilters">
+                        <button class="filter-pill active" onclick="filterRankings('All')">All</button>
+                        <button class="filter-pill" onclick="filterRankings('Yoga')">🧘 Yoga</button>
+                        <button class="filter-pill" onclick="filterRankings('Night Shift')">🌙 Night Shift</button>
+                        <button class="filter-pill" onclick="filterRankings('Mess Day')">☀️ Mess Day</button>
+                        <button class="filter-pill" onclick="filterRankings('Mess Night')">🌃 Mess Night</button>
+                    </div>
+                    <div id="rankingsContent">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined">leaderboard</span>
+                            <div>Loading rankings...</div>
+                        </div>
+                    </div>
+                </div>
 
-                         <div class="tracking-search-bar">
-                             <div class="date-input-container" style="flex:1; min-width: 200px;">
-                                <span class="material-symbols-outlined date-input-icon">search</span>
-                                <input type="text" id="trackSearch" class="date-input" placeholder="Search Student Name or ID..." oninput="filterAndRenderTracking()">
-                            </div>
-                            <select id="trackCategory" class="date-input" style="width:auto; min-width:120px;" onchange="filterAndRenderTracking()">
-                                <option value="All">All Categories</option>
-                                <option value="Yoga">Yoga</option>
-                                <option value="Mess Day">Mess Day</option>
-                                <option value="Mess Night">Mess Night</option>
-                                <option value="Night Shift">Night Shift</option>
+                <!-- AI Insights Section -->
+                <div id="section-ai" class="admin-section">
+                    <div style="margin-bottom:16px;">
+                        <h3 style="margin:0 0 4px 0; font-size:18px; color:var(--md-sys-color-on-surface);">🤖 AI Attendance Analysis</h3>
+                        <p style="margin:0; font-size:13px; color:var(--md-sys-color-on-surface-variant);">Select section to view AI insights</p>
+                    </div>
+                    <div class="filter-pills" id="aiFilters">
+                        <button class="filter-pill active" onclick="filterAIInsights('All')">All</button>
+                        <button class="filter-pill" onclick="filterAIInsights('Yoga')">🧘 Yoga</button>
+                        <button class="filter-pill" onclick="filterAIInsights('Night Shift')">🌙 Night Shift</button>
+                        <button class="filter-pill" onclick="filterAIInsights('Mess Day')">☀️ Mess Day</button>
+                        <button class="filter-pill" onclick="filterAIInsights('Mess Night')">🌃 Mess Night</button>
+                    </div>
+                    <div id="aiContent">
+                        <div class="empty-state">
+                            <span class="material-symbols-outlined">psychology</span>
+                            <div>Analyzing patterns...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="section-reports" class="admin-section">
+                    <div class="stat-card" style="margin-bottom:16px;">
+                        <h3 style="margin:0 0 12px 0; font-size:16px; color:var(--md-sys-color-primary);">📊 Section-wise Report Download</h3>
+                        
+                        <!-- Section Filter -->
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:12px; color:var(--md-sys-color-primary); font-weight:500;">Select Section</label>
+                            <select id="reportSection" class="date-input" style="width:100%; margin-top:8px;">
+                                <option value="All">All Sections</option>
+                                <option value="Yoga">🧘 Yoga</option>
+                                <option value="Mess Day">☀️ Mess Day</option>
+                                <option value="Mess Night">🌃 Mess Night</option>
+                                <option value="Night Shift">🌙 Night Shift</option>
                             </select>
-                         </div>
-                         
-                         <div style="display:flex; justify-content:flex-end; margin-bottom:8px; gap: 12px; flex-wrap:wrap;">
-                             <button onclick="refreshTrackingData()" style="background:none; border:none; color:var(--md-sys-color-tertiary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
-                                <span class="material-symbols-outlined">refresh</span> Refresh
-                            </button>
-                             <button onclick="downloadTrackingPDF()" style="background:none; border:none; color:var(--md-sys-color-primary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
-                                <span class="material-symbols-outlined">picture_as_pdf</span> Export PDF
-                            </button>
-                            <button onclick="downloadTrackingExcel()" style="background:none; border:none; color:var(--md-sys-color-primary); font-weight:500; display:flex; align-items:center; gap:4px; cursor:pointer;">
-                                <span class="material-symbols-outlined">description</span> Export Excel
-                            </button>
-                         </div>
+                        </div>
 
-                         <div id="trackingLoading" style="text-align:center; padding: 20px; display:none;">
-                            Fetching Data... <br>
-                            <span style="font-size:12px; color:gray;">(Running Google Script)</span>
-                         </div>
-                         <div id="trackingContent"></div>
+                        <!-- Period Selector -->
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:12px; color:var(--md-sys-color-primary); font-weight:500;">Select Period</label>
+                            <select id="reportPeriod" class="date-input" style="width:100%; margin-top:8px;" onchange="toggleReportPeriod()">
+                                <option value="month">By Month</option>
+                                <option value="custom">Custom Date Range</option>
+                            </select>
+                        </div>
+
+                        <!-- Month Selector (shown when By Month) -->
+                        <div id="monthSelector" style="margin-bottom:16px;">
+                            <label style="font-size:12px; color:var(--md-sys-color-primary); font-weight:500;">Select Month</label>
+                            <input type="month" id="reportMonth" class="date-input" style="width:100%; margin-top:8px;">
+                        </div>
+
+                        <!-- Custom Date Range (hidden by default) -->
+                        <div id="customDateRange" style="display:none; margin-bottom:16px;">
+                            <div style="display:flex; gap:8px;">
+                                <div style="flex:1;">
+                                    <label style="font-size:12px; color:gray;">From</label>
+                                    <input type="date" id="reportStartDate" class="date-input" style="width:100%; margin-top:4px;">
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="font-size:12px; color:gray;">To</label>
+                                    <input type="date" id="reportEndDate" class="date-input" style="width:100%; margin-top:4px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Buttons -->
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button onclick="downloadSectionReport('excel')" class="fab" style="flex:1; justify-content:center; position:static; margin:0;">
+                                <span class="material-symbols-outlined">description</span> Excel
+                            </button>
+                            <button onclick="downloadSectionReport('pdf')" class="fab" style="flex:1; justify-content:center; position:static; margin:0; background:var(--md-sys-color-tertiary);">
+                                <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+                            </button>
+                        </div>
+                        <div id="reportMsg" style="margin-top:12px; font-weight:500;"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 style="margin:0 0 12px 0; font-size:16px; color:var(--md-sys-color-primary);">📥 Quick Daily Report</h3>
+                        <div class="date-input-container" style="margin-bottom:12px;">
+                            <span class="material-symbols-outlined date-input-icon">calendar_today</span>
+                            <input type="date" id="reportDate" class="date-input">
+                        </div>
+                        <button class="fab" onclick="fetchAndDownloadReport()" style="width:100%; justify-content:center; position:static; margin:0;">
+                            <span class="material-symbols-outlined">cloud_download</span> Download
+                        </button>
+                        <div id="adminMsg" style="margin-top:12px; font-weight:500;"></div>
                     </div>
                 </div>
             `;
-            const today = new Date();
-            const str = today.toISOString().split('T')[0];
-            document.getElementById('reportDate').value = str;
+
+            // Set today's date and current month
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7); // YYYY-MM format
+            document.getElementById('reportDate').value = today;
+            document.getElementById('reportMonth').value = currentMonth;
+
+            // Load tracking data and render overview
+            loadAdminData();
+        }
+
+        // New Tab Switching for Admin v6.0
+        function switchAdminTabNew(tab) {
+            document.querySelectorAll('.admin-tab-new').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${tab}`).classList.add('active');
+        }
+
+        // Load all admin data
+        async function loadAdminData() {
+            if (!window.trackingDataCache) {
+                await fetchTrackingDataForAdmin();
+            } else {
+                renderAdminOverview();
+                renderRankings();
+                renderAIInsights();
+            }
+        }
+
+        async function fetchTrackingDataForAdmin() {
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "get_tracking_data" })
+                });
+                const json = await res.json();
+                if (json.result === 'success') {
+                    window.trackingDataCache = json.data;
+                    renderAdminOverview();
+                    renderRankings();
+                    renderAIInsights();
+                }
+            } catch (e) {
+                console.error('Failed to fetch tracking data:', e);
+            }
+        }
+
+        // Calculate student scores
+        function calculateStudentScores() {
+            if (!window.trackingDataCache) return [];
+
+            return window.trackingDataCache.map(item => {
+                const total = item.total || 0;
+                const present = item.present || 0;
+                const score = total > 0 ? Math.round((present / total) * 100) : 0;
+
+                let tier = 'normal';
+                if (score >= 90) tier = 'gold';
+                else if (score >= 75) tier = 'silver';
+                else if (score >= 50) tier = 'bronze';
+                else tier = 'at-risk';
+
+                return { ...item, score, tier };
+            }).sort((a, b) => b.score - a.score);
+        }
+
+        // Render Overview
+        function renderAdminOverview() {
+            // Build content with section filter first
+            const container = document.getElementById('overviewContent');
+
+            let html = `
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:12px; color:var(--md-sys-color-primary); font-weight:500;">Select Section</label>
+                    <select id="overviewSection" class="date-input" style="width:100%; margin-top:8px;" onchange="updateOverviewStats()">
+                        <option value="All">All Sections</option>
+                        <option value="Yoga">🧘 Yoga</option>
+                        <option value="Mess Day">☀️ Mess Day</option>
+                        <option value="Mess Night">🌃 Mess Night</option>
+                        <option value="Night Shift">🌙 Night Shift</option>
+                    </select>
+                </div>
+                <div id="overviewTop5Container"></div>
+            `;
+            container.innerHTML = html;
+
+            // Render stats for default selection (All)
+            updateOverviewStats();
+        }
+
+        // Update all stats based on section selection
+        function updateOverviewStats() {
+            const section = document.getElementById('overviewSection').value;
+            const allScores = calculateStudentScores();
+
+            // Filter by section
+            let scores = section === 'All' ? allScores : allScores.filter(s => s.category === section);
+
+            // Calculate stats for selected section
+            const totalStudents = scores.length;
+            const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b.score, 0) / scores.length) : 0;
+            const sectionCount = scores.length;
+            const atRisk = scores.filter(s => s.tier === 'at-risk').length;
+
+            // Update stat cards
+            document.getElementById('totalStudentsOverview').textContent = totalStudents;
+            document.getElementById('avgAttendanceOverview').textContent = avgScore + '%';
+            document.getElementById('sectionStudentsCount').textContent = sectionCount;
+            document.getElementById('atRiskCount').textContent = atRisk;
+
+            // Update labels
+            const sectionLabel = section === 'All' ? 'All Sections' : section;
+            document.getElementById('totalStudentsLabel').textContent = `📊 ${sectionLabel}`;
+            document.getElementById('avgAttendanceLabel').textContent = `📈 Avg (${sectionLabel})`;
+            document.getElementById('sectionStudentsLabel').textContent = `🧑‍🎓 ${sectionLabel}`;
+            document.getElementById('atRiskLabel').textContent = `⚠️ At Risk (${sectionLabel})`;
+
+            // Update Top 5
+            const top5 = scores.slice(0, 5);
+            const topContainer = document.getElementById('overviewTop5Container');
+
+            let html = `<h4 style="margin:0 0 12px 0; font-size:14px; color:var(--md-sys-color-on-surface-variant);">🏆 Top 5 ${sectionLabel}</h4>`;
+
+            if (top5.length === 0) {
+                html += '<div class="empty-state"><span class="material-symbols-outlined">search_off</span><div>No students in this section</div></div>';
+            } else {
+                top5.forEach((student, i) => {
+                    const tierClass = student.tier;
+                    const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
+                    const originalIndex = allScores.findIndex(s => s.name === student.name && s.category === student.category);
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+                    html += `
+                        <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer;">
+                            <div class="ranking-position ${tierClass}">${medal}</div>
+                            <div class="ranking-info">
+                                <div class="ranking-name">${student.name}</div>
+                                <div class="ranking-category">${student.category} • P:${student.present} A:${student.absent} L:${student.leave}</div>
+                            </div>
+                            <div class="ranking-score">
+                                <div class="ranking-score-value ${scoreClass}">${student.score}%</div>
+                                <div class="ranking-score-label">${student.present}/${student.total}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            topContainer.innerHTML = html;
+        }
+
+        // Render Rankings
+        let currentRankingFilter = 'All';
+
+        function filterRankings(category) {
+            currentRankingFilter = category;
+            document.querySelectorAll('#rankingFilters .filter-pill').forEach(p => {
+                p.classList.toggle('active', p.textContent.includes(category) || (category === 'All' && p.textContent === 'All'));
+            });
+            renderRankings();
+        }
+
+        function renderRankings() {
+            const scores = calculateStudentScores();
+            const filtered = currentRankingFilter === 'All'
+                ? scores
+                : scores.filter(s => s.category === currentRankingFilter);
+
+            const container = document.getElementById('rankingsContent');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">search_off</span><div>No data for this category</div></div>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((student, i) => {
+                const tierClass = student.tier;
+                const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+
+                // Find index in original scores array for the dashboard function
+                const originalIndex = scores.findIndex(s => s.name === student.name && s.category === student.category);
+                html += `
+                    <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer;">
+                        <div class="ranking-position ${tierClass}">${medal}</div>
+                        <div class="ranking-info">
+                            <div class="ranking-name">${student.name}</div>
+                            <div class="ranking-category">${student.category} • P:${student.present} A:${student.absent} L:${student.leave}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width:${student.score}%; background:${student.score >= 75 ? '#34C759' : student.score >= 50 ? '#FF9500' : '#FF3B30'};"></div>
+                            </div>
+                        </div>
+                        <div class="ranking-score">
+                            <div class="ranking-score-value ${scoreClass}">${student.score}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Render AI Insights
+        function renderAIInsights() {
+            const scores = calculateStudentScores();
+            const container = document.getElementById('aiContent');
+
+            // Categorize issues
+            const criticalAbsent = scores.filter(s => s.score < 50 && s.total >= 5);
+            const excessiveLeave = scores.filter(s => s.total > 0 && (s.leave / s.total) > 0.3);
+            const perfectAttendance = scores.filter(s => s.score === 100 && s.total >= 5);
+
+            let html = '';
+
+            // Critical: Very low attendance
+            if (criticalAbsent.length > 0) {
+                const names = criticalAbsent.slice(0, 5).map(s => `• ${s.name} (${s.category}): ${s.score}%`).join('<br>');
+                html += `
+                    <div class="ai-card critical">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">warning</span></div>
+                            <div class="ai-card-title">⚠️ Critical: Low Attendance (${criticalAbsent.length} students)</div>
+                        </div>
+                        <div class="ai-card-students">${names}${criticalAbsent.length > 5 ? `<br>... and ${criticalAbsent.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Recommendation: Schedule immediate counseling sessions with these students to understand their challenges.</div>
+                    </div>
+                `;
+            }
+
+            // Warning: Excessive leave
+            if (excessiveLeave.length > 0) {
+                const names = excessiveLeave.slice(0, 5).map(s => `• ${s.name}: ${s.leave} leaves (${Math.round(s.leave / s.total * 100)}%)`).join('<br>');
+                html += `
+                    <div class="ai-card warning">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">event_busy</span></div>
+                            <div class="ai-card-title">🟡 Excessive Leave Pattern (${excessiveLeave.length} students)</div>
+                        </div>
+                        <div class="ai-card-students">${names}${excessiveLeave.length > 5 ? `<br>... and ${excessiveLeave.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Recommendation: Review leave requests and verify if there are underlying health or personal issues.</div>
+                    </div>
+                `;
+            }
+
+            // Info: Perfect attendance (positive)
+            if (perfectAttendance.length > 0) {
+                const names = perfectAttendance.slice(0, 5).map(s => `• ${s.name} (${s.category})`).join('<br>');
+                html += `
+                    <div class="ai-card info">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">stars</span></div>
+                            <div class="ai-card-title">🌟 Perfect Attendance (${perfectAttendance.length} students)</div>
+                        </div>
+                        <div class="ai-card-students">${names}${perfectAttendance.length > 5 ? `<br>... and ${perfectAttendance.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Recommendation: Recognize and reward these students to encourage continued excellence!</div>
+                    </div>
+                `;
+            }
+
+            if (html === '') {
+                html = '<div class="empty-state"><span class="material-symbols-outlined">check_circle</span><div>No issues detected! All students are maintaining good attendance.</div></div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // AI Insights Filter
+        let currentAIFilter = 'All';
+
+        function filterAIInsights(category) {
+            currentAIFilter = category;
+            document.querySelectorAll('#aiFilters .filter-pill').forEach(p => {
+                p.classList.toggle('active', p.textContent.includes(category) || (category === 'All' && p.textContent === 'All'));
+            });
+            renderAIInsightsFiltered();
+        }
+
+        function renderAIInsightsFiltered() {
+            let scores = calculateStudentScores();
+            const container = document.getElementById('aiContent');
+
+            // Apply section filter
+            if (currentAIFilter !== 'All') {
+                scores = scores.filter(s => s.category === currentAIFilter);
+            }
+
+            // Categorize issues
+            const criticalAbsent = scores.filter(s => s.score < 50 && s.total >= 5);
+            const excessiveLeave = scores.filter(s => s.total > 0 && (s.leave / s.total) > 0.3);
+            const perfectAttendance = scores.filter(s => s.score === 100 && s.total >= 5);
+
+            let html = `<div style="margin-bottom:12px; font-size:13px; color:var(--md-sys-color-on-surface-variant);">Showing ${currentAIFilter === 'All' ? 'all sections' : currentAIFilter} (${scores.length} records)</div>`;
+
+            if (criticalAbsent.length > 0) {
+                const names = criticalAbsent.slice(0, 5).map(s => `• ${s.name}: ${s.score}%`).join('<br>');
+                html += `
+                    <div class="ai-card critical">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">warning</span></div>
+                            <div class="ai-card-title">⚠️ Critical: Low Attendance (${criticalAbsent.length})</div>
+                        </div>
+                        <div class="ai-card-students">${names}${criticalAbsent.length > 5 ? `<br>... and ${criticalAbsent.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Schedule counseling sessions</div>
+                    </div>
+                `;
+            }
+
+            if (excessiveLeave.length > 0) {
+                const names = excessiveLeave.slice(0, 5).map(s => `• ${s.name}: ${s.leave} leaves`).join('<br>');
+                html += `
+                    <div class="ai-card warning">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">event_busy</span></div>
+                            <div class="ai-card-title">🟡 Excessive Leave (${excessiveLeave.length})</div>
+                        </div>
+                        <div class="ai-card-students">${names}${excessiveLeave.length > 5 ? `<br>... and ${excessiveLeave.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Review leave patterns</div>
+                    </div>
+                `;
+            }
+
+            if (perfectAttendance.length > 0) {
+                const names = perfectAttendance.slice(0, 5).map(s => `• ${s.name}`).join('<br>');
+                html += `
+                    <div class="ai-card info">
+                        <div class="ai-card-header">
+                            <div class="ai-card-icon"><span class="material-symbols-outlined">stars</span></div>
+                            <div class="ai-card-title">🌟 Perfect Attendance (${perfectAttendance.length})</div>
+                        </div>
+                        <div class="ai-card-students">${names}${perfectAttendance.length > 5 ? `<br>... and ${perfectAttendance.length - 5} more` : ''}</div>
+                        <div class="ai-card-suggestion">💡 Reward these students!</div>
+                    </div>
+                `;
+            }
+
+            if (criticalAbsent.length === 0 && excessiveLeave.length === 0 && perfectAttendance.length === 0) {
+                html += '<div class="empty-state"><span class="material-symbols-outlined">check_circle</span><div>No issues detected!</div></div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Toggle Period Selector
+        function toggleReportPeriod() {
+            const period = document.getElementById('reportPeriod').value;
+            document.getElementById('monthSelector').style.display = period === 'month' ? 'block' : 'none';
+            document.getElementById('customDateRange').style.display = period === 'custom' ? 'block' : 'none';
+        }
+
+        // Section-wise Report Download
+        function downloadSectionReport(format) {
+            if (!window.trackingDataCache || window.trackingDataCache.length === 0) {
+                alert('No tracking data available. Please load data first.');
+                return;
+            }
+
+            const section = document.getElementById('reportSection').value;
+            const period = document.getElementById('reportPeriod').value;
+            let startDate, endDate;
+
+            if (period === 'month') {
+                const monthVal = document.getElementById('reportMonth').value;
+                if (!monthVal) {
+                    alert('Please select a month');
+                    return;
+                }
+                const [year, month] = monthVal.split('-');
+                startDate = `${year}-${month}-01`;
+                const lastDay = new Date(year, month, 0).getDate();
+                endDate = `${year}-${month}-${lastDay}`;
+            } else {
+                startDate = document.getElementById('reportStartDate').value;
+                endDate = document.getElementById('reportEndDate').value;
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+            }
+
+            // Filter data
+            let filteredData = window.trackingDataCache;
+
+            // Filter by section
+            if (section !== 'All') {
+                filteredData = filteredData.filter(s => s.category === section);
+            }
+
+            if (filteredData.length === 0) {
+                alert('No data found for selected filters');
+                return;
+            }
+
+            const msgEl = document.getElementById('reportMsg');
+            msgEl.textContent = 'Generating report...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            if (format === 'excel') {
+                // Generate Excel
+                const exportData = [
+                    [`Section Report: ${section}`],
+                    [`Period: ${startDate} to ${endDate}`],
+                    [`Generated: ${new Date().toLocaleDateString()}`],
+                    [],
+                    ['Student Name', 'Category', 'Present', 'Absent', 'Leave', 'Total', 'Score %']
+                ];
+
+                filteredData.forEach(item => {
+                    const score = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
+                    exportData.push([item.name, item.category, item.present, item.absent, item.leave, item.total, score]);
+                });
+
+                const ws = XLSX.utils.aoa_to_sheet(exportData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, section === 'All' ? 'All Sections' : section);
+                XLSX.writeFile(wb, `${section}_Report_${startDate}_to_${endDate}.xlsx`);
+
+                msgEl.textContent = '✓ Excel downloaded!';
+                msgEl.style.color = '#34C759';
+            } else {
+                // Generate PDF
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    doc.setFontSize(18);
+                    doc.setTextColor(0, 122, 255);
+                    doc.text(`${section} Report`, 14, 20);
+
+                    doc.setFontSize(10);
+                    doc.setTextColor(100);
+                    doc.text(`Period: ${startDate} to ${endDate}`, 14, 30);
+                    doc.text(`Total Students: ${filteredData.length}`, 14, 35);
+
+                    const tableBody = filteredData.map(item => {
+                        const score = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
+                        return [item.name, item.present, item.absent, item.leave, item.total, score + '%'];
+                    });
+
+                    doc.autoTable({
+                        startY: 42,
+                        head: [['Student', 'Present', 'Absent', 'Leave', 'Total', 'Score']],
+                        body: tableBody,
+                        theme: 'striped',
+                        headStyles: { fillColor: [0, 122, 255] }
+                    });
+
+                    doc.save(`${section}_Report_${startDate}_to_${endDate}.pdf`);
+
+                    msgEl.textContent = '✓ PDF downloaded!';
+                    msgEl.style.color = '#34C759';
+                } catch (e) {
+                    msgEl.textContent = 'PDF Error: ' + e.message;
+                    msgEl.style.color = '#FF3B30';
+                }
+            }
+        }
+
+        // Open Student Dashboard from Rankings
+        function openStudentDashboardFromRanking(index) {
+            const scores = calculateStudentScores();
+            if (!scores || index < 0 || index >= scores.length) {
+                console.error('Invalid student index:', index);
+                return;
+            }
+
+            const student = scores[index];
+            if (!student) {
+                console.error('Student not found at index:', index);
+                return;
+            }
+
+            // Get modal elements
+            const modal = document.getElementById('studentDashboardModal');
+            const nameEl = document.getElementById('dashboardStudentName');
+            const categoryEl = document.getElementById('dashboardCategory');
+            const presentEl = document.getElementById('dashPresent');
+            const absentEl = document.getElementById('dashAbsent');
+            const leaveEl = document.getElementById('dashLeave');
+            const detailsEl = document.getElementById('dashboardDateDetails');
+
+            if (!modal || !nameEl) {
+                console.error('Modal elements not found. Modal:', modal, 'NameEl:', nameEl);
+                alert('Dashboard modal not loaded. Please refresh the page.');
+                return;
+            }
+
+            if (!detailsEl) {
+                console.error('Details container not found. Looking for dashboardDateDetails');
+                // Try to find it anyway
+                const altDetailsEl = document.querySelector('#dashboardDateDetails, #dashboardDetails');
+                if (!altDetailsEl) {
+                    console.error('Could not find any details container');
+                }
+            }
+
+            // Update modal header
+            nameEl.textContent = student.name;
+            categoryEl.textContent = student.category + ' • Score: ' + student.score + '%';
+
+            // Update summary counts
+            presentEl.textContent = student.present || 0;
+            absentEl.textContent = student.absent || 0;
+            leaveEl.textContent = student.leave || 0;
+
+            // Build date details HTML
+            let detailsHtml = '';
+
+            // Present dates
+            if (student.presentDates && student.presentDates.length > 0) {
+                detailsHtml += `<div style="margin-bottom:16px;">
+                    <div style="font-weight:600; margin-bottom:8px; color:#34C759;">✅ Present Days (${student.presentDates.length})</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${student.presentDates.slice(0, 10).map(d => `<span style="background:#d4edda; color:#155724; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
+                        ${student.presentDates.length > 10 ? `<span style="color:gray;">+${student.presentDates.length - 10} more</span>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            // Absent dates
+            if (student.absentDates && student.absentDates.length > 0) {
+                detailsHtml += `<div style="margin-bottom:16px;">
+                    <div style="font-weight:600; margin-bottom:8px; color:#FF3B30;">❌ Absent Days (${student.absentDates.length})</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${student.absentDates.slice(0, 10).map(d => `<span style="background:#f8d7da; color:#721c24; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
+                        ${student.absentDates.length > 10 ? `<span style="color:gray;">+${student.absentDates.length - 10} more</span>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            // Leave dates
+            if (student.leaveDates && student.leaveDates.length > 0) {
+                detailsHtml += `<div style="margin-bottom:16px;">
+                    <div style="font-weight:600; margin-bottom:8px; color:#FF9500;">🟡 Leave Days (${student.leaveDates.length})</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${student.leaveDates.slice(0, 10).map(d => `<span style="background:#fff3cd; color:#856404; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
+                        ${student.leaveDates.length > 10 ? `<span style="color:gray;">+${student.leaveDates.length - 10} more</span>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            if (detailsHtml === '') {
+                detailsHtml = '<div style="text-align:center; color:gray; padding:20px;">No date details available</div>';
+            }
+
+            if (detailsEl) {
+                detailsEl.innerHTML = detailsHtml;
+            }
+
+            // Show modal
+            modal.style.display = 'flex';
+        }
+
+        function formatDateShort(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return `${date.getDate()} ${months[date.getMonth()]}`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function closeStudentDashboard() {
+            document.getElementById('studentDashboardModal').style.display = 'none';
         }
 
         function downloadTrackingExcel() {
@@ -2207,6 +3193,38 @@
         }
 
         // --- Student Dashboard Functions ---
+        // Open student dashboard from rankings (uses calculated scores data)
+        function openStudentDashboardFromRanking(index) {
+            const scores = calculateStudentScores();
+            if (!scores || index < 0 || index >= scores.length) {
+                alert('Student data not found');
+                return;
+            }
+
+            const student = scores[index];
+            if (!student) return;
+
+            // Update modal header
+            document.getElementById('dashboardStudentName').textContent = student.name;
+            document.getElementById('dashboardCategory').textContent = student.category;
+
+            // Update summary counts
+            document.getElementById('dashPresent').textContent = student.present || 0;
+            document.getElementById('dashAbsent').textContent = student.absent || 0;
+            document.getElementById('dashLeave').textContent = student.leave || 0;
+
+            // Build date details HTML
+            let detailsHtml = '';
+            detailsHtml += buildDateSection('✅ Present Days', student.presentDates || [], 'present', false, student.present);
+            detailsHtml += buildDateSection('❌ Absent Days', student.absentDates || [], 'absent', false, student.absent);
+            detailsHtml += buildDateSection('🟡 Leave Days', student.leaveDates || [], 'leave', false, student.leave);
+
+            document.getElementById('dashboardDateDetails').innerHTML = detailsHtml;
+
+            // Show modal
+            document.getElementById('studentDashboardModal').style.display = 'flex';
+        }
+
         function showStudentDashboard(index, focusType) {
             // Get data from filtered view
             const query = document.getElementById('trackSearch')?.value?.toLowerCase() || '';
@@ -2367,33 +3385,44 @@
 
 
         function downloadTrackingPDF() {
-            if (!window.trackingDataCache) return alert("No data to export");
+            if (!window.trackingDataCache || window.trackingDataCache.length === 0) {
+                return alert("No tracking data available. Please load data first.");
+            }
 
             try {
                 if (!window.jspdf || !window.jspdf.jsPDF) {
-                    return alert("PDF Library not loaded yet. Please wait a moment or reload.");
+                    return alert("PDF Library not loaded yet. Please wait a moment or reload the page.");
                 }
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
-                const query = document.getElementById('trackSearch').value.toLowerCase();
-                const category = document.getElementById('trackCategory').value;
-                const startDate = document.getElementById('trackStartDate').value || "All Time";
-                const endDate = document.getElementById('trackEndDate').value || "Present";
+                // Safe element access with fallbacks
+                const searchEl = document.getElementById('trackSearch');
+                const categoryEl = document.getElementById('trackCategory');
+                const startDateEl = document.getElementById('trackStartDate');
+                const endDateEl = document.getElementById('trackEndDate');
+
+                const query = searchEl ? searchEl.value.toLowerCase() : '';
+                const category = categoryEl ? categoryEl.value : 'All';
+                const startDate = startDateEl ? (startDateEl.value || "All Time") : "All Time";
+                const endDate = endDateEl ? (endDateEl.value || "Present") : "Present";
 
                 // Filter data
                 const dataToExport = window.trackingDataCache.filter(item => {
-                    const matchesSearch = (item.name && item.name.toLowerCase().includes(query)) ||
+                    const matchesSearch = !query || (item.name && item.name.toLowerCase().includes(query)) ||
                         (item.id && String(item.id).toLowerCase().includes(query));
                     const matchesCat = category === 'All' || item.category === category;
                     return matchesSearch && matchesCat;
                 });
 
-                if (dataToExport.length === 0) return alert("No data matches your filter");
+                if (dataToExport.length === 0) {
+                    return alert("No data to export.");
+                }
 
                 // Header Info
-                doc.setFontSize(16);
+                doc.setFontSize(18);
+                doc.setTextColor(0, 122, 255);
                 doc.text("Student Tracking Report", 14, 20);
 
                 doc.setFontSize(10);
@@ -2401,31 +3430,40 @@
                 doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
                 doc.text(`Period: ${startDate} to ${endDate}`, 14, 35);
                 doc.text(`Category: ${category}`, 14, 40);
+                doc.text(`Total Students: ${dataToExport.length}`, 14, 45);
 
-                // Table Data
-                const tableBody = dataToExport.map(item => [
-                    item.name,
-                    item.category,
-                    item.present,
-                    item.absent,
-                    item.leave,
-                    item.total
-                ]);
+                // Table Data with scores
+                const tableBody = dataToExport.map(item => {
+                    const score = item.total > 0 ? Math.round((item.present / item.total) * 100) : 0;
+                    return [
+                        item.name,
+                        item.category,
+                        item.present,
+                        item.absent,
+                        item.leave,
+                        item.total,
+                        score + '%'
+                    ];
+                });
 
                 doc.autoTable({
-                    startY: 45,
-                    head: [['Student Name', 'Category', 'Present', 'Absent', 'Leave', 'Total Days']],
+                    startY: 50,
+                    head: [['Student Name', 'Category', 'Present', 'Absent', 'Leave', 'Total', 'Score']],
                     body: tableBody,
-                    theme: 'grid',
-                    headStyles: { fillColor: [0, 106, 106] },
-                    styles: { fontSize: 9 },
+                    theme: 'striped',
+                    headStyles: { fillColor: [0, 122, 255] },
+                    styles: { fontSize: 8 },
                     columnStyles: {
-                        0: { cellWidth: 50 }, // Name
-                        1: { cellWidth: 30 }  // Category
+                        0: { cellWidth: 45 },
+                        1: { cellWidth: 25 },
+                        6: { halign: 'center', fontStyle: 'bold' }
                     }
                 });
 
-                doc.save(`Tracking_Report_${startDate}_to_${endDate}.pdf`);
+                const filename = `Tracking_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+                doc.save(filename);
+
+                showMessage('PDF Downloaded!', 'success');
             } catch (e) {
                 alert("PDF Error: " + e.message);
                 console.error(e);
