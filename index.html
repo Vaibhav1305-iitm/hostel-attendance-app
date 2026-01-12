@@ -565,31 +565,205 @@
             z-index: 1100;
         }
 
-        /* --- Snackbar --- */
-        .snackbar {
+        /* --- iOS-Style Toast Notifications --- */
+        .ios-toast-container {
             position: fixed;
-            bottom: 90px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #323232;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .ios-toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 13px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-size: 15px;
+            font-weight: 500;
+            color: #1C1C1E;
+            min-width: 200px;
+            max-width: 340px;
+            animation: iosToastIn 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+            pointer-events: auto;
+        }
+
+        [data-theme="dark"] .ios-toast {
+            background: rgba(44, 44, 46, 0.95);
+            color: #FFFFFF;
+        }
+
+        .ios-toast.hiding {
+            animation: iosToastOut 0.25s cubic-bezier(0.32, 0, 0.67, 0) forwards;
+        }
+
+        .ios-toast-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .ios-toast-icon .material-symbols-outlined {
+            font-size: 18px;
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .ios-toast.success .ios-toast-icon {
+            background: #34C759;
             color: white;
-            padding: 14px 24px;
-            border-radius: 4px;
-            font-size: 14px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            opacity: 1;
-            transition: opacity 0.3s;
-            min-width: 300px;
-            text-align: center;
         }
 
-        .snackbar.success {
-            background-color: #1e8e3e;
+        .ios-toast.error .ios-toast-icon {
+            background: #FF3B30;
+            color: white;
         }
 
-        .snackbar.error {
-            background-color: #d93025;
+        .ios-toast.info .ios-toast-icon {
+            background: #007AFF;
+            color: white;
+        }
+
+        .ios-toast.warning .ios-toast-icon {
+            background: #FF9500;
+            color: white;
+        }
+
+        @keyframes iosToastIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes iosToastOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+        }
+
+        /* --- iOS-Style Loading Overlay --- */
+        .ios-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: iosOverlayIn 0.2s ease;
+        }
+
+        .ios-loading-overlay.hiding {
+            animation: iosOverlayOut 0.2s ease forwards;
+        }
+
+        .ios-loading-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] .ios-loading-box {
+            background: rgba(44, 44, 46, 0.95);
+        }
+
+        .ios-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 122, 255, 0.2);
+            border-top-color: #007AFF;
+            border-radius: 50%;
+            animation: iosSpinner 0.8s linear infinite;
+        }
+
+        .ios-loading-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1C1C1E;
+        }
+
+        [data-theme="dark"] .ios-loading-text {
+            color: #FFFFFF;
+        }
+
+        @keyframes iosSpinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes iosOverlayIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes iosOverlayOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* Sync Status Badge */
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .sync-badge.synced {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34C759;
+        }
+
+        .sync-badge.not-synced {
+            background: rgba(142, 142, 147, 0.15);
+            color: #8E8E93;
         }
 
         /* Switch Toggle */
@@ -1077,6 +1251,196 @@
             color: white;
             border-color: var(--md-sys-color-primary);
         }
+
+        /* --- Sync Tracker Styles --- */
+        .sync-tracker-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--md-sys-color-background);
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .sync-tracker-modal.hiding {
+            animation: slideOutRight 0.25s ease forwards;
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .sync-tracker-header {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            gap: 12px;
+            background: var(--md-sys-color-surface);
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+        }
+
+        .sync-tracker-header h2 {
+            flex: 1;
+            font-size: 17px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sync-tracker-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .sync-tracker-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .sync-tracker-table th {
+            background: var(--md-sys-color-surface-variant);
+            padding: 12px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .sync-tracker-table th:first-child {
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .sync-tracker-table td {
+            padding: 14px 6px;
+            text-align: center;
+            border-bottom: 1px solid var(--md-sys-color-outline-variant);
+            font-size: 13px;
+        }
+
+        .sync-tracker-table td:first-child {
+            text-align: left;
+            padding-left: 12px;
+            font-weight: 500;
+        }
+
+        .sync-tracker-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .sync-tracker-table tr.today {
+            background: rgba(0, 122, 255, 0.05);
+        }
+
+        .status-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .status-dot.synced {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34C759;
+        }
+
+        .status-dot.not-synced {
+            background: rgba(142, 142, 147, 0.1);
+            color: #8E8E93;
+        }
+
+        .status-dot.complete {
+            background: #34C759;
+            color: white;
+        }
+
+        .sync-summary-card {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(88, 86, 214, 0.1) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .sync-summary-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sync-progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .sync-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #34C759, #30D158);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .sync-summary-stats {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .date-range-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .date-range-pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--md-sys-color-outline);
+            background: var(--md-sys-color-surface);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-range-pill.active {
+            background: var(--md-sys-color-primary);
+            color: white;
+            border-color: var(--md-sys-color-primary);
+        }
     </style>
 </head>
 
@@ -1137,6 +1501,10 @@
             <a class="drawer-item" onclick="openAdminLogin()">
                 <span class="material-symbols-outlined">admin_panel_settings</span>
                 Admin Panel
+            </a>
+            <a class="drawer-item" onclick="openSyncTracker()" style="color: var(--md-sys-color-tertiary);">
+                <span class="material-symbols-outlined">analytics</span>
+                Sync Tracker
             </a>
 
             <div class="drawer-divider"></div>
@@ -1203,6 +1571,21 @@
                     </div>
                 </div>
 
+                <!-- Fetch from Database Button (only visible for past dates) -->
+                <div id="fetchButtonContainer" style="display: none; margin-bottom: 12px;">
+                    <button onclick="fetchCurrentSectionFromDB()" style="width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--md-sys-color-primary); 
+                        background: linear-gradient(135deg, rgba(0,122,255,0.08) 0%, rgba(88,86,214,0.08) 100%); 
+                        color: var(--md-sys-color-primary); font-size: 15px; font-weight: 600; 
+                        display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+                        font-family: inherit;">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">cloud_download</span>
+                        Fetch <span id="fetchCategoryName">Yoga</span> from Database
+                    </button>
+                    <div id="fetchStatusText"
+                        style="text-align: center; font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 6px;">
+                    </div>
+                </div>
+
                 <!-- Stats - iOS Segmented Style -->
                 <div class="stats-row"
                     style="background: var(--md-sys-color-surface); border-radius: 10px; padding: 8px; display: flex; gap: 4px; border: 1px solid var(--md-sys-color-outline);">
@@ -1241,14 +1624,29 @@
 
     <!-- FABs -->
     <div class="fab-container">
+        <button class="fab small" onclick="syncCurrentSection()" aria-label="Sync Section" title="Sync Current Section">
+            <span class="material-symbols-outlined fab-icon">cloud_upload</span>
+        </button>
+
         <button class="fab" onclick="syncToGoogleSheet()">
             <span class="material-symbols-outlined fab-icon">cloud_sync</span>
             Sync All
         </button>
 
-        <button class="fab small" onclick="saveAttendance()" aria-label="Save">
+        <button class="fab small" onclick="saveAllAttendance()" aria-label="Save" title="Save All">
             <span class="material-symbols-outlined fab-icon">save</span>
         </button>
+    </div>
+
+    <!-- iOS Toast Container -->
+    <div id="iosToastContainer" class="ios-toast-container"></div>
+
+    <!-- iOS Loading Overlay (hidden by default) -->
+    <div id="iosLoadingOverlay" class="ios-loading-overlay" style="display:none;">
+        <div class="ios-loading-box">
+            <div class="ios-spinner"></div>
+            <div class="ios-loading-text" id="iosLoadingText">Processing...</div>
+        </div>
     </div>
 
     <div id="messageArea"></div>
@@ -1289,6 +1687,72 @@
                     style="padding:12px 24px; border-radius:20px; border:none; background:var(--md-sys-color-primary); color:var(--md-sys-color-on-primary); font-weight:500; font-size:14px; cursor:pointer;">
                     Add Student
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Tracker Modal -->
+    <div id="syncTrackerModal" class="sync-tracker-modal">
+        <div class="sync-tracker-header">
+            <button onclick="closeSyncTracker()" style="background:none; border:none; cursor:pointer; padding:8px;">
+                <span class="material-symbols-outlined" style="color:var(--md-sys-color-primary);">arrow_back_ios</span>
+            </button>
+            <h2>📊 Sync Tracker</h2>
+        </div>
+        <div class="sync-tracker-content">
+            <!-- Date Range Pills -->
+            <div class="date-range-pills" style="flex-wrap: wrap;">
+                <button class="date-range-pill active" onclick="setTrackerRange(7)">7 Days</button>
+                <button class="date-range-pill" onclick="setTrackerRange(30)">30 Days</button>
+                <button class="date-range-pill" onclick="setTrackerRange(90)">3 Months</button>
+                <button class="date-range-pill" onclick="setTrackerRange(180)">6 Months</button>
+                <button class="date-range-pill" onclick="showCustomDatePicker()">Custom</button>
+            </div>
+
+            <!-- Custom Date Picker (hidden by default) -->
+            <div id="customDatePicker"
+                style="display:none; margin-bottom:16px; padding:12px; background:var(--md-sys-color-surface-variant); border-radius:12px;">
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <label style="font-size:13px; color:var(--md-sys-color-on-surface-variant);">From:</label>
+                    <input type="date" id="trackerStartDate"
+                        style="padding:8px 12px; border-radius:8px; border:1px solid var(--md-sys-color-outline); background:var(--md-sys-color-surface); color:var(--md-sys-color-on-surface); font-size:14px;">
+                    <label style="font-size:13px; color:var(--md-sys-color-on-surface-variant);">To:</label>
+                    <input type="date" id="trackerEndDate"
+                        style="padding:8px 12px; border-radius:8px; border:1px solid var(--md-sys-color-outline); background:var(--md-sys-color-surface); color:var(--md-sys-color-on-surface); font-size:14px;">
+                    <button onclick="applyCustomDateRange()"
+                        style="padding:8px 16px; border-radius:8px; border:none; background:var(--md-sys-color-primary); color:white; font-size:13px; font-weight:500; cursor:pointer;">Apply</button>
+                </div>
+            </div>
+
+            <!-- Sync Status Grid -->
+            <table class="sync-tracker-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>🧘<br><span style="font-size:9px;">Yoga</span></th>
+                        <th>🌅<br><span style="font-size:9px;">Mess Day</span></th>
+                        <th>🌙<br><span style="font-size:9px;">Mess Night</span></th>
+                        <th>🌃<br><span style="font-size:9px;">Night Shift</span></th>
+                        <th>✓<br><span style="font-size:9px;">All</span></th>
+                    </tr>
+                </thead>
+                <tbody id="syncTrackerBody">
+                    <!-- Rows will be generated by JS -->
+                </tbody>
+            </table>
+
+            <!-- Summary Card -->
+            <div class="sync-summary-card">
+                <div class="sync-summary-title">
+                    <span class="material-symbols-outlined" style="font-size:18px;">trending_up</span>
+                    Weekly Summary
+                </div>
+                <div class="sync-progress-bar">
+                    <div class="sync-progress-fill" id="syncProgressFill" style="width: 0%;"></div>
+                </div>
+                <div class="sync-summary-stats" id="syncSummaryStats">
+                    0% Complete • 0/0 Days Synced
+                </div>
             </div>
         </div>
     </div>
@@ -1353,13 +1817,19 @@
         let loadedFromSheets = {};
         let studentSearchQuery = '';
         let verifiedCategories = {};
+        let syncedCategories = {}; // Track which date+category has been synced
         const CATEGORIES = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
-        const STORAGE_KEY = 'hostel_attendance_saved_v1';
+        const STORAGE_KEY = 'hostel_attendance_saved_v2';
+        const SYNC_STATUS_KEY = 'hostel_sync_status_v1';
+        const LAST_STATE_KEY = 'hostel_last_state_v1';
         let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLrD98LEE_PQtqySBKqrZLyKvqzM3nXCAEMyYmejkLqwexp6cUTmDlIljQEazc7_8i/exec';
+        let autoSaveTimeout = null;
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function () {
             initTheme();
+            restoreLastState(); // Restore date and category from last session
+            loadSyncStatus(); // Load which date+categories have been synced
             setTodayDate();
             document.getElementById('attendanceDate').addEventListener('change', handleDateChange);
             document.getElementById('studentSearch').addEventListener('input', function () {
@@ -1378,9 +1848,137 @@
                 }
             });
 
+            // Save state before page unload (refresh/close)
+            window.addEventListener('beforeunload', function () {
+                saveCurrentState();
+            });
+
             // Auto-fetch students from Google Sheets on load
             fetchStudentsFromSheet();
         });
+
+        // --- iOS-Style Toast & Loading Functions ---
+        function showIOSToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('iosToastContainer');
+            if (!container) return;
+
+            // Remove existing toast
+            container.innerHTML = '';
+
+            const icons = {
+                success: 'check',
+                error: 'close',
+                warning: 'priority_high',
+                info: 'info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `ios-toast ${type}`;
+            toast.innerHTML = `
+                <div class="ios-toast-icon">
+                    <span class="material-symbols-outlined">${icons[type] || 'info'}</span>
+                </div>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto dismiss
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if (container.contains(toast)) {
+                        container.removeChild(toast);
+                    }
+                }, 250);
+            }, duration);
+        }
+
+        function showIOSLoading(text = 'Processing...') {
+            const overlay = document.getElementById('iosLoadingOverlay');
+            const textEl = document.getElementById('iosLoadingText');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.classList.remove('hiding');
+            }
+            if (textEl) textEl.textContent = text;
+        }
+
+        function hideIOSLoading() {
+            const overlay = document.getElementById('iosLoadingOverlay');
+            if (overlay) {
+                overlay.classList.add('hiding');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    overlay.classList.remove('hiding');
+                }, 200);
+            }
+        }
+
+        // --- Sync Status Management ---
+        function loadSyncStatus() {
+            try {
+                const saved = localStorage.getItem(SYNC_STATUS_KEY);
+                if (saved) {
+                    syncedCategories = JSON.parse(saved);
+                }
+            } catch (e) { syncedCategories = {}; }
+        }
+
+        function saveSyncStatus() {
+            try {
+                localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(syncedCategories));
+            } catch (e) { /* ignore */ }
+        }
+
+        function isSynced(date, category) {
+            const key = `${date}_${category}`;
+            return syncedCategories[key] === true;
+        }
+
+        function markAsSynced(date, category) {
+            const key = `${date}_${category}`;
+            syncedCategories[key] = true;
+            saveSyncStatus();
+        }
+
+        // --- State Persistence ---
+        function saveCurrentState() {
+            const date = document.getElementById('attendanceDate')?.value;
+            try {
+                // Save current attendance for all categories
+                const store = getSavedStore();
+                if (date) {
+                    store[date] = store[date] || {};
+                    CATEGORIES.forEach(cat => {
+                        if (attendanceByCategory[cat] && Object.keys(attendanceByCategory[cat]).length > 0) {
+                            store[date][cat] = { ...attendanceByCategory[cat] };
+                        }
+                    });
+                    store[date].verified = verifiedCategories;
+                    setSavedStore(store);
+                }
+
+                // Save last viewed date and category
+                localStorage.setItem(LAST_STATE_KEY, JSON.stringify({
+                    date: date,
+                    category: currentCategory
+                }));
+            } catch (e) { /* ignore */ }
+        }
+
+        function restoreLastState() {
+            try {
+                const saved = localStorage.getItem(LAST_STATE_KEY);
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    // Restore category if needed
+                    if (state.category && CATEGORIES.includes(state.category)) {
+                        currentCategory = state.category;
+                    }
+                }
+            } catch (e) { /* ignore */ }
+        }
 
         // --- Theme Logic ---
         function initTheme() {
@@ -1507,10 +2105,12 @@
                 attendance = attendanceByCategory[currentCategory];
                 loadAttendanceData().then(() => {
                     updateVerificationUI();
+                    updateFetchButtonVisibility();
                 });
             } else {
                 renderStudentList();
                 loadVerificationState(dateStr);
+                updateFetchButtonVisibility();
             }
         }
 
@@ -1548,6 +2148,438 @@
 
             renderStudentList();
             updateVerificationUI();
+            updateFetchButtonVisibility();
+        }
+
+        // --- Fetch Button Logic ---
+        function updateFetchButtonVisibility() {
+            const container = document.getElementById('fetchButtonContainer');
+            const categoryLabel = document.getElementById('fetchCategoryName');
+            const statusText = document.getElementById('fetchStatusText');
+            if (!container) return;
+
+            const date = document.getElementById('attendanceDate').value;
+            // Use local date format (YYYY-MM-DD) instead of UTC to avoid timezone issues
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            // Show fetch button only for past dates
+            if (date < today) {
+                container.style.display = 'block';
+                if (categoryLabel) categoryLabel.textContent = currentCategory;
+
+                // Update status text
+                if (statusText) {
+                    if (isSynced(date, currentCategory)) {
+                        statusText.textContent = '✓ Data already loaded from database';
+                        statusText.style.color = 'var(--color-present)';
+                    } else {
+                        statusText.textContent = 'Click to fetch attendance records from database';
+                        statusText.style.color = 'var(--md-sys-color-on-surface-variant)';
+                    }
+                }
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // Fetch current section's data from database
+        async function fetchCurrentSectionFromDB() {
+            const date = document.getElementById('attendanceDate').value;
+            const category = currentCategory;
+
+            if (!date) {
+                showMessage('Please select a date', 'error');
+                return;
+            }
+
+            showIOSLoading(`Fetching ${category} data...`);
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "fetch_category_data",
+                        date: date,
+                        category: category
+                    })
+                });
+                const json = await res.json();
+                hideIOSLoading();
+
+                if (json.result === 'success' && json.data && json.data.length > 1) {
+                    // Parse and populate attendance
+                    const rows = json.data;
+                    const headers = rows[0];
+                    const nameIdx = headers.indexOf('Full Name');
+                    const statusIdx = headers.indexOf('Status');
+
+                    if (nameIdx !== -1 && statusIdx !== -1) {
+                        ensureCategoryAttendance(category);
+                        let count = 0;
+                        for (let i = 1; i < rows.length; i++) {
+                            const name = rows[i][nameIdx];
+                            const status = rows[i][statusIdx];
+                            if (name && ['Present', 'Absent', 'Leave'].includes(status)) {
+                                attendanceByCategory[category][name] = status;
+                                count++;
+                            }
+                        }
+
+                        if (!loadedFromSheets[date]) loadedFromSheets[date] = {};
+                        loadedFromSheets[date][category] = true;
+                        markAsSynced(date, category);
+
+                        attendance = attendanceByCategory[currentCategory];
+                        renderStudentList();
+                        updateFetchButtonVisibility();
+                        showMessage(`Fetched ${count} records for ${category}!`, 'success');
+                    } else {
+                        showMessage('Invalid data format from database', 'error');
+                    }
+                } else if (json.result === 'success') {
+                    showMessage(`No ${category} data found for ${date}`, 'warning');
+                } else {
+                    showMessage(`Fetch Failed: ${json.error || 'Unknown error'}`, 'error');
+                }
+            } catch (e) {
+                hideIOSLoading();
+                showMessage(`Network Error: ${e.message}`, 'error');
+            }
+        }
+
+        // --- Sync Tracker Logic (YouTube-Level Optimized) ---
+        let trackerDaysRange = 7;
+
+        // SyncCache with TTL for production-level caching
+        const SyncCache = {
+            data: {},
+            ttl: 5 * 60 * 1000, // 5 minutes cache
+
+            getKey(date, category) {
+                return `${date}_${category}`;
+            },
+
+            get(date, category) {
+                const key = this.getKey(date, category);
+                const entry = this.data[key];
+                if (!entry) return null;
+                if (Date.now() - entry.timestamp > this.ttl) {
+                    delete this.data[key];
+                    return null;
+                }
+                return entry.value;
+            },
+
+            set(date, category, count) {
+                const key = this.getKey(date, category);
+                this.data[key] = {
+                    value: count,
+                    timestamp: Date.now()
+                };
+            },
+
+            setBatch(statusData) {
+                Object.keys(statusData).forEach(date => {
+                    Object.keys(statusData[date]).forEach(category => {
+                        this.set(date, category, statusData[date][category]);
+                    });
+                });
+            },
+
+            clear() {
+                this.data = {};
+            }
+        };
+
+        // Batch fetch sync status from database
+        async function fetchSyncStatusFromDB(dates) {
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'get_sync_status',
+                        dates: dates,
+                        totalStudents: students.length
+                    })
+                });
+                const json = await res.json();
+                if (json.result === 'success') {
+                    SyncCache.setBatch(json.data);
+                    return json.data;
+                }
+            } catch (e) {
+                console.error('Sync status fetch error:', e);
+            }
+            return null;
+        }
+
+        // Check if synced from cache or return null
+        function getCachedSyncCount(date, category) {
+            return SyncCache.get(date, category);
+        }
+
+        function openSyncTracker() {
+            closeDrawer();
+            const modal = document.getElementById('syncTrackerModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.remove('hiding');
+                renderSyncTrackerGrid();
+            }
+        }
+
+        function closeSyncTracker() {
+            const modal = document.getElementById('syncTrackerModal');
+            if (modal) {
+                modal.classList.add('hiding');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modal.classList.remove('hiding');
+                }, 250);
+            }
+        }
+
+        function setTrackerRange(days) {
+            trackerDaysRange = days;
+            // Update active pill
+            document.querySelectorAll('.date-range-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if (pill.textContent.includes(days)) {
+                    pill.classList.add('active');
+                }
+            });
+            // Hide custom date picker when preset is selected
+            const customPicker = document.getElementById('customDatePicker');
+            if (customPicker) customPicker.style.display = 'none';
+
+            renderSyncTrackerGrid();
+        }
+
+        function showCustomDatePicker() {
+            // Update active pill
+            document.querySelectorAll('.date-range-pill').forEach(pill => {
+                pill.classList.remove('active');
+                if (pill.textContent === 'Custom') {
+                    pill.classList.add('active');
+                }
+            });
+
+            // Show custom date picker
+            const customPicker = document.getElementById('customDatePicker');
+            if (customPicker) {
+                customPicker.style.display = 'block';
+
+                // Set default dates (last 7 days)
+                const now = new Date();
+                const endDate = now.toISOString().split('T')[0];
+                const startDate = new Date(now);
+                startDate.setDate(startDate.getDate() - 7);
+
+                document.getElementById('trackerEndDate').value = endDate;
+                document.getElementById('trackerStartDate').value = startDate.toISOString().split('T')[0];
+            }
+        }
+
+        function applyCustomDateRange() {
+            const startDateInput = document.getElementById('trackerStartDate');
+            const endDateInput = document.getElementById('trackerEndDate');
+
+            if (!startDateInput.value || !endDateInput.value) {
+                showMessage('Please select both dates', 'error');
+                return;
+            }
+
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            if (startDate > endDate) {
+                showMessage('Start date must be before end date', 'error');
+                return;
+            }
+
+            // Calculate days between dates
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+            trackerDaysRange = diffDays;
+            customStartDate = startDateInput.value;
+            customEndDate = endDateInput.value;
+            isCustomRange = true;
+
+            renderSyncTrackerGridCustom(startDate, endDate);
+        }
+
+        let customStartDate = null;
+        let customEndDate = null;
+        let isCustomRange = false;
+
+        async function renderSyncTrackerGrid() {
+            const tbody = document.getElementById('syncTrackerBody');
+            if (!tbody) return;
+
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--md-sys-color-on-surface-variant);">Loading from database...</td></tr>';
+
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            // Build dates array for batch fetch
+            const dates = [];
+            for (let i = 0; i < trackerDaysRange; i++) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                dates.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+            }
+
+            // Batch fetch from database
+            const dbStatus = await fetchSyncStatusFromDB(dates);
+            const totalStudents = students.length;
+
+            let html = '';
+            let totalDays = 0;
+            let completeDays = 0;
+
+            for (let i = 0; i < trackerDaysRange; i++) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                const dateStr = dates[i];
+                const displayDate = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+
+                const isToday = dateStr === todayStr;
+
+                // Get counts from database
+                const yogaCount = dbStatus?.[dateStr]?.['Yoga'] || 0;
+                const messDayCount = dbStatus?.[dateStr]?.['Mess Day'] || 0;
+                const messNightCount = dbStatus?.[dateStr]?.['Mess Night'] || 0;
+                const nightShiftCount = dbStatus?.[dateStr]?.['Night Shift'] || 0;
+
+                // Calculate sync status: full, partial, or none
+                const yogaStatus = getSyncLevel(yogaCount, totalStudents);
+                const messDayStatus = getSyncLevel(messDayCount, totalStudents);
+                const messNightStatus = getSyncLevel(messNightCount, totalStudents);
+                const nightShiftStatus = getSyncLevel(nightShiftCount, totalStudents);
+                const allSynced = yogaStatus === 'full' && messDayStatus === 'full' && messNightStatus === 'full' && nightShiftStatus === 'full';
+
+                // Count for summary (exclude today)
+                if (!isToday) {
+                    totalDays++;
+                    if (allSynced) completeDays++;
+                }
+
+                html += `
+                    <tr class="${isToday ? 'today' : ''}">
+                        <td>${displayDate}${isToday ? ' <span style="font-size:10px;color:var(--md-sys-color-primary);">(Today)</span>' : ''}</td>
+                        <td>${renderStatusDotDB(yogaStatus, yogaCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(messDayStatus, messDayCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(messNightStatus, messNightCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(nightShiftStatus, nightShiftCount, totalStudents, isToday)}</td>
+                        <td>${allSynced ? '<span class="status-dot complete"><span class="material-symbols-outlined" style="font-size:16px;">check</span></span>' : '<span class="status-dot not-synced">○</span>'}</td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = html;
+
+            // Update summary
+            const percentage = totalDays > 0 ? Math.round((completeDays / totalDays) * 100) : 0;
+            const progressFill = document.getElementById('syncProgressFill');
+            const summaryStats = document.getElementById('syncSummaryStats');
+
+            if (progressFill) progressFill.style.width = `${percentage}%`;
+            if (summaryStats) summaryStats.innerHTML = `<strong>${percentage}%</strong> Complete • <strong>${completeDays}/${totalDays}</strong> Days Fully Synced`;
+        }
+
+        // Get sync level: 'full' or 'none'
+        // Note: If data exists, it's 'full' - we can't compare against current student count
+        // because new students may have been added after historical dates were synced
+        function getSyncLevel(count, total) {
+            // If there's any data synced, mark as full (can't retroactively add new students)
+            if (count > 0) return 'full';
+            return 'none';
+        }
+
+        // Render status dot based on database count
+        function renderStatusDotDB(status, count, total, isToday) {
+            if (status === 'full') {
+                return '<span class="status-dot synced"><span class="material-symbols-outlined" style="font-size:16px;">check</span></span>';
+            } else if (status === 'partial') {
+                return `<span class="status-dot" style="background:rgba(255,149,0,0.15);color:#FF9500;" title="${count}/${total}"><span class="material-symbols-outlined" style="font-size:16px;">remove</span></span>`;
+            } else if (isToday) {
+                return '<span class="status-dot not-synced" style="background:rgba(0,122,255,0.1);color:#007AFF;">○</span>';
+            } else {
+                return '<span class="status-dot not-synced">○</span>';
+            }
+        }
+
+        function renderStatusDot(isSynced, isToday) {
+            if (isSynced) {
+                return '<span class="status-dot synced"><span class="material-symbols-outlined" style="font-size:16px;">check</span></span>';
+            } else if (isToday) {
+                return '<span class="status-dot not-synced" style="background:rgba(0,122,255,0.1);color:#007AFF;">○</span>';
+            } else {
+                return '<span class="status-dot not-synced">○</span>';
+            }
+        }
+
+        // Render grid for custom date range
+        function renderSyncTrackerGridCustom(startDate, endDate) {
+            const tbody = document.getElementById('syncTrackerBody');
+            if (!tbody) return;
+
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            let html = '';
+            let totalDays = 0;
+            let completeDays = 0;
+
+            // Iterate from end date to start date (newest first)
+            const current = new Date(endDate);
+            while (current >= startDate) {
+                const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+                const displayDate = current.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+
+                const isToday = dateStr === todayStr;
+
+                // Check sync status for each category
+                const yogaSynced = isSynced(dateStr, 'Yoga');
+                const messDaySynced = isSynced(dateStr, 'Mess Day');
+                const messNightSynced = isSynced(dateStr, 'Mess Night');
+                const nightShiftSynced = isSynced(dateStr, 'Night Shift');
+                const allSynced = yogaSynced && messDaySynced && messNightSynced && nightShiftSynced;
+
+                // Count for summary (exclude today)
+                if (!isToday) {
+                    totalDays++;
+                    if (allSynced) completeDays++;
+                }
+
+                html += `
+                    <tr class="${isToday ? 'today' : ''}">
+                        <td>${displayDate}${isToday ? ' <span style="font-size:10px;color:var(--md-sys-color-primary);">(Today)</span>' : ''}</td>
+                        <td>${renderStatusDot(yogaSynced, isToday)}</td>
+                        <td>${renderStatusDot(messDaySynced, isToday)}</td>
+                        <td>${renderStatusDot(messNightSynced, isToday)}</td>
+                        <td>${renderStatusDot(nightShiftSynced, isToday)}</td>
+                        <td>${allSynced ? '<span class="status-dot complete"><span class="material-symbols-outlined" style="font-size:16px;">check</span></span>' : '<span class="status-dot not-synced">○</span>'}</td>
+                    </tr>
+                `;
+
+                current.setDate(current.getDate() - 1);
+            }
+
+            tbody.innerHTML = html;
+
+            // Update summary
+            const percentage = totalDays > 0 ? Math.round((completeDays / totalDays) * 100) : 0;
+            const progressFill = document.getElementById('syncProgressFill');
+            const summaryStats = document.getElementById('syncSummaryStats');
+
+            if (progressFill) progressFill.style.width = `${percentage}%`;
+            if (summaryStats) summaryStats.innerHTML = `<strong>${percentage}%</strong> Complete • <strong>${completeDays}/${totalDays}</strong> Days Fully Synced`;
+
+            showMessage('Custom range applied!', 'success');
         }
 
         // --- Fetch Students from Google Sheets (with caching) ---
@@ -1792,6 +2824,14 @@
 
         // Cycle through Present → Absent → Leave → Present
         function cycleStatus(studentName) {
+            const date = document.getElementById('attendanceDate').value;
+
+            // Don't allow changes if this category is already synced
+            if (isSynced(date, currentCategory)) {
+                showMessage(`${currentCategory} is synced. Cannot modify.`, 'warning');
+                return;
+            }
+
             ensureCategoryAttendance(currentCategory);
             const currentStatus = attendanceByCategory[currentCategory][studentName] || 'Present';
             let newStatus;
@@ -1802,6 +2842,9 @@
             attendanceByCategory[currentCategory][studentName] = newStatus;
             attendance = attendanceByCategory[currentCategory];
             renderStudentList();
+
+            // Auto-save after status change
+            autoSaveAttendance();
         }
 
         function updateStatus(studentName, status) {
@@ -1954,9 +2997,45 @@
                 const store = getSavedStore();
                 store[date] = store[date] || {};
                 store[date][currentCategory] = { ...attendanceByCategory[currentCategory] };
+                store[date].verified = verifiedCategories;
                 setSavedStore(store);
                 showMessage(`Saved ${currentCategory} for ${date}`, 'success');
             } catch (e) { showMessage(e.message, 'error'); }
+        }
+
+        // Save ALL categories for current date
+        function saveAllAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data to save', 'error');
+            try {
+                const store = getSavedStore();
+                store[date] = store[date] || {};
+                CATEGORIES.forEach(cat => {
+                    ensureCategoryAttendance(cat);
+                    if (attendanceByCategory[cat] && Object.keys(attendanceByCategory[cat]).length > 0) {
+                        store[date][cat] = { ...attendanceByCategory[cat] };
+                    }
+                });
+                store[date].verified = verifiedCategories;
+                setSavedStore(store);
+                showMessage(`Saved all sections for ${date}`, 'success');
+            } catch (e) { showMessage(e.message, 'error'); }
+        }
+
+        // Auto-save with debounce (called on status change)
+        function autoSaveAttendance() {
+            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                const date = document.getElementById('attendanceDate').value;
+                if (!date || !students.length) return;
+                try {
+                    const store = getSavedStore();
+                    store[date] = store[date] || {};
+                    store[date][currentCategory] = { ...attendanceByCategory[currentCategory] };
+                    store[date].verified = verifiedCategories;
+                    setSavedStore(store);
+                } catch (e) { /* silent auto-save */ }
+            }, 500);
         }
 
         async function loadAttendanceData() {
@@ -1965,7 +3044,62 @@
             if (loadedFromSheets[date][currentCategory]) return renderStudentList();
 
             if (typeof GOOGLE_SCRIPT_URL === 'undefined') return renderStudentList();
+
+            // Try to fetch from database for previous dates
+            const today = new Date().toISOString().split('T')[0];
+            if (date < today && !loadedFromSheets[date][currentCategory]) {
+                await fetchAttendanceFromDatabase(date);
+            }
+
             renderStudentList();
+        }
+
+        // Fetch attendance from Google Sheets for a specific date
+        async function fetchAttendanceFromDatabase(date) {
+            try {
+                showIOSLoading('Loading from database...');
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "fetch_reports", date: date })
+                });
+                const json = await res.json();
+                hideIOSLoading();
+
+                if (json.result === 'success' && json.data) {
+                    let foundData = false;
+                    for (const [sheetName, rows] of Object.entries(json.data)) {
+                        if (rows && rows.length > 1 && CATEGORIES.includes(sheetName)) {
+                            // Parse and populate attendance
+                            const headers = rows[0];
+                            const nameIdx = headers.indexOf('Full Name');
+                            const statusIdx = headers.indexOf('Status');
+
+                            if (nameIdx !== -1 && statusIdx !== -1) {
+                                ensureCategoryAttendance(sheetName);
+                                for (let i = 1; i < rows.length; i++) {
+                                    const name = rows[i][nameIdx];
+                                    const status = rows[i][statusIdx];
+                                    if (name && ['Present', 'Absent', 'Leave'].includes(status)) {
+                                        attendanceByCategory[sheetName][name] = status;
+                                    }
+                                }
+                                if (!loadedFromSheets[date]) loadedFromSheets[date] = {};
+                                loadedFromSheets[date][sheetName] = true;
+                                // Mark as synced since it came from database
+                                markAsSynced(date, sheetName);
+                                foundData = true;
+                            }
+                        }
+                    }
+                    if (foundData) {
+                        attendance = attendanceByCategory[currentCategory];
+                        showMessage('Loaded from database', 'success');
+                    }
+                }
+            } catch (e) {
+                hideIOSLoading();
+                // Silent fail, use local data
+            }
         }
 
         function downloadAttendance() {
@@ -1984,7 +3118,6 @@
 
             students.forEach(s => {
                 const status = attendance[s.name] || 'Present';
-                // Use student data directly from students array
                 csv += `${csvEscape(s.name)},${csvEscape(s.appNumber || '')},${csvEscape(s.appId || '')},${csvEscape(s.hostelId || '')},${csvEscape(s.allocation || '')},${csvEscape(timeValue)},${csvEscape(status)},,${csvEscape(date)}\n`;
             });
 
@@ -2014,7 +3147,6 @@
 
                     students.forEach(s => {
                         const status = catAtt[s.name] || 'Present';
-                        // Use student data directly from students array
                         aoa.push([
                             s.name,
                             s.appNumber || '',
@@ -2035,16 +3167,26 @@
             } catch (e) { showMessage(e.message, 'error'); }
         }
 
-        async function syncToGoogleSheet() {
+        // Sync CURRENT section only (Individual Sync)
+        async function syncCurrentSection() {
             const date = document.getElementById('attendanceDate').value;
+            const category = currentCategory;
+
             if (!students.length) return showMessage('No data to sync', 'error');
 
-            const unverified = CATEGORIES.filter(c => !verifiedCategories[c]);
-            if (unverified.length > 0) return showMessage(`Verify first: ${unverified.join(', ')}`, 'error');
+            // Check if already synced
+            if (isSynced(date, category)) {
+                showMessage(`${category} already synced for ${date}. Cannot re-sync.`, 'warning');
+                return;
+            }
 
-            if (!confirm(`Sync ALL 4 Categories for ${date}?`)) return;
+            // Check if verified
+            if (!verifiedCategories[category]) {
+                showMessage(`Please verify ${category} first`, 'error');
+                return;
+            }
 
-            showMessage('Syncing...', 'info');
+            showIOSLoading(`Syncing ${category}...`);
 
             const timeValueByCategory = {
                 'Yoga': 'Morning',
@@ -2053,18 +3195,91 @@
                 'Night Shift': 'Night'
             };
 
-            // Prepare Map for faster lookup of original CSV data
-            const studentDataMap = new Map();
-            csvData.forEach(row => {
-                if (row['Full Name']) {
-                    studentDataMap.set(row['Full Name'], row);
-                }
+            ensureCategoryAttendance(category);
+            const catAtt = attendanceByCategory[category];
+            const timeValue = timeValueByCategory[category] || category;
+
+            const rows = [];
+            students.forEach(s => {
+                const status = catAtt[s.name] || 'Present';
+                rows.push([
+                    s.name,
+                    s.appNumber || '',
+                    s.appId || '',
+                    s.hostelId || '',
+                    s.allocation || '',
+                    timeValue,
+                    status,
+                    '',
+                    date
+                ]);
             });
 
-            // Prepare batches by category
+            const payload = {
+                action: "sync_batched_multi_sheet",
+                batches: { [category]: rows }
+            };
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                hideIOSLoading();
+
+                if (json.result === 'success') {
+                    markAsSynced(date, category);
+                    showMessage(`${category} synced successfully! 🔒`, 'success');
+                } else {
+                    showMessage(`Sync Failed: ${json.error}`, 'error');
+                }
+            } catch (e) {
+                hideIOSLoading();
+                showMessage(`Network Error: ${e.message}`, 'error');
+            }
+        }
+
+        // Sync ALL sections
+        async function syncToGoogleSheet() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!students.length) return showMessage('No data to sync', 'error');
+
+            // Check which categories are already synced
+            const alreadySynced = CATEGORIES.filter(c => isSynced(date, c));
+            const notSynced = CATEGORIES.filter(c => !isSynced(date, c));
+
+            if (alreadySynced.length === CATEGORIES.length) {
+                showMessage('All sections already synced for this date!', 'warning');
+                return;
+            }
+
+            // Check verification for non-synced categories
+            const unverified = notSynced.filter(c => !verifiedCategories[c]);
+            if (unverified.length > 0) {
+                showMessage(`Verify first: ${unverified.join(', ')}`, 'error');
+                return;
+            }
+
+            let confirmMsg = `Sync ${notSynced.join(', ')} for ${date}?`;
+            if (alreadySynced.length > 0) {
+                confirmMsg += `\n\n(${alreadySynced.join(', ')} already synced - will be skipped)`;
+            }
+            if (!confirm(confirmMsg)) return;
+
+            showIOSLoading('Syncing all sections...');
+
+            const timeValueByCategory = {
+                'Yoga': 'Morning',
+                'Mess Day': 'Morning',
+                'Mess Night': 'Night',
+                'Night Shift': 'Night'
+            };
+
+            // Prepare batches only for non-synced categories
             const batches = {};
 
-            for (const cat of CATEGORIES) {
+            for (const cat of notSynced) {
                 ensureCategoryAttendance(cat);
                 const catAtt = attendanceByCategory[cat];
                 const timeValue = timeValueByCategory[cat] || cat;
@@ -2072,7 +3287,6 @@
                 const rows = [];
                 students.forEach(s => {
                     const status = catAtt[s.name] || 'Present';
-                    // Use student data directly from students array
                     rows.push([
                         s.name,
                         s.appNumber || '',
@@ -2095,24 +3309,35 @@
             };
 
             try {
-                // Send as text/plain to avoid CORS Preflight
                 const res = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify(payload)
                 });
                 const json = await res.json();
+                hideIOSLoading();
 
                 if (json.result === 'success') {
-                    showMessage('Sync Completed Successfully', 'success');
+                    // Mark all synced categories
+                    notSynced.forEach(cat => markAsSynced(date, cat));
+                    showMessage('Sync Completed! All sections locked 🔒', 'success');
                 } else {
                     showMessage(`Sync Failed: ${json.error}`, 'error');
                 }
             } catch (e) {
+                hideIOSLoading();
                 showMessage(`Network Error: ${e.message}`, 'error');
             }
         }
 
         function resetAttendance() {
+            const date = document.getElementById('attendanceDate').value;
+
+            // Don't allow reset if synced
+            if (isSynced(date, currentCategory)) {
+                showMessage(`Cannot reset ${currentCategory} - already synced!`, 'error');
+                return;
+            }
+
             if (confirm('Reset current list to Present?')) {
                 students.forEach(s => attendanceByCategory[currentCategory][s.name] = 'Present');
                 attendance = attendanceByCategory[currentCategory];
@@ -2121,17 +3346,9 @@
             }
         }
 
+        // iOS-style showMessage (maps to iOS toast)
         function showMessage(msg, type) {
-            const area = document.getElementById('messageArea');
-            const d = document.createElement('div');
-            d.className = `snackbar ${type}`;
-            d.textContent = msg;
-            area.innerHTML = '';
-            area.appendChild(d);
-            setTimeout(() => {
-                d.style.opacity = '0';
-                setTimeout(() => area.innerHTML = '', 300);
-            }, 3000);
+            showIOSToast(msg, type);
         }
 
         // --- Admin Panel Logic ---

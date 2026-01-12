@@ -23,6 +23,10 @@ function doPost(e) {
       return handleMultiSheetSync(json.batches);
     } else if (json.action === "fetch_reports") {
       return handleFetchReport(json.date);
+    } else if (json.action === "fetch_category_data") {
+      return handleFetchCategoryData(json.date, json.category);
+    } else if (json.action === "get_sync_status") {
+      return handleGetSyncStatus(json.dates, json.totalStudents);
     } else if (json.action === "get_tracking_data") {
       return getTrackingData(json.startDate, json.endDate);
     } else if (json.action === "refresh_tracking") {
@@ -91,6 +95,92 @@ function handleFetchReport(dateStr) {
   
 
   return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: reportData })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Fetch data for a specific category and date
+function handleFetchCategoryData(dateStr, category) {
+  if (!dateStr) return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No date provided' })).setMimeType(ContentService.MimeType.JSON);
+  if (!category) return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No category provided' })).setMimeType(ContentService.MimeType.JSON);
+  
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(category);
+  
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: [] })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  const data = sheet.getDataRange().getDisplayValues();
+  if (data.length <= 1) {
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: [] })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  const headers = data[0];
+  const dateIndex = headers.indexOf('Date');
+  
+  if (dateIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'Date column not found' })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // Filter rows by date, keep headers
+  const filtered = data.filter((row, i) => i === 0 || row[dateIndex] === dateStr);
+  
+  return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: filtered })).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Batch get sync status for multiple dates - optimized single query
+function handleGetSyncStatus(dates, totalStudents) {
+  if (!dates || !dates.length) {
+    return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No dates provided' })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const categories = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
+  const statusData = {};
+  
+  // Build a Set for O(1) date lookup
+  const dateSet = new Set(dates);
+  
+  // Process each category sheet once (not per date - optimized!)
+  categories.forEach(category => {
+    const sheet = ss.getSheetByName(category);
+    if (!sheet) return;
+    
+    const data = sheet.getDataRange().getDisplayValues();
+    if (data.length <= 1) return;
+    
+    const headers = data[0];
+    const dateIndex = headers.indexOf('Date');
+    if (dateIndex === -1) return;
+    
+    // Count records per date using a Map - O(n) single pass
+    const countByDate = {};
+    for (let i = 1; i < data.length; i++) {
+      const rowDate = data[i][dateIndex];
+      if (dateSet.has(rowDate)) {
+        countByDate[rowDate] = (countByDate[rowDate] || 0) + 1;
+      }
+    }
+    
+    // Store counts for this category
+    Object.keys(countByDate).forEach(date => {
+      if (!statusData[date]) statusData[date] = {};
+      statusData[date][category] = countByDate[date];
+    });
+  });
+  
+  // Fill missing entries with 0
+  dates.forEach(date => {
+    if (!statusData[date]) statusData[date] = {};
+    categories.forEach(cat => {
+      if (!statusData[date][cat]) statusData[date][cat] = 0;
+    });
+  });
+  
+  return ContentService.createTextOutput(JSON.stringify({ 
+    result: 'success', 
+    data: statusData,
+    totalStudents: totalStudents || 0
+  })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function calculateTrackingData(startDateStr, endDateStr) {
