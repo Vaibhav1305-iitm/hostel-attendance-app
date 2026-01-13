@@ -57,18 +57,113 @@ function handleMultiSheetSync(batches) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const headers = ["Full Name", "Application: Application Number", "Application: ID", "Hostel Id", "Hostel Allocation", "Time", "Status", "Reason", "Date"];
 
+  let stats = { updated: 0, inserted: 0, skipped: 0 };
+
   for (const [sheetName, rows] of Object.entries(batches)) {
     if (!rows || !rows.length) continue;
     let sheet = ss.getSheetByName(sheetName);
     if (!sheet) sheet = ss.insertSheet(sheetName);
-    if (sheet.getLastRow() === 0) sheet.appendRow(headers);
-    sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, rows[0].length).setValues(rows);
+    
+    // Add headers if sheet is empty
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(headers);
+    }
+    
+    // Get existing data for smart UPSERT logic
+    // Map: "date_name" -> { rowIndex, status }
+    const lastRow = sheet.getLastRow();
+    let existingMap = {};
+    
+    // Helper function to normalize date to YYYY-MM-DD string
+    function normalizeDate(dateVal) {
+      if (!dateVal) return '';
+      if (dateVal instanceof Date) {
+        // Convert Date object to YYYY-MM-DD
+        const y = dateVal.getFullYear();
+        const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+        const d = String(dateVal.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+      // Already a string, return as is
+      return String(dateVal).trim();
+    }
+    
+    if (lastRow > 1) {
+      const existingData = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
+      existingData.forEach((row, idx) => {
+        const dateStr = normalizeDate(row[8]); // Date (col 9) - normalized
+        const nameStr = String(row[0]).trim(); // Name (col 1)
+        const key = dateStr + '_' + nameStr;
+        existingMap[key] = {
+          rowIndex: idx + 2,    // Row number (1-indexed, skip header)
+          status: String(row[6]).trim()  // Status (col 7)
+        };
+      });
+    }
+    
+    // Process each incoming row - UPDATE only if status changed, INSERT if new
+    const newRows = [];
+    rows.forEach(row => {
+      const name = String(row[0]).trim();      // Full Name (column 1) - normalized
+      const newStatus = String(row[6]).trim(); // Status (column 7) - normalized
+      const date = normalizeDate(row[8]);      // Date (column 9) - normalized
+      const key = date + '_' + name;
+      
+      const existing = existingMap[key];
+      
+      if (existing) {
+        // Entry exists - check if status CHANGED
+        if (existing.status !== newStatus) {
+          // Status changed → UPDATE this row only
+          sheet.getRange(existing.rowIndex, 1, 1, row.length).setValues([row]);
+          stats.updated++;
+        } else {
+          // Status same → SKIP (no update needed, keep as is)
+          stats.skipped++;
+        }
+      } else {
+        // Entry doesn't exist → INSERT new row
+        newRows.push(row);
+        stats.inserted++;
+      }
+    });
+    
+    // Append all new rows in one batch (more efficient)
+    if (newRows.length > 0) {
+      sheet.getRange(sheet.getLastRow() + 1, 1, newRows.length, newRows[0].length).setValues(newRows);
+    }
   }
-  return ContentService.createTextOutput(JSON.stringify({ result: 'success' })).setMimeType(ContentService.MimeType.JSON);
+  
+  return ContentService.createTextOutput(JSON.stringify({ 
+    result: 'success',
+    stats: stats  // Return stats: updated, inserted, skipped counts
+  })).setMimeType(ContentService.MimeType.JSON);
 }
+
 
 function handleFetchReport(dateStr) {
   if (!dateStr) return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No date provided' })).setMimeType(ContentService.MimeType.JSON);
+  
+  // Helper to normalize date to YYYY-MM-DD format
+  function normalizeDate(dateVal) {
+    if (!dateVal) return '';
+    if (dateVal instanceof Date) {
+      const y = dateVal.getFullYear();
+      const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dateVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    const str = String(dateVal).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const parts = str.split(/[\/\-]/);
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      if (y && y.length === 4) {
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+    }
+    return str;
+  }
   
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const reportData = {};
@@ -77,15 +172,14 @@ function handleFetchReport(dateStr) {
   sheets.forEach(sheetName => {
     const sheet = ss.getSheetByName(sheetName);
     if (sheet) {
-      const data = sheet.getDataRange().getDisplayValues(); // Get values as strings
+      const data = sheet.getDataRange().getValues(); // Use getValues() for Date objects
       if (data.length > 1) {
-        // Filter by Date (Index 8 is 'Date' column based on our known structure)
-        const headers = data[0];
+        const headers = data[0].map(h => String(h).trim());
         const dateIndex = headers.indexOf('Date');
         
         if (dateIndex !== -1) {
-            const filtered = data.filter((row, i) => i === 0 || row[dateIndex] === dateStr);
-            if (filtered.length > 1) { // If has more than just headers
+            const filtered = data.filter((row, i) => i === 0 || normalizeDate(row[dateIndex]) === dateStr);
+            if (filtered.length > 1) {
                  reportData[sheetName] = filtered;
             }
         }
@@ -93,14 +187,35 @@ function handleFetchReport(dateStr) {
     }
   });
   
-
   return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: reportData })).setMimeType(ContentService.MimeType.JSON);
 }
+
 
 // Fetch data for a specific category and date
 function handleFetchCategoryData(dateStr, category) {
   if (!dateStr) return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No date provided' })).setMimeType(ContentService.MimeType.JSON);
   if (!category) return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No category provided' })).setMimeType(ContentService.MimeType.JSON);
+  
+  // Helper to normalize date to YYYY-MM-DD format
+  function normalizeDate(dateVal) {
+    if (!dateVal) return '';
+    if (dateVal instanceof Date) {
+      const y = dateVal.getFullYear();
+      const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dateVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    const str = String(dateVal).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const parts = str.split(/[\/\-]/);
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      if (y && y.length === 4) {
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+    }
+    return str;
+  }
   
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(category);
@@ -109,28 +224,54 @@ function handleFetchCategoryData(dateStr, category) {
     return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: [] })).setMimeType(ContentService.MimeType.JSON);
   }
   
-  const data = sheet.getDataRange().getDisplayValues();
+  const data = sheet.getDataRange().getValues(); // Use getValues() to get Date objects
   if (data.length <= 1) {
     return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: [] })).setMimeType(ContentService.MimeType.JSON);
   }
   
-  const headers = data[0];
+  const headers = data[0].map(h => String(h).trim());
   const dateIndex = headers.indexOf('Date');
   
   if (dateIndex === -1) {
     return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'Date column not found' })).setMimeType(ContentService.MimeType.JSON);
   }
   
-  // Filter rows by date, keep headers
-  const filtered = data.filter((row, i) => i === 0 || row[dateIndex] === dateStr);
+  // Filter rows by date (normalized), keep headers
+  const filtered = data.filter((row, i) => i === 0 || normalizeDate(row[dateIndex]) === dateStr);
   
   return ContentService.createTextOutput(JSON.stringify({ result: 'success', data: filtered })).setMimeType(ContentService.MimeType.JSON);
 }
+
 
 // Batch get sync status for multiple dates - optimized single query
 function handleGetSyncStatus(dates, totalStudents) {
   if (!dates || !dates.length) {
     return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'No dates provided' })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // Helper to normalize date to YYYY-MM-DD format
+  function normalizeDate(dateVal) {
+    if (!dateVal) return '';
+    if (dateVal instanceof Date) {
+      const y = dateVal.getFullYear();
+      const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dateVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    // Try to parse string date formats like "13/01/2026" or "1/13/2026"
+    const str = String(dateVal).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str; // Already YYYY-MM-DD
+    
+    // Try DD/MM/YYYY or MM/DD/YYYY
+    const parts = str.split(/[\/\-]/);
+    if (parts.length === 3) {
+      // Assume DD/MM/YYYY format (common in India)
+      const [d, m, y] = parts;
+      if (y && y.length === 4) {
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+    }
+    return str;
   }
   
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -145,17 +286,17 @@ function handleGetSyncStatus(dates, totalStudents) {
     const sheet = ss.getSheetByName(category);
     if (!sheet) return;
     
-    const data = sheet.getDataRange().getDisplayValues();
+    const data = sheet.getDataRange().getValues(); // Use getValues() to get Date objects
     if (data.length <= 1) return;
     
-    const headers = data[0];
+    const headers = data[0].map(h => String(h).trim());
     const dateIndex = headers.indexOf('Date');
     if (dateIndex === -1) return;
     
     // Count records per date using a Map - O(n) single pass
     const countByDate = {};
     for (let i = 1; i < data.length; i++) {
-      const rowDate = data[i][dateIndex];
+      const rowDate = normalizeDate(data[i][dateIndex]); // Normalize date!
       if (dateSet.has(rowDate)) {
         countByDate[rowDate] = (countByDate[rowDate] || 0) + 1;
       }
@@ -182,6 +323,7 @@ function handleGetSyncStatus(dates, totalStudents) {
     totalStudents: totalStudents || 0
   })).setMimeType(ContentService.MimeType.JSON);
 }
+
 
 function calculateTrackingData(startDateStr, endDateStr) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();

@@ -1972,9 +1972,12 @@
                 const saved = localStorage.getItem(LAST_STATE_KEY);
                 if (saved) {
                     const state = JSON.parse(saved);
-                    // Restore category if needed
+                    // Restore category if needed AND update UI
                     if (state.category && CATEGORIES.includes(state.category)) {
                         currentCategory = state.category;
+                        // Update header title to match restored category
+                        const headerTitle = document.getElementById('headerTitle');
+                        if (headerTitle) headerTitle.textContent = state.category;
                     }
                 }
             } catch (e) { /* ignore */ }
@@ -2522,32 +2525,52 @@
             }
         }
 
-        // Render grid for custom date range
-        function renderSyncTrackerGridCustom(startDate, endDate) {
+        // Render grid for custom date range - NOW FETCHES FROM DATABASE!
+        async function renderSyncTrackerGridCustom(startDate, endDate) {
             const tbody = document.getElementById('syncTrackerBody');
             if (!tbody) return;
 
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--md-sys-color-on-surface-variant);">Loading from database...</td></tr>';
+
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            // Build dates array for the custom range
+            const dates = [];
+            const current = new Date(endDate);
+            while (current >= startDate) {
+                const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+                dates.push(dateStr);
+                current.setDate(current.getDate() - 1);
+            }
+
+            // Batch fetch from database (like preset ranges)
+            const dbStatus = await fetchSyncStatusFromDB(dates);
+            const totalStudents = students.length;
 
             let html = '';
             let totalDays = 0;
             let completeDays = 0;
 
-            // Iterate from end date to start date (newest first)
-            const current = new Date(endDate);
-            while (current >= startDate) {
-                const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
-                const displayDate = current.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-
+            // Iterate through dates (already in order)
+            for (const dateStr of dates) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const displayDate = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
                 const isToday = dateStr === todayStr;
 
-                // Check sync status for each category
-                const yogaSynced = isSynced(dateStr, 'Yoga');
-                const messDaySynced = isSynced(dateStr, 'Mess Day');
-                const messNightSynced = isSynced(dateStr, 'Mess Night');
-                const nightShiftSynced = isSynced(dateStr, 'Night Shift');
-                const allSynced = yogaSynced && messDaySynced && messNightSynced && nightShiftSynced;
+                // Get counts from database
+                const yogaCount = dbStatus?.[dateStr]?.['Yoga'] || 0;
+                const messDayCount = dbStatus?.[dateStr]?.['Mess Day'] || 0;
+                const messNightCount = dbStatus?.[dateStr]?.['Mess Night'] || 0;
+                const nightShiftCount = dbStatus?.[dateStr]?.['Night Shift'] || 0;
+
+                // Calculate sync status: full, partial, or none
+                const yogaStatus = getSyncLevel(yogaCount, totalStudents);
+                const messDayStatus = getSyncLevel(messDayCount, totalStudents);
+                const messNightStatus = getSyncLevel(messNightCount, totalStudents);
+                const nightShiftStatus = getSyncLevel(nightShiftCount, totalStudents);
+                const allSynced = yogaStatus === 'full' && messDayStatus === 'full' && messNightStatus === 'full' && nightShiftStatus === 'full';
 
                 // Count for summary (exclude today)
                 if (!isToday) {
@@ -2558,15 +2581,13 @@
                 html += `
                     <tr class="${isToday ? 'today' : ''}">
                         <td>${displayDate}${isToday ? ' <span style="font-size:10px;color:var(--md-sys-color-primary);">(Today)</span>' : ''}</td>
-                        <td>${renderStatusDot(yogaSynced, isToday)}</td>
-                        <td>${renderStatusDot(messDaySynced, isToday)}</td>
-                        <td>${renderStatusDot(messNightSynced, isToday)}</td>
-                        <td>${renderStatusDot(nightShiftSynced, isToday)}</td>
+                        <td>${renderStatusDotDB(yogaStatus, yogaCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(messDayStatus, messDayCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(messNightStatus, messNightCount, totalStudents, isToday)}</td>
+                        <td>${renderStatusDotDB(nightShiftStatus, nightShiftCount, totalStudents, isToday)}</td>
                         <td>${allSynced ? '<span class="status-dot complete"><span class="material-symbols-outlined" style="font-size:16px;">check</span></span>' : '<span class="status-dot not-synced">○</span>'}</td>
                     </tr>
                 `;
-
-                current.setDate(current.getDate() - 1);
             }
 
             tbody.innerHTML = html;
@@ -2825,6 +2846,17 @@
         // Cycle through Present → Absent → Leave → Present
         function cycleStatus(studentName) {
             const date = document.getElementById('attendanceDate').value;
+
+            // RESTRICTION: Only allow changes for TODAY's date
+            const now = new Date();
+            const today = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0');
+
+            if (date !== today) {
+                showMessage('❌ Past dates are read-only!', 'warning');
+                return;
+            }
 
             // Don't allow changes if this category is already synced
             if (isSynced(date, currentCategory)) {
@@ -3244,6 +3276,17 @@
         async function syncToGoogleSheet() {
             const date = document.getElementById('attendanceDate').value;
             if (!students.length) return showMessage('No data to sync', 'error');
+
+            // RESTRICTION: Only allow sync for TODAY's date
+            const now = new Date();
+            const today = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0');
+
+            if (date !== today) {
+                showMessage('❌ Cannot update past dates! Only today allowed.', 'error');
+                return;
+            }
 
             // Check which categories are already synced
             const alreadySynced = CATEGORIES.filter(c => isSynced(date, c));
