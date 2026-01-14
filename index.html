@@ -3334,35 +3334,107 @@
             // Build date details HTML
             let detailsHtml = '';
 
+            // Helper function to group dates by year
+            function groupDatesByYear(dates) {
+                if (!dates || dates.length === 0) return {};
+
+                const grouped = {};
+                dates.forEach(dateStr => {
+                    try {
+                        const date = new Date(dateStr);
+                        const year = date.getFullYear();
+                        if (!grouped[year]) grouped[year] = [];
+                        grouped[year].push(dateStr);
+                    } catch (e) {
+                        // Skip invalid dates
+                    }
+                });
+
+                // Sort dates within each year (newest first)
+                Object.keys(grouped).forEach(year => {
+                    grouped[year].sort((a, b) => new Date(b) - new Date(a));
+                });
+
+                return grouped;
+            }
+
+            // Helper function to format date as "Jan-14"
+            function formatDatePill(dateStr) {
+                try {
+                    const date = new Date(dateStr);
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${months[date.getMonth()]}-${day}`;
+                } catch (e) {
+                    return dateStr;
+                }
+            }
+
+            // Helper function to build year-grouped dates HTML with collapsible sections
+            function buildYearGroupedDates(dates, bgColor, textColor, sectionPrefix) {
+                if (!dates || dates.length === 0) return '<div style="color:#8E8E93; font-size:13px; padding:8px 0;">No records</div>';
+
+                const grouped = groupDatesByYear(dates);
+                const years = Object.keys(grouped).sort((a, b) => b - a); // Descending order
+                const MAX_VISIBLE = 10; // Default visible dates per year
+
+                // Store in global cache for expand/collapse
+                const cacheId = sectionPrefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                window._yearDateCache = window._yearDateCache || {};
+                window._yearDateCache[cacheId] = { grouped, bgColor, textColor };
+
+                let html = '';
+                years.forEach((year, idx) => {
+                    const yearDates = grouped[year];
+                    const hasMore = yearDates.length > MAX_VISIBLE;
+                    const sectionId = `${cacheId}_${year}`;
+                    const visibleDates = hasMore ? yearDates.slice(0, MAX_VISIBLE) : yearDates;
+
+                    html += `<div style="margin-bottom:12px;">
+                        <div onclick="toggleYearSection('${sectionId}', '${cacheId}', '${year}')" 
+                             style="font-weight:600; font-size:14px; color:#3C3C43; margin-bottom:8px; display:flex; align-items:center; gap:6px; cursor:${hasMore ? 'pointer' : 'default'}; user-select:none;">
+                            <span id="${sectionId}_arrow" style="color:#8E8E93; font-size:12px; transition:transform 0.2s;">${hasMore ? '▶' : '•'}</span> 
+                            ${year} 
+                            ${hasMore ? `<span style="color:#8E8E93; font-size:12px; font-weight:400;">(${yearDates.length} dates)</span>` : ''}
+                        </div>
+                        <div id="${sectionId}" style="display:flex; flex-wrap:wrap; gap:6px; padding-left:4px;">
+                            ${visibleDates.map(d =>
+                        `<span style="background:${bgColor}; color:${textColor}; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500;">${formatDatePill(d)}</span>`
+                    ).join('')}
+                            ${hasMore ? `<span id="${sectionId}_more" onclick="event.stopPropagation(); toggleYearSection('${sectionId}', '${cacheId}', '${year}')" style="color:#007AFF; cursor:pointer; padding:6px 10px; font-weight:500;">+${yearDates.length - MAX_VISIBLE} more</span>` : ''}
+                        </div>
+                    </div>`;
+                });
+
+                return html;
+            }
+
             // Present dates
             if (student.presentDates && student.presentDates.length > 0) {
-                detailsHtml += `<div style="margin-bottom:16px;">
-                    <div style="font-weight:600; margin-bottom:8px; color:#34C759;">✅ Present Days (${student.presentDates.length})</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${student.presentDates.slice(0, 10).map(d => `<span style="background:#d4edda; color:#155724; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
-                        ${student.presentDates.length > 10 ? `<span style="color:gray;">+${student.presentDates.length - 10} more</span>` : ''}
+                detailsHtml += `<div style="margin-bottom:20px;">
+                    <div style="font-weight:600; margin-bottom:12px; color:#34C759; font-size:15px;">✅ Present Days (${student.presentDates.length})</div>
+                    <div style="background:#F8F8F8; border-radius:12px; padding:12px;">
+                        ${buildYearGroupedDates(student.presentDates, '#d4edda', '#155724', 'present')}
                     </div>
                 </div>`;
             }
 
             // Absent dates
             if (student.absentDates && student.absentDates.length > 0) {
-                detailsHtml += `<div style="margin-bottom:16px;">
-                    <div style="font-weight:600; margin-bottom:8px; color:#FF3B30;">❌ Absent Days (${student.absentDates.length})</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${student.absentDates.slice(0, 10).map(d => `<span style="background:#f8d7da; color:#721c24; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
-                        ${student.absentDates.length > 10 ? `<span style="color:gray;">+${student.absentDates.length - 10} more</span>` : ''}
+                detailsHtml += `<div style="margin-bottom:20px;">
+                    <div style="font-weight:600; margin-bottom:12px; color:#FF3B30; font-size:15px;">❌ Absent Days (${student.absentDates.length})</div>
+                    <div style="background:#F8F8F8; border-radius:12px; padding:12px;">
+                        ${buildYearGroupedDates(student.absentDates, '#f8d7da', '#721c24', 'absent')}
                     </div>
                 </div>`;
             }
 
             // Leave dates
             if (student.leaveDates && student.leaveDates.length > 0) {
-                detailsHtml += `<div style="margin-bottom:16px;">
-                    <div style="font-weight:600; margin-bottom:8px; color:#FF9500;">🟡 Leave Days (${student.leaveDates.length})</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${student.leaveDates.slice(0, 10).map(d => `<span style="background:#fff3cd; color:#856404; padding:6px 10px; border-radius:8px; font-size:13px;">${formatDateShort(d)}</span>`).join('')}
-                        ${student.leaveDates.length > 10 ? `<span style="color:gray;">+${student.leaveDates.length - 10} more</span>` : ''}
+                detailsHtml += `<div style="margin-bottom:20px;">
+                    <div style="font-weight:600; margin-bottom:12px; color:#FF9500; font-size:15px;">🟡 Leave Days (${student.leaveDates.length})</div>
+                    <div style="background:#F8F8F8; border-radius:12px; padding:12px;">
+                        ${buildYearGroupedDates(student.leaveDates, '#fff3cd', '#856404', 'leave')}
                     </div>
                 </div>`;
             }
@@ -3391,6 +3463,51 @@
 
         function closeStudentDashboard() {
             document.getElementById('studentDashboardModal').style.display = 'none';
+        }
+
+        // Global function to toggle year section expand/collapse
+        function toggleYearSection(sectionId, cacheId, year) {
+            const cache = window._yearDateCache && window._yearDateCache[cacheId];
+            if (!cache) return;
+
+            const container = document.getElementById(sectionId);
+            const arrow = document.getElementById(sectionId + '_arrow');
+            if (!container) return;
+
+            const yearDates = cache.grouped[year];
+            if (!yearDates || yearDates.length <= 10) return; // No toggle needed
+
+            const isExpanded = container.dataset.expanded === 'true';
+
+            if (isExpanded) {
+                // Collapse: show only first 10
+                const visibleHtml = yearDates.slice(0, 10).map(d =>
+                    `<span style="background:${cache.bgColor}; color:${cache.textColor}; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500;">${formatDatePillGlobal(d)}</span>`
+                ).join('');
+                container.innerHTML = visibleHtml + `<span id="${sectionId}_more" onclick="event.stopPropagation(); toggleYearSection('${sectionId}', '${cacheId}', '${year}')" style="color:#007AFF; cursor:pointer; padding:6px 10px; font-weight:500;">+${yearDates.length - 10} more</span>`;
+                container.dataset.expanded = 'false';
+                if (arrow) arrow.textContent = '▶';
+            } else {
+                // Expand: show all dates
+                const allHtml = yearDates.map(d =>
+                    `<span style="background:${cache.bgColor}; color:${cache.textColor}; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500;">${formatDatePillGlobal(d)}</span>`
+                ).join('');
+                container.innerHTML = allHtml + `<span onclick="event.stopPropagation(); toggleYearSection('${sectionId}', '${cacheId}', '${year}')" style="color:#007AFF; cursor:pointer; padding:6px 10px; font-weight:500;">Show less</span>`;
+                container.dataset.expanded = 'true';
+                if (arrow) arrow.textContent = '▼';
+            }
+        }
+
+        // Global helper for date formatting (used by toggleYearSection)
+        function formatDatePillGlobal(dateStr) {
+            try {
+                const date = new Date(dateStr);
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${months[date.getMonth()]}-${day}`;
+            } catch (e) {
+                return dateStr;
+            }
         }
 
         function downloadTrackingExcel() {
