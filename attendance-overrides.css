@@ -2700,3 +2700,74 @@ button:active,
     border-color: #FF3B30;
     background: rgba(255, 59, 48, 0.05);
 }
+
+/* ========================================
+   Full-Width iOS Student List
+   Makes cards wider like iOS Settings cells
+   ======================================== */
+
+/* Container - Reduced margins for wider appearance */
+.student-list-container {
+    margin: 0 8px !important;
+    border-radius: 14px !important;
+    background: var(--color-card) !important;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06),
+        0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Student Cards - Full width with iOS list cell feel */
+.student-card {
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    gap: 14px !important;
+}
+
+/* First card - top radius only */
+.student-card:first-child {
+    border-radius: 14px 14px 0 0 !important;
+}
+
+/* Last card - bottom radius only */
+.student-card:last-child {
+    border-radius: 0 0 14px 14px !important;
+}
+
+/* Single card - full radius */
+.student-card:only-child {
+    border-radius: 14px !important;
+}
+
+/* Separator - iOS inset style */
+.student-card:not(:last-child)::after {
+    left: 66px !important;
+    right: 16px !important;
+}
+
+/* Section title - align with new margins */
+.section-title {
+    margin: 16px 12px 8px 12px !important;
+    padding: 0 4px !important;
+}
+
+/* Stats pills - also widen */
+.stats-card {
+    margin: 0 8px 12px 8px !important;
+}
+
+/* Date picker - widen */
+.date-selector-card {
+    margin: 12px 8px !important;
+}
+
+/* Verification toggle - widen */
+.verification-card {
+    margin: 0 8px 12px 8px !important;
+}
+
+/* Mark all button - widen */
+.mark-all-btn {
+    width: calc(100% - 16px) !important;
+    margin: 0 8px 12px 8px !important;
+}
