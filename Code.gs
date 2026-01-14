@@ -213,7 +213,17 @@ function handleFetchReport(dateStr) {
         if (dateIndex !== -1) {
             const filtered = data.filter((row, i) => i === 0 || normalizeDate(row[dateIndex]) === dateStr);
             if (filtered.length > 1) {
-                 reportData[sheetName] = filtered;
+                // Convert Date objects to strings before JSON serialization
+                const serializedData = filtered.map(row => row.map(cell => {
+                    if (cell instanceof Date) {
+                        const y = cell.getFullYear();
+                        const m = String(cell.getMonth() + 1).padStart(2, '0');
+                        const d = String(cell.getDate()).padStart(2, '0');
+                        return `${y}-${m}-${d}`;
+                    }
+                    return cell;
+                }));
+                 reportData[sheetName] = serializedData;
             }
         }
       }

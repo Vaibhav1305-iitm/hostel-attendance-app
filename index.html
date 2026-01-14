@@ -2816,10 +2816,10 @@
                 top5.forEach((student, i) => {
                     const tierClass = student.tier;
                     const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
-                    const originalIndex = allScores.findIndex(s => s.name === student.name && s.category === student.category);
                     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+                    const escapedName = student.name.replace(/'/g, "\\'");
                     html += `
-                        <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
+                        <div class="ranking-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
                             <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
                             <div class="ranking-info" style="flex:1;">
                                 <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
@@ -2991,10 +2991,10 @@
                 const rank = student.originalRank;
                 const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 
-                // Find index in original scores array for the dashboard function
-                const originalIndex = scores.findIndex(s => s.name === student.name && s.category === student.category);
+                // Use name + category for reliable lookup
+                const escapedName = student.name.replace(/'/g, "\\'");
                 html += `
-                    <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
+                    <div class="ranking-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
                         <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
                         <div class="ranking-info" style="flex:1;">
                             <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
@@ -3279,18 +3279,32 @@
             }
         }
 
-        // Open Student Dashboard from Rankings
-        function openStudentDashboardFromRanking(index) {
-            const scores = calculateStudentScores();
-            if (!scores || index < 0 || index >= scores.length) {
-                console.error('Invalid student index:', index);
+        // Open Student Dashboard from Rankings - Fixed to use name+category lookup
+        function openStudentDashboardFromRanking(studentName, studentCategory) {
+            // Get the current data source (same as renderRankings uses)
+            const dataSource = window.rankingDataFiltered || window.trackingDataCache || [];
+
+            // Find the student by name AND category for reliable lookup
+            const student = dataSource.find(s =>
+                s.name === studentName && s.category === studentCategory
+            );
+
+            if (!student) {
+                console.error('Student not found:', studentName, studentCategory);
+                alert('Student data not found. Please refresh and try again.');
                 return;
             }
 
-            const student = scores[index];
-            if (!student) {
-                console.error('Student not found at index:', index);
-                return;
+            // Calculate score for display
+            const present = student.present || 0;
+            const absent = student.absent || 0;
+            const total = student.total || 0;
+            let score = 0;
+            if (studentCategory === 'Yoga') {
+                const yogaTotal = present + absent;
+                score = yogaTotal > 0 ? Math.round((present / yogaTotal) * 100) : 0;
+            } else {
+                score = total > 0 ? Math.round((present / total) * 100) : 0;
             }
 
             // Get modal elements
@@ -3308,18 +3322,9 @@
                 return;
             }
 
-            if (!detailsEl) {
-                console.error('Details container not found. Looking for dashboardDateDetails');
-                // Try to find it anyway
-                const altDetailsEl = document.querySelector('#dashboardDateDetails, #dashboardDetails');
-                if (!altDetailsEl) {
-                    console.error('Could not find any details container');
-                }
-            }
-
             // Update modal header
             nameEl.textContent = student.name;
-            categoryEl.textContent = student.category + ' • Score: ' + student.score + '%';
+            categoryEl.textContent = student.category + ' • Score: ' + score + '%';
 
             // Update summary counts
             presentEl.textContent = student.present || 0;
@@ -3695,37 +3700,8 @@
         }
 
         // --- Student Dashboard Functions ---
-        // Open student dashboard from rankings (uses calculated scores data)
-        function openStudentDashboardFromRanking(index) {
-            const scores = calculateStudentScores();
-            if (!scores || index < 0 || index >= scores.length) {
-                alert('Student data not found');
-                return;
-            }
-
-            const student = scores[index];
-            if (!student) return;
-
-            // Update modal header
-            document.getElementById('dashboardStudentName').textContent = student.name;
-            document.getElementById('dashboardCategory').textContent = student.category;
-
-            // Update summary counts
-            document.getElementById('dashPresent').textContent = student.present || 0;
-            document.getElementById('dashAbsent').textContent = student.absent || 0;
-            document.getElementById('dashLeave').textContent = student.leave || 0;
-
-            // Build date details HTML
-            let detailsHtml = '';
-            detailsHtml += buildDateSection('✅ Present Days', student.presentDates || [], 'present', false, student.present);
-            detailsHtml += buildDateSection('❌ Absent Days', student.absentDates || [], 'absent', false, student.absent);
-            detailsHtml += buildDateSection('🟡 Leave Days', student.leaveDates || [], 'leave', false, student.leave);
-
-            document.getElementById('dashboardDateDetails').innerHTML = detailsHtml;
-
-            // Show modal
-            document.getElementById('studentDashboardModal').style.display = 'flex';
-        }
+        // NOTE: openStudentDashboardFromRanking is defined above (line ~3282)
+        // This duplicate was removed to fix the ranking click bug
 
         function showStudentDashboard(index, focusType) {
             // Get data from filtered view
