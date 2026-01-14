@@ -117,6 +117,17 @@
         </div>
     </div>
 
+    <!-- Multi-Device Sync Status Banner -->
+    <div id="syncStatusBanner" class="sync-status-banner" style="display: none;">
+        <div class="sync-banner-content">
+            <span class="material-symbols-outlined sync-banner-icon">cloud_done</span>
+            <span class="sync-banner-text" id="syncBannerText">Attendance already submitted</span>
+        </div>
+        <button class="sync-banner-dismiss" onclick="dismissSyncBanner()">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+
     <!-- Navigation Drawer -->
     <div class="drawer-overlay" id="drawerScrim" onclick="closeDrawer()"></div>
     <nav class="nav-drawer" id="navDrawer">
@@ -798,6 +809,153 @@
             } catch (e) { /* ignore */ }
         }
 
+        // ============================================
+        // MULTI-DEVICE SYNC SYSTEM
+        // Check if attendance already submitted from another device
+        // ============================================
+
+        let currentSyncStatus = null; // Track current sync status
+
+        // Check server for attendance status
+        async function checkServerSyncStatus(date, category) {
+            if (!date || !category) return null;
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'check_attendance_status',
+                        date: date,
+                        category: category,
+                        totalStudents: students.length || 45
+                    })
+                });
+
+                if (!response.ok) {
+                    console.error('Sync status check failed');
+                    return null;
+                }
+
+                const result = await response.json();
+                if (result.result === 'success') {
+                    currentSyncStatus = result;
+                    return result;
+                }
+
+                return null;
+            } catch (e) {
+                console.error('Sync status check error:', e);
+                return null;
+            }
+        }
+
+        // Show sync status banner
+        function showSyncBanner(status, message, type = 'submitted') {
+            const banner = document.getElementById('syncStatusBanner');
+            const textEl = document.getElementById('syncBannerText');
+            const iconEl = banner.querySelector('.sync-banner-icon');
+
+            if (!banner) return;
+
+            // Set message
+            textEl.textContent = message;
+
+            // Set type/color
+            banner.classList.remove('warning', 'info');
+            if (type === 'warning') {
+                banner.classList.add('warning');
+                iconEl.textContent = 'warning';
+            } else if (type === 'info') {
+                banner.classList.add('info');
+                iconEl.textContent = 'cloud_sync';
+            } else {
+                iconEl.textContent = 'cloud_done';
+            }
+
+            // Show banner
+            banner.style.display = 'flex';
+
+            // If submitted, apply read-only state
+            if (status === 'submitted') {
+                document.body.classList.add('attendance-readonly');
+            }
+        }
+
+        // Dismiss sync banner
+        function dismissSyncBanner() {
+            const banner = document.getElementById('syncStatusBanner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+            // Note: Don't remove attendance-readonly here - status is still submitted
+        }
+
+        // Apply server attendance data (when submitted from another device)
+        function applyServerAttendance(serverData, category) {
+            if (!serverData || !category) return;
+
+            ensureCategoryAttendance(category);
+
+            // Clear existing data for this category
+            attendanceByCategory[category] = {};
+
+            // Apply server data
+            Object.keys(serverData).forEach(name => {
+                attendanceByCategory[category][name] = serverData[name];
+            });
+
+            // Update current view
+            if (currentCategory === category) {
+                attendance = attendanceByCategory[category];
+            }
+
+            // Clear local draft for this category (server is source of truth)
+            clearAttendanceDraft();
+
+            // Re-render
+            renderStudentList();
+            updateStats();
+        }
+
+        // Handle sync status response
+        async function handleSyncStatusCheck() {
+            const date = document.getElementById('attendanceDate')?.value;
+            if (!date || !currentCategory) return;
+
+            const status = await checkServerSyncStatus(date, currentCategory);
+
+            if (!status) return; // API failed, continue normally
+
+            // Hide any existing banner first
+            const banner = document.getElementById('syncStatusBanner');
+            if (banner) banner.style.display = 'none';
+            document.body.classList.remove('attendance-readonly');
+
+            if (status.status === 'submitted') {
+                // Attendance already submitted!
+                showSyncBanner('submitted',
+                    `✓ ${currentCategory} attendance already submitted (${status.recordCount}/${status.totalStudents} students)`,
+                    'submitted'
+                );
+
+                // Load server data
+                if (status.attendanceData) {
+                    applyServerAttendance(status.attendanceData, currentCategory);
+                }
+
+                // Mark as synced
+                markAsSynced(date, currentCategory);
+
+            } else if (status.status === 'in_progress') {
+                // Partial data exists
+                showSyncBanner('in_progress',
+                    `⚠ ${currentCategory}: ${status.recordCount} students already marked on another device`,
+                    'warning'
+                );
+            }
+            // 'not_started' = no banner, normal flow
+        }
+
         // --- Theme Logic ---
         function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -930,6 +1088,9 @@
                 loadVerificationState(dateStr);
                 updateFetchButtonVisibility();
             }
+
+            // Multi-device sync: Check if this date is already submitted
+            handleSyncStatusCheck();
         }
 
         function switchCategory(newCategory) {
@@ -967,6 +1128,9 @@
             renderStudentList();
             updateVerificationUI();
             updateFetchButtonVisibility();
+
+            // Multi-device sync: Check if this section is already submitted
+            handleSyncStatusCheck();
         }
 
         // --- Fetch Button Logic ---

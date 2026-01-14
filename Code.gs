@@ -42,6 +42,9 @@ function doPost(e) {
       return fetchExternalStudents();
     } else if (json.action === "add_student") {
       return addStudent(json.student);
+    } else if (json.action === "check_attendance_status") {
+      // Multi-device sync: Check if attendance already submitted
+      return handleCheckAttendanceStatus(json.date, json.category, json.totalStudents);
     }
     
     return ContentService.createTextOutput(JSON.stringify({ result: 'error', error: 'Unknown action' })).setMimeType(ContentService.MimeType.JSON);
@@ -354,6 +357,131 @@ function handleGetSyncStatus(dates, totalStudents) {
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
+
+// ============================================
+// MULTI-DEVICE SYNC: Check attendance status
+// Returns if a date+category has been submitted
+// ============================================
+function handleCheckAttendanceStatus(dateStr, category, totalStudents) {
+  if (!dateStr) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'error', 
+      error: 'No date provided' 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  if (!category) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'error', 
+      error: 'No category provided' 
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // Helper to normalize date to YYYY-MM-DD format
+  function normalizeDate(dateVal) {
+    if (!dateVal) return '';
+    if (dateVal instanceof Date) {
+      const y = dateVal.getFullYear();
+      const m = String(dateVal.getMonth() + 1).padStart(2, '0');
+      const d = String(dateVal.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    const str = String(dateVal).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const parts = str.split(/[\/\-]/);
+    if (parts.length === 3) {
+      const [d, m, y] = parts;
+      if (y && y.length === 4) {
+        return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      }
+    }
+    return str;
+  }
+  
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(category);
+  
+  // If sheet doesn't exist, not started
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'success',
+      status: 'not_started',
+      recordCount: 0,
+      totalStudents: totalStudents || 0,
+      lastUpdatedAt: null,
+      attendanceData: null
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'success',
+      status: 'not_started',
+      recordCount: 0,
+      totalStudents: totalStudents || 0,
+      lastUpdatedAt: null,
+      attendanceData: null
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  const headers = data[0].map(h => String(h).trim());
+  const dateIndex = headers.indexOf('Date');
+  const nameIndex = headers.indexOf('Full Name');
+  const statusIndex = headers.indexOf('Status');
+  
+  if (dateIndex === -1) {
+    return ContentService.createTextOutput(JSON.stringify({ 
+      result: 'error',
+      error: 'Date column not found'
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // Filter rows for this date
+  const matchingRows = [];
+  for (let i = 1; i < data.length; i++) {
+    const rowDate = normalizeDate(data[i][dateIndex]);
+    if (rowDate === dateStr) {
+      matchingRows.push(data[i]);
+    }
+  }
+  
+  const recordCount = matchingRows.length;
+  const expectedCount = totalStudents || 45; // Default to 45 if not provided
+  
+  // Determine status based on record count
+  let status = 'not_started';
+  if (recordCount > 0) {
+    // If we have 80% or more of expected records, consider it submitted
+    if (recordCount >= expectedCount * 0.8) {
+      status = 'submitted';
+    } else {
+      status = 'in_progress';
+    }
+  }
+  
+  // Build attendance map if data exists
+  let attendanceData = null;
+  if (matchingRows.length > 0 && nameIndex !== -1 && statusIndex !== -1) {
+    attendanceData = {};
+    matchingRows.forEach(row => {
+      const name = String(row[nameIndex] || '').trim();
+      const attendanceStatus = String(row[statusIndex] || 'Present').trim();
+      if (name) {
+        attendanceData[name] = attendanceStatus;
+      }
+    });
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({ 
+    result: 'success',
+    status: status,
+    recordCount: recordCount,
+    totalStudents: expectedCount,
+    lastUpdatedAt: new Date().toISOString(),
+    attendanceData: attendanceData
+  })).setMimeType(ContentService.MimeType.JSON);
+}
 
 // ============================================
 // FIX ALL STUDENT DATA
