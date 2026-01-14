@@ -1,0 +1,2702 @@
+/* ========================================
+   Hostel Attendance – Premium Apple iOS Design
+   Extends MessFlow iOS Design System
+   ======================================== */
+
+/* ========================================
+   Mark All Present Button
+   ======================================== */
+.mark-all-btn {
+    width: calc(100% - 32px);
+    margin: 0 16px 12px 16px;
+    padding: 12px 16px;
+    background: var(--color-present-container, rgba(52, 199, 89, 0.12));
+    border: 1.5px solid var(--color-present, #34C759);
+    border-radius: 12px;
+    color: var(--color-present, #34C759);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mark-all-btn:active {
+    transform: scale(0.98);
+    background: var(--color-present, #34C759);
+    color: white;
+}
+
+/* ========================================
+   FAB Container - Fixed Bottom Right
+   ======================================== */
+.fab-container {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 900;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.fab {
+    /* Override position:fixed from attendance.css to enable flex layout */
+    position: static;
+    bottom: auto;
+    right: auto;
+    background: linear-gradient(135deg, var(--ios-blue, #007AFF), #5856D6);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 24px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.35);
+    transition: all 0.2s ease;
+}
+
+.fab:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+.fab .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* FAB Small variant - icon only */
+.fab.small {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.fab.small .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* FAB Secondary variant - for Section Sync */
+.fab.secondary {
+    background: rgba(255, 255, 255, 0.95);
+    color: #007AFF;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.fab.secondary:active {
+    background: rgba(240, 240, 240, 0.95);
+}
+
+/* Fix white bar - prevent horizontal overflow */
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* ========================================
+   Sync Tracker Modal - Full Screen Slide Over
+   ======================================== */
+.sync-tracker-modal {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    background-color: var(--color-bg, #F2F2F7);
+    z-index: 2000;
+    transition: right 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+.sync-tracker-modal.open {
+    right: 0;
+}
+
+.sync-tracker-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top, 20px));
+    background-color: var(--color-card, #FFFFFF);
+    border-bottom: 1px solid var(--ios-separator, rgba(60, 60, 67, 0.12));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sync-tracker-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text, #000000);
+}
+
+.sync-tracker-content {
+    padding: 16px;
+}
+
+.sync-tracker-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-card, #FFFFFF);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--ios-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
+    margin-bottom: 16px;
+}
+
+.sync-tracker-table th,
+.sync-tracker-table td {
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid var(--ios-separator, rgba(60, 60, 67, 0.12));
+}
+
+.sync-tracker-table th {
+    background-color: var(--ios-fill, rgba(120, 120, 128, 0.12));
+    font-weight: 600;
+    color: var(--ios-text-secondary, #3C3C43);
+}
+
+.sync-summary-card {
+    background-color: var(--color-card, #FFFFFF);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--ios-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.date-range-pills {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.date-range-pill {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--ios-separator-opaque, #C6C6C8);
+    background: var(--color-card, #FFFFFF);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    color: var(--color-text, #000000);
+}
+
+.date-range-pill.active {
+    background: var(--ios-blue, #007AFF);
+    color: white;
+    border-color: var(--ios-blue, #007AFF);
+}
+
+/* ========================================
+   Attendance-Specific Color Tokens
+   ======================================== */
+:root {
+    /* Attendance Status Colors */
+    --color-present: #34C759;
+    --color-present-container: rgba(52, 199, 89, 0.12);
+    --color-absent: #FF3B30;
+    --color-absent-container: rgba(255, 59, 48, 0.12);
+    --color-leave: #FF9500;
+    --color-leave-container: rgba(255, 149, 0, 0.12);
+}
+
+/* ========================================
+   App Container Override
+   ======================================== */
+#app-root,
+.app-container {
+    width: 100%;
+    max-width: var(--mobile-max-width);
+    background-color: var(--color-bg);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+}
+
+/* ========================================
+   Premium Category Header
+   ======================================== */
+.category-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+}
+
+.category-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+}
+
+.category-date {
+    font-size: 15px;
+    color: var(--ios-text-tertiary);
+    font-weight: 400;
+}
+
+/* ========================================
+   iOS Stats Summary Pills
+   ======================================== */
+.stats-container {
+    display: flex;
+    gap: 8px;
+    padding: 0 var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.stat-pill {
+    flex: 1;
+    padding: 14px 12px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s ease;
+    box-shadow: var(--ios-shadow-sm);
+}
+
+.stat-pill:active {
+    transform: scale(0.98);
+}
+
+.stat-pill.present {
+    background: linear-gradient(145deg, var(--color-present), #30D158);
+    color: white;
+    box-shadow: 0 4px 16px rgba(52, 199, 89, 0.35);
+}
+
+.stat-pill.absent {
+    background: linear-gradient(145deg, var(--color-absent), #FF453A);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 59, 48, 0.35);
+}
+
+.stat-pill.leave {
+    background: linear-gradient(145deg, var(--color-leave), #FF9F0A);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 149, 0, 0.35);
+}
+
+.stat-pill .stat-label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+}
+
+.stat-pill .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+/* ========================================
+   Student Cards - iOS Inset Grouped Style
+   ======================================== */
+.student-list-container {
+    background-color: var(--color-card);
+    border-radius: var(--radius-xl);
+    margin: 0 var(--spacing-md);
+    overflow: hidden;
+    box-shadow: var(--ios-shadow-sm);
+}
+
+.student-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 14px var(--spacing-md);
+    background-color: var(--color-card);
+    position: relative;
+    transition: all 0.15s ease;
+}
+
+.student-card:active {
+    background-color: var(--ios-fill);
+}
+
+/* iOS Partial Separator - 72px left gap */
+.student-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 72px;
+    right: 0;
+    height: 0.5px;
+    background-color: var(--color-separator);
+}
+
+.student-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ios-blue), var(--ios-indigo));
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+    letter-spacing: -0.3px;
+}
+
+.student-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.student-name {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--color-text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+
+.student-id {
+    font-size: 14px;
+    color: var(--ios-text-tertiary);
+}
+
+/* ========================================
+   Status Chips - P / A / L Circular Buttons
+   ======================================== */
+.status-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.status-chip {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--ios-separator-opaque);
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--ios-text-tertiary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.status-chip:active {
+    transform: scale(0.9);
+}
+
+.status-chip.active {
+    color: white;
+    border: none;
+    transform: scale(1.1);
+}
+
+.status-chip.status-P.active {
+    background: linear-gradient(145deg, var(--color-present), #30D158);
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
+}
+
+.status-chip.status-A.active {
+    background: linear-gradient(145deg, var(--color-absent), #FF453A);
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+}
+
+.status-chip.status-L.active {
+    background: linear-gradient(145deg, var(--color-leave), #FF9F0A);
+    box-shadow: 0 4px 12px rgba(255, 149, 0, 0.4);
+}
+
+/* ========================================
+   Sync Bar - Fixed Bottom with Blur
+   ======================================== */
+.sync-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--mobile-max-width);
+    padding: var(--spacing-md);
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 20px));
+    background: linear-gradient(transparent, var(--color-bg) 30%);
+    display: flex;
+    gap: 12px;
+    z-index: 100;
+}
+
+.btn-sync {
+    flex: 1;
+    padding: 16px 24px;
+    border-radius: var(--radius-lg);
+    border: none;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-sync.primary {
+    background: linear-gradient(135deg, var(--ios-blue), #5856D6);
+    color: white;
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.35);
+}
+
+.btn-sync.primary:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.25);
+}
+
+.btn-sync.secondary {
+    background: var(--ios-fill);
+    color: var(--ios-blue);
+}
+
+.btn-sync.secondary:active {
+    background: var(--ios-fill-secondary);
+}
+
+/* ========================================
+   Verification Card - iOS Toggle Style
+   ======================================== */
+.verification-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px var(--spacing-md);
+    margin: 0 var(--spacing-md) var(--spacing-md);
+    background-color: var(--ios-fill);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.verification-card.verified {
+    background: var(--color-present-container);
+    border: 2px solid var(--color-present);
+}
+
+.verification-card:active {
+    transform: scale(0.99);
+}
+
+.verification-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.verification-label .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--ios-blue);
+}
+
+.verification-card.verified .verification-label .material-symbols-outlined {
+    color: var(--color-present);
+}
+
+/* ========================================
+   Date Picker - iOS Native Style
+   ======================================== */
+.date-picker-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: var(--spacing-md);
+}
+
+.date-input-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--ios-fill);
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+}
+
+.date-input-wrapper .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--ios-blue);
+}
+
+.date-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 17px;
+    font-family: inherit;
+    color: var(--color-text);
+    outline: none;
+}
+
+/* ========================================
+   Section Headers
+   ======================================== */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.list-header .title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ios-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.list-header .count {
+    font-size: 13px;
+    color: var(--ios-text-tertiary);
+}
+
+/* ========================================
+   Admin Panel Tabs
+   ======================================== */
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    padding: var(--spacing-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tab {
+    padding: 10px 18px;
+    border-radius: var(--radius-full);
+    border: none;
+    background: var(--ios-fill);
+    color: var(--color-text);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.admin-tab:active {
+    transform: scale(0.96);
+}
+
+.admin-tab.active {
+    background: var(--ios-blue);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+/* ========================================
+   Category Filter Pills
+   ======================================== */
+.filter-pills {
+    display: flex;
+    gap: 8px;
+    padding: 0 var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.filter-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-pill {
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--ios-separator-opaque);
+    background: var(--color-card);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.filter-pill:active {
+    transform: scale(0.96);
+}
+
+.filter-pill.active {
+    background: var(--ios-blue);
+    color: white;
+    border-color: var(--ios-blue);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px var(--spacing-xl);
+    text-align: center;
+    color: var(--ios-text-tertiary);
+}
+
+.empty-state .material-symbols-outlined {
+    font-size: 64px;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+}
+
+.empty-state p {
+    font-size: 17px;
+    margin: 0;
+}
+
+/* ========================================
+   Loading Spinner
+   ======================================== */
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--ios-fill);
+    border-top-color: var(--ios-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Toast Notifications
+   ======================================== */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 14px 24px;
+    border-radius: var(--radius-lg);
+    font-size: 15px;
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 3000;
+    max-width: 90%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ========================================
+   iOS Toast Container & Toast
+   ======================================== */
+.ios-toast-container {
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    /* Center using text-align instead of transform */
+    text-align: center !important;
+    pointer-events: none;
+    background: transparent !important;
+}
+
+/* iOS Premium Pill Toast */
+.ios-toast {
+    /* Frosted glass pill */
+    background: rgba(50, 50, 50, 0.85);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+
+    /* Pill shape */
+    border-radius: 50px;
+    padding: 12px 20px;
+
+    /* Typography */
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+
+    /* Layout - centered */
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    max-width: 90%;
+
+    /* Soft shadow */
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.15),
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+
+    /* Slide from top animation */
+    animation: toastSlideDown 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    pointer-events: auto;
+}
+
+.ios-toast.hiding {
+    animation: toastSlideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* Toast Icon - Compact circle */
+.ios-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ios-toast.success .ios-toast-icon {
+    background-color: #34C759;
+}
+
+.ios-toast.error .ios-toast-icon {
+    background-color: #FF3B30;
+}
+
+.ios-toast.warning .ios-toast-icon {
+    background-color: #FF9500;
+}
+
+.ios-toast.info .ios-toast-icon {
+    background-color: #007AFF;
+}
+
+.ios-toast-icon .material-symbols-outlined {
+    font-size: 14px;
+    color: white;
+}
+
+/* Slide from top animation */
+@keyframes toastSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Slide up to dismiss */
+@keyframes toastSlideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.95);
+    }
+}
+
+/* ========================================
+   iOS Loading Overlay
+   ======================================== */
+.ios-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 6000;
+}
+
+.ios-loading-box {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 24px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.ios-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 122, 255, 0.2);
+    border-top-color: var(--ios-blue, #007AFF);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.ios-loading-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text, #000000);
+}
+
+/* ========================================
+   Drawer Overrides
+   ======================================== */
+.drawer-content {
+    padding: var(--spacing-sm);
+}
+
+.drawer-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ios-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+
+/* ========================================
+   Content Padding for Bottom Bar
+   ======================================== */
+.main-content,
+.content {
+    padding-bottom: 120px;
+}
+
+/* ========================================
+   Hide FAB on Certain Pages
+   ======================================== */
+body.hide-fab .fab {
+    display: none !important;
+}
+
+/* ========================================
+   Ranking Cards (Admin Panel)
+   ======================================== */
+.ranking-card {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 14px var(--spacing-md);
+    background-color: var(--color-card);
+    position: relative;
+}
+
+.ranking-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 72px;
+    right: 0;
+    height: 0.5px;
+    background-color: var(--color-separator);
+}
+
+.ranking-position {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--ios-fill);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.ranking-position.gold {
+    background: linear-gradient(145deg, #FFD700, #FFA500);
+    color: white;
+}
+
+.ranking-position.silver {
+    background: linear-gradient(145deg, #C0C0C0, #A0A0A0);
+    color: white;
+}
+
+.ranking-position.bronze {
+    background: linear-gradient(145deg, #CD7F32, #B87333);
+    color: white;
+}
+
+.ranking-score {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ios-blue);
+}
+
+/* ========================================
+   Admin Panel Styles
+   ======================================== */
+.admin-header {
+    background: linear-gradient(135deg, var(--ios-blue, #007AFF), #5856D6);
+    padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top, 20px));
+    color: white;
+    margin: -16px -16px 16px -16px;
+}
+
+.admin-header-title {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.admin-header-subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+
+.admin-tabs-new {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-tabs-new::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-tab-new {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background: var(--ios-fill, rgba(120, 120, 128, 0.12));
+    color: var(--color-text, #000000);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.admin-tab-new .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.admin-tab-new.active {
+    background: var(--ios-blue, #007AFF);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.stats-cards-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-card {
+    background: var(--color-card, #FFFFFF);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--ios-shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.08));
+}
+
+.stat-card-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text, #000000);
+}
+
+.stat-card-label {
+    font-size: 13px;
+    color: var(--ios-text-tertiary, #8E8E93);
+    margin-top: 4px;
+}
+
+/* ========================================
+   iOS 17 Premium Enhancements
+   60fps Animations | Glassmorphism | Polish
+   ======================================== */
+
+/* iOS Spring Animation Timing Functions */
+:root {
+    --ios-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ios-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ios-spring-soft: cubic-bezier(0.32, 0.72, 0, 1);
+    --ios-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========================================
+   Enhanced Top Bar - Frosted Glass
+   ======================================== */
+.top-bar {
+    background: rgba(242, 242, 247, 0.72) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 0.5px solid rgba(60, 60, 67, 0.08);
+}
+
+/* Enhanced Search Pill */
+.search-pill {
+    background: rgba(142, 142, 147, 0.16) !important;
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s var(--ios-spring);
+}
+
+.search-pill:focus-within {
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 0.5px rgba(0, 122, 255, 0.2);
+    transform: scale(1.01);
+}
+
+/* ========================================
+   Premium Stats Card - Hero Gradient
+   ======================================== */
+.stats-card {
+    background: linear-gradient(145deg, #007AFF 0%, #5856D6 60%, #AF52DE 100%) !important;
+    box-shadow: 0 12px 40px rgba(0, 122, 255, 0.35),
+        0 4px 16px rgba(88, 86, 214, 0.2);
+    border-radius: 24px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle inner glow */
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
+    pointer-events: none;
+    border-radius: 24px 24px 0 0;
+}
+
+/* ========================================
+   iOS Date Picker Enhancement
+   ======================================== */
+.ios-date-picker {
+    background: var(--ios-fill) !important;
+    border-radius: 14px !important;
+    transition: all 0.25s var(--ios-spring);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.ios-date-picker:focus-within {
+    background: rgba(0, 122, 255, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+.ios-date-input {
+    background: transparent !important;
+    color: var(--ios-text-primary) !important;
+    font-weight: 500;
+}
+
+/* ========================================
+   Enhanced Verification Card
+   ======================================== */
+.verification-card {
+    background: var(--color-card) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--ios-shadow-sm);
+    transition: all 0.3s var(--ios-spring);
+    border: 1px solid transparent;
+}
+
+.verification-card:active {
+    transform: scale(0.98);
+    background: var(--ios-fill) !important;
+}
+
+.verification-card.verified {
+    background: rgba(52, 199, 89, 0.08) !important;
+    border-color: rgba(52, 199, 89, 0.2);
+    box-shadow: 0 0 0 1px rgba(52, 199, 89, 0.1),
+        0 4px 16px rgba(52, 199, 89, 0.12);
+}
+
+/* ========================================
+   iOS Inset Grouped List - Student Cards
+   ======================================== */
+.student-list-container {
+    background: var(--color-card);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--ios-shadow-sm);
+}
+
+.student-card {
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-left: 0 !important;
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+/* Inset divider lines */
+.student-card:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 72px;
+    right: 16px;
+    height: 0.5px;
+    background: var(--ios-separator);
+    pointer-events: none;
+}
+
+/* First and last card radius */
+.student-card:first-child {
+    border-radius: 20px 20px 0 0 !important;
+}
+
+.student-card:last-child {
+    border-radius: 0 0 20px 20px !important;
+}
+
+.student-card:only-child {
+    border-radius: 20px !important;
+}
+
+/* Active tap state */
+.student-card:active {
+    background: var(--ios-fill) !important;
+}
+
+/* Student avatar enhancement */
+.student-avatar {
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+/* ========================================
+   iOS Status Indicators - Premium Badges
+   ======================================== */
+.status-indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.25s var(--ios-spring-bounce);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator.present {
+    background: linear-gradient(145deg, #34C759, #30D158);
+    color: white;
+    box-shadow: 0 3px 12px rgba(52, 199, 89, 0.4);
+}
+
+.status-indicator.absent {
+    background: linear-gradient(145deg, #FF3B30, #FF453A);
+    color: white;
+    box-shadow: 0 3px 12px rgba(255, 59, 48, 0.4);
+}
+
+.status-indicator.leave {
+    background: linear-gradient(145deg, #FF9500, #FFAB4A);
+    color: white;
+    box-shadow: 0 3px 12px rgba(255, 149, 0, 0.4);
+}
+
+.status-indicator:active {
+    transform: scale(0.9);
+}
+
+/* ========================================
+   Enhanced Navigation Drawer
+   ======================================== */
+.nav-drawer {
+    transition: transform 0.45s var(--ios-spring-soft) !important;
+    box-shadow: 20px 0 60px rgba(0, 0, 0, 0.2);
+}
+
+.drawer-overlay {
+    transition: opacity 0.35s var(--ios-ease-out) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.drawer-header {
+    background: linear-gradient(180deg, rgba(0, 122, 255, 0.08) 0%, transparent 100%);
+    border-radius: 0 0 16px 16px;
+    padding-bottom: 20px !important;
+}
+
+.drawer-item {
+    transition: all 0.2s var(--ios-spring) !important;
+    border-radius: 12px !important;
+}
+
+.drawer-item:hover,
+.drawer-item:active {
+    background: var(--ios-fill);
+}
+
+.drawer-label {
+    color: var(--ios-text-tertiary);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 16px 4px;
+}
+
+/* ========================================
+   Premium FAB Buttons
+   ======================================== */
+.fab {
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.35),
+        0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.25s var(--ios-spring) !important;
+}
+
+.fab:active {
+    transform: scale(0.92) !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25) !important;
+}
+
+.fab.secondary {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+        0 1px 4px rgba(0, 0, 0, 0.06) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.fab.secondary:active {
+    transform: scale(0.92) !important;
+    background: rgba(240, 240, 245, 0.98) !important;
+}
+
+/* ========================================
+   iOS Modal / Bottom Sheet Enhancement
+   ======================================== */
+.modal,
+.ios-bottom-sheet-overlay {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.modal-content,
+.ios-bottom-sheet {
+    transition: transform 0.45s var(--ios-spring-soft) !important;
+    border-radius: 28px 28px 0 0 !important;
+    box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Sheet handle */
+.sheet-handle {
+    width: 36px;
+    height: 5px;
+    background: rgba(60, 60, 67, 0.3);
+    border-radius: 3px;
+    margin: 8px auto 16px;
+}
+
+/* Duplicate toast styles removed - see main toast styles above */
+
+/* ========================================
+   Admin Panel Polish
+   ======================================== */
+.admin-panel-header {
+    background: linear-gradient(145deg, #007AFF 0%, #5856D6 100%) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 122, 255, 0.3);
+    margin-bottom: 16px !important;
+}
+
+.admin-tab-new {
+    transition: all 0.25s var(--ios-spring) !important;
+}
+
+.admin-tab-new:active {
+    transform: scale(0.95);
+}
+
+.admin-tab-new.active {
+    box-shadow: 0 4px 16px rgba(0, 122, 255, 0.35);
+    animation: tabPulse 0.3s var(--ios-spring-bounce);
+}
+
+@keyframes tabPulse {
+    0% {
+        transform: scale(0.95);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   Ranking Cards Enhancement
+   ======================================== */
+.ranking-item {
+    transition: all 0.2s var(--ios-spring);
+    border-radius: 16px !important;
+}
+
+.ranking-item:active {
+    transform: scale(0.98);
+    background: var(--ios-fill);
+}
+
+/* Medal emojis - add subtle glow */
+.ranking-medal {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+/* ========================================
+   iOS AI Insights Cards - Pure iOS Style
+   ======================================== */
+
+/* Header Section */
+.ios-insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.ios-insights-subtitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1C1C1E;
+}
+
+.ios-insights-count {
+    font-size: 13px;
+    color: #8E8E93;
+}
+
+/* iOS Insight Card - Settings Style */
+.ios-insight-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 12px;
+
+    /* iOS shadow */
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.04),
+        0 4px 12px rgba(0, 0, 0, 0.06);
+
+    /* Tap animation */
+    transition: transform 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.ios-insight-card:active {
+    transform: scale(0.98);
+}
+
+/* Card Header */
+.ios-insight-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 0.5px solid rgba(60, 60, 67, 0.1);
+}
+
+/* Status Dots */
+.ios-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ios-status-dot.critical {
+    background: #FF3B30;
+}
+
+.ios-status-dot.warning {
+    background: #FF9500;
+}
+
+.ios-status-dot.positive {
+    background: #34C759;
+}
+
+.ios-status-dot.info {
+    background: #007AFF;
+}
+
+/* Card Title */
+.ios-insight-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1C1C1E;
+    flex: 1;
+}
+
+/* Badge */
+.ios-insight-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    color: #FFFFFF;
+}
+
+.ios-insight-badge.critical {
+    background: #FF3B30;
+}
+
+.ios-insight-badge.warning {
+    background: #FF9500;
+}
+
+.ios-insight-badge.positive {
+    background: #34C759;
+}
+
+/* Card Body - Student List */
+.ios-insight-body {
+    margin-bottom: 12px;
+}
+
+.ios-insight-student {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 0.5px solid rgba(60, 60, 67, 0.08);
+}
+
+.ios-insight-student:last-child {
+    border-bottom: none;
+}
+
+.ios-insight-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1C1C1E;
+}
+
+.ios-insight-value {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ios-insight-value.critical {
+    color: #FF3B30;
+}
+
+.ios-insight-value.warning {
+    color: #FF9500;
+}
+
+.ios-insight-value.positive {
+    color: #34C759;
+}
+
+/* More link */
+.ios-insight-more {
+    font-size: 13px;
+    color: #8E8E93;
+    padding-top: 8px;
+    font-style: italic;
+}
+
+/* Recommendation Section */
+.ios-insight-recommendation {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(0, 122, 255, 0.06);
+    border-radius: 12px;
+    margin-top: 4px;
+}
+
+.ios-rec-icon {
+    flex-shrink: 0;
+}
+
+.ios-insight-recommendation span:last-child {
+    font-size: 13px;
+    color: #007AFF;
+    line-height: 1.4;
+}
+
+/* Recommendations List */
+.ios-recommendations-list {
+    padding: 8px 0;
+}
+
+.ios-rec-item {
+    font-size: 14px;
+    color: #3C3C43;
+    padding: 6px 0;
+    line-height: 1.4;
+}
+
+/* Empty State Card */
+.ios-empty-card {
+    text-align: center;
+    padding: 32px 16px;
+}
+
+.ios-empty-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(52, 199, 89, 0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+    color: #34C759;
+}
+
+.ios-empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1C1C1E;
+    margin-bottom: 4px;
+}
+
+.ios-empty-subtitle {
+    font-size: 14px;
+    color: #8E8E93;
+}
+
+/* Summary Card */
+.ios-summary-card {
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.04) 0%, rgba(88, 86, 214, 0.04) 100%);
+}
+
+/* ========================================
+   Student Dashboard Modal Enhancement
+   ======================================== */
+.student-dashboard-modal {
+    border-radius: 24px !important;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-stat-card {
+    border-radius: 16px !important;
+    box-shadow: var(--ios-shadow-sm);
+    transition: all 0.2s var(--ios-spring);
+}
+
+.dashboard-stat-card:active {
+    transform: scale(0.98);
+}
+
+/* ========================================
+   Loading Overlay Enhancement
+   ======================================== */
+.ios-loading-overlay {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.ios-loading-box {
+    border-radius: 20px !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+.ios-spinner {
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Global Touch Feedback Enhancement
+   ======================================== */
+button,
+.clickable,
+[onclick] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Active state for all interactive elements */
+button:active,
+.card:active,
+.pill:active {
+    transform: scale(0.98);
+}
+
+/* ========================================
+   Smooth Scroll Behavior
+   ======================================== */
+.content,
+.student-list-container,
+.modal-content {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbars but keep scroll */
+.content::-webkit-scrollbar,
+.student-list-container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* ========================================
+   Section Title Enhancement
+   ======================================== */
+.section-title {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px;
+    color: var(--ios-text-tertiary) !important;
+    text-transform: uppercase;
+    padding: 8px 4px !important;
+}
+
+/* ========================================
+   iOS Lock Screen Style FAB Buttons
+   Circular glass buttons like Camera/Flashlight
+   ======================================== */
+.ios-lockscreen-fabs {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+}
+
+.ios-lockscreen-btn {
+    /* Circular shape */
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+
+    /* Dark frosted glass effect (visible on light bg) */
+    background: rgba(60, 60, 67, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+    /* Subtle glass border */
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        0 0 0 1px rgba(0, 0, 0, 0.04);
+
+    /* Icon styling - dark for visibility */
+    color: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    /* Smooth animation */
+    transition: all 0.3s var(--ios-spring, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+.ios-lockscreen-btn .material-symbols-outlined {
+    font-size: 26px;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Hover state - subtle darker glow */
+.ios-lockscreen-btn:hover {
+    background: rgba(60, 60, 67, 0.35);
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 0 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Active/pressed state - iOS haptic feel */
+.ios-lockscreen-btn:active {
+    transform: scale(0.88);
+    background: rgba(60, 60, 67, 0.45);
+    box-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Primary variant - Blue tinted glass (Sync All) */
+.ios-lockscreen-btn.primary {
+    background: rgba(0, 122, 255, 0.35);
+    border-color: rgba(0, 122, 255, 0.4);
+    box-shadow:
+        0 4px 20px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        0 0 0 1px rgba(0, 122, 255, 0.1);
+}
+
+.ios-lockscreen-btn.primary:hover {
+    background: rgba(0, 122, 255, 0.45);
+    box-shadow:
+        0 6px 28px rgba(0, 122, 255, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 24px rgba(0, 122, 255, 0.2);
+}
+
+.ios-lockscreen-btn.primary:active {
+    transform: scale(0.88);
+    background: rgba(0, 122, 255, 0.6);
+}
+
+/* Container positioning update for lock screen style */
+.fab-container.ios-lockscreen-fabs {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 900;
+}
+
+/* ========================================
+   iOS Dock Bar - iPhone Style Bottom Bar
+   Frosted glass with app icons
+   ======================================== */
+.ios-dock {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--mobile-max-width, 430px);
+    z-index: 1000;
+    padding: 8px 16px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 8px));
+
+    /* Fully transparent - no background */
+    background: transparent;
+}
+
+.ios-dock-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.ios-dock-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s var(--ios-spring, cubic-bezier(0.25, 0.1, 0.25, 1));
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ios-dock-icon:active {
+    transform: scale(0.88);
+}
+
+/* iOS App Icon - Rounded Square Style */
+.ios-app-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    transition: all 0.2s ease;
+}
+
+.ios-app-icon .material-symbols-outlined {
+    font-size: 28px;
+    color: white;
+    font-variation-settings: 'FILL' 1, 'wght' 400;
+}
+
+/* App Icon Colors - Vibrant iOS Style */
+.ios-app-icon.orange {
+    background: linear-gradient(145deg, #FF9500, #FF6B00);
+}
+
+.ios-app-icon.purple {
+    background: linear-gradient(145deg, #AF52DE, #8E44AD);
+}
+
+.ios-app-icon.green {
+    background: linear-gradient(145deg, #34C759, #30D158);
+}
+
+.ios-app-icon.blue {
+    background: linear-gradient(145deg, #007AFF, #5856D6);
+}
+
+/* Dock Label - Small text below icon */
+.ios-dock-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ios-text-secondary, #3C3C43);
+    text-align: center;
+    line-height: 1.2;
+    max-width: 64px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ========================================
+   iOS Control Panel - 2x2 Glassmorphism Grid
+   Premium, minimal, clean iPhone-style
+   ======================================== */
+.ios-control-panel {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--mobile-max-width, 430px);
+    z-index: 1000;
+    padding: 12px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 8px));
+    background: transparent;
+}
+
+.ios-control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+/* iOS Control Card - Frosted Glass */
+.ios-control-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px 16px;
+    border: none;
+    cursor: pointer;
+
+    /* Frosted glass effect */
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+    /* Large iOS rounded corners */
+    border-radius: 20px;
+
+    /* Soft iOS shadow */
+    box-shadow:
+        0 2px 16px rgba(0, 0, 0, 0.06),
+        0 4px 24px rgba(0, 0, 0, 0.04),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.6);
+
+    /* Smooth animation */
+    transition: all 0.2s var(--ios-spring, cubic-bezier(0.25, 0.1, 0.25, 1));
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Tap state - subtle scale */
+.ios-control-card:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 1px 8px rgba(0, 0, 0, 0.04),
+        0 2px 12px rgba(0, 0, 0, 0.03),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+}
+
+/* Icon - Monochrome subtle blue */
+.ios-control-icon {
+    font-size: 28px;
+    color: #007AFF;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Label - Clean SF Pro style */
+.ios-control-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ios-text-primary, #000000);
+    letter-spacing: -0.2px;
+}
+
+/* ========================================
+   iOS Dock Bar - Single Glass Container
+   Like iPhone dock / Control Center
+   ======================================== */
+.ios-dock-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--mobile-max-width, 430px);
+    z-index: 1000;
+    padding: 12px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 8px));
+}
+
+/* Single Glass Container */
+.ios-dock-glass {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 8px;
+
+    /* Frosted glass effect */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+    /* Large rounded corners */
+    border-radius: 24px;
+
+    /* Soft iOS shadow */
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.08),
+        0 8px 32px rgba(0, 0, 0, 0.04),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5);
+}
+
+/* Each dock item */
+.ios-dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.2s var(--ios-spring, cubic-bezier(0.25, 0.1, 0.25, 1));
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Tap state */
+.ios-dock-item:active {
+    transform: scale(0.95);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* Icon - Monochrome blue */
+.ios-dock-item .material-symbols-outlined {
+    font-size: 24px;
+    color: #007AFF;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Label - Small, subtle */
+.ios-dock-text {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ios-text-secondary, #3C3C43);
+    letter-spacing: -0.1px;
+}
+
+/* Adjust main content padding */
+.content,
+.main-content {
+    padding-bottom: 120px !important;
+}
+
+/* ========================================
+   iOS AssistiveTouch Floating Button
+   ======================================== */
+
+/* Floating Button */
+.assistive-touch-btn {
+    position: fixed;
+    bottom: 140px;
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+
+    /* Glassmorphism */
+    background: rgba(60, 60, 67, 0.75);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+
+    /* Soft shadow */
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.25),
+        0 8px 32px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.1);
+
+    /* Layout */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Interaction */
+    cursor: pointer;
+    z-index: 8000;
+    user-select: none;
+    touch-action: none;
+
+    /* Transition */
+    transition: transform 0.15s cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow 0.15s ease;
+}
+
+.assistive-touch-btn .material-symbols-outlined {
+    font-size: 26px;
+    color: #FFFFFF;
+}
+
+.assistive-touch-btn:active {
+    transform: scale(0.9);
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.3),
+        0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.assistive-touch-btn.dragging {
+    transform: scale(1.05);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.35),
+        0 12px 48px rgba(0, 0, 0, 0.2);
+}
+
+.assistive-touch-btn.menu-open {
+    transform: scale(0.95);
+    opacity: 0.6;
+}
+
+/* Menu Overlay */
+.assistive-touch-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 8500;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.assistive-touch-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Menu Container */
+.assistive-touch-menu {
+    position: fixed;
+    z-index: 9000;
+
+    /* Glassmorphism */
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+
+    /* Rounded corners */
+    border-radius: 24px;
+
+    /* Shadow */
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.2),
+        0 16px 64px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5);
+
+    /* 2x2 Grid layout */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 12px;
+
+    /* Hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    transform-origin: bottom right;
+
+    /* Animation */
+    transition: opacity 0.25s cubic-bezier(0.32, 0.72, 0, 1),
+        visibility 0.25s ease,
+        transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.assistive-touch-menu.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* Menu Items */
+.assistive-menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.assistive-menu-item:active {
+    transform: scale(0.95);
+    background: rgba(0, 122, 255, 0.12);
+}
+
+/* Menu Icon */
+.assistive-menu-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #007AFF 0%, #5856D6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.assistive-menu-icon .material-symbols-outlined {
+    font-size: 24px;
+    color: #FFFFFF;
+}
+
+/* Different colors for each category */
+.assistive-menu-item[data-category="Yoga"] .assistive-menu-icon {
+    background: linear-gradient(145deg, #34C759 0%, #30D158 100%);
+    box-shadow: 0 2px 8px rgba(52, 199, 89, 0.3);
+}
+
+.assistive-menu-item[data-category="Mess Day"] .assistive-menu-icon {
+    background: linear-gradient(145deg, #FF9500 0%, #FF9F0A 100%);
+    box-shadow: 0 2px 8px rgba(255, 149, 0, 0.3);
+}
+
+.assistive-menu-item[data-category="Mess Night"] .assistive-menu-icon {
+    background: linear-gradient(145deg, #5856D6 0%, #AF52DE 100%);
+    box-shadow: 0 2px 8px rgba(88, 86, 214, 0.3);
+}
+
+.assistive-menu-item[data-category="Night Shift"] .assistive-menu-icon {
+    background: linear-gradient(145deg, #007AFF 0%, #0A84FF 100%);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+/* Menu Text */
+.assistive-menu-text {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1C1C1E;
+    text-align: center;
+    letter-spacing: -0.1px;
+}
+
+/* Animation for menu items appearing */
+.assistive-touch-menu.visible .assistive-menu-item {
+    animation: menuItemPop 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+.assistive-touch-menu.visible .assistive-menu-item:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.assistive-touch-menu.visible .assistive-menu-item:nth-child(2) {
+    animation-delay: 30ms;
+}
+
+.assistive-touch-menu.visible .assistive-menu-item:nth-child(3) {
+    animation-delay: 60ms;
+}
+
+.assistive-touch-menu.visible .assistive-menu-item:nth-child(4) {
+    animation-delay: 90ms;
+}
+
+@keyframes menuItemPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ========================================
+   iOS Verification Toggle Switch
+   ======================================== */
+
+/* Verification Row - iOS Settings Style Card */
+.ios-verification-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    /* Soft shadow */
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.04),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.ios-verification-row:active {
+    background: #F2F2F7;
+}
+
+.ios-verification-row.verified {
+    background: linear-gradient(135deg, rgba(52, 199, 89, 0.08) 0%, rgba(48, 209, 88, 0.04) 100%);
+}
+
+/* Verification Text */
+.ios-verification-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1C1C1E;
+    letter-spacing: -0.2px;
+}
+
+.ios-verification-row.verified .ios-verification-text {
+    color: #34C759;
+}
+
+/* iOS Toggle Switch - Authentic dimensions */
+.ios-toggle-switch {
+    position: relative;
+    width: 51px;
+    height: 31px;
+    background: #E9E9EA;
+    border-radius: 15.5px;
+    transition: background 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+    flex-shrink: 0;
+
+    /* Subtle inner border */
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+}
+
+/* Switch Knob */
+.ios-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: #FFFFFF;
+    border-radius: 50%;
+
+    /* Premium shadow */
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.15),
+        0 3px 1px rgba(0, 0, 0, 0.06);
+
+    /* Smooth spring transition */
+    transition: transform 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* ON State */
+.ios-toggle-switch.on {
+    background: #34C759;
+}
+
+.ios-toggle-switch.on .ios-toggle-knob {
+    transform: translateX(20px);
+}
+
+/* Tap animation */
+.ios-toggle-switch:active .ios-toggle-knob {
+    width: 31px;
+}
+
+.ios-toggle-switch.on:active .ios-toggle-knob {
+    width: 31px;
+    transform: translateX(16px);
+}
+
+/* Nav indicator styling for checkmark */
+.drawer-item span[id^="nav-indicator-"] {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* ========================================
+   iOS Section Header & Filter Chips
+   ======================================== */
+
+/* iOS Section Header */
+.ios-section-header {
+    margin-bottom: 16px;
+}
+
+.ios-section-title {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1C1C1E;
+    letter-spacing: -0.3px;
+}
+
+.ios-section-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #8E8E93;
+}
+
+/* iOS Filter Chips - Horizontal scroll */
+.ios-filter-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    margin-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.ios-filter-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.ios-filter-chip {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #F2F2F7;
+    color: #3C3C43;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ios-filter-chip:active {
+    transform: scale(0.96);
+}
+
+.ios-filter-chip.active {
+    background: #007AFF;
+    color: #FFFFFF;
+}
+
+/* ========================================
+   iOS Authentication Sheet
+   ======================================== */
+
+/* Overlay - Blur background */
+.ios-auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+
+    /* Centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+
+    /* Hidden by default */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.ios-auth-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Auth Sheet - Frosted Glass Card */
+.ios-auth-sheet {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    border-radius: 28px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+
+    /* iOS shadow */
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 24px 64px rgba(0, 0, 0, 0.08);
+
+    /* Animation */
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.ios-auth-overlay.visible .ios-auth-sheet {
+    transform: scale(1);
+}
+
+/* Lock Icon */
+.ios-auth-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(145deg, #007AFF 0%, #5856D6 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.ios-auth-icon .material-symbols-outlined {
+    font-size: 32px;
+    color: #FFFFFF;
+}
+
+/* Title */
+.ios-auth-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1C1C1E;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.3px;
+}
+
+/* Subtitle */
+.ios-auth-subtitle {
+    font-size: 14px;
+    color: #8E8E93;
+    margin: 0 0 24px 0;
+    line-height: 1.4;
+}
+
+/* Input Container */
+.ios-auth-input-container {
+    margin-bottom: 16px;
+}
+
+/* Password Input */
+.ios-auth-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 17px;
+    font-family: inherit;
+    border: 1.5px solid #E5E5EA;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #1C1C1E;
+    text-align: center;
+    letter-spacing: 2px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.ios-auth-input:focus {
+    outline: none;
+    border-color: #007AFF;
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15);
+}
+
+.ios-auth-input::placeholder {
+    letter-spacing: 0;
+    color: #C7C7CC;
+}
+
+/* Error Message */
+.ios-auth-error {
+    font-size: 13px;
+    color: #FF3B30;
+    margin-bottom: 20px;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: opacity 0.2s ease, height 0.2s ease;
+}
+
+.ios-auth-error.visible {
+    opacity: 1;
+    height: 20px;
+}
+
+/* Buttons Container */
+.ios-auth-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+/* Button Base */
+.ios-auth-btn {
+    flex: 1;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ios-auth-btn:active {
+    transform: scale(0.96);
+}
+
+/* Cancel Button */
+.ios-auth-btn.cancel {
+    background: #F2F2F7;
+    color: #3C3C43;
+}
+
+/* Unlock Button */
+.ios-auth-btn.unlock {
+    background: #007AFF;
+    color: #FFFFFF;
+}
+
+.ios-auth-btn.unlock:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Shake Animation for Error */
+@keyframes shakeAuth {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-8px);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(8px);
+    }
+}
+
+.ios-auth-sheet.shake {
+    animation: shakeAuth 0.5s ease;
+}
+
+/* Input Error State */
+.ios-auth-input.error {
+    border-color: #FF3B30;
+    background: rgba(255, 59, 48, 0.05);
+}

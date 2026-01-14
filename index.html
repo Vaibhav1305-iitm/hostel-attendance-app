@@ -21,1433 +21,104 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
+    <!-- External CSS - Mess Bill Style -->
+    <link rel="stylesheet" href="attendance.css">
+    <!-- Attendance-specific overrides -->
+    <link rel="stylesheet" href="attendance-overrides.css">
+
+    <!-- Minimal inline overrides -->
     <style>
-        :root {
-            /* Apple iOS Light Theme Colors */
-            --md-sys-color-primary: #007AFF;
-            --md-sys-color-on-primary: #ffffff;
-            --md-sys-color-primary-container: #007AFF;
-            --md-sys-color-on-primary-container: #ffffff;
-            --md-sys-color-secondary: #8E8E93;
-            --md-sys-color-on-secondary: #ffffff;
-            --md-sys-color-secondary-container: #E5E5EA;
-            --md-sys-color-on-secondary-container: #1C1C1E;
-            --md-sys-color-tertiary: #5856D6;
-            --md-sys-color-on-tertiary: #ffffff;
-            --md-sys-color-tertiary-container: #E8E8F0;
-            --md-sys-color-on-tertiary-container: #1C1C1E;
-            --md-sys-color-error: #FF3B30;
-            --md-sys-color-on-error: #ffffff;
-            --md-sys-color-background: #F2F2F7;
-            --md-sys-color-on-background: #1C1C1E;
-            --md-sys-color-surface: #FFFFFF;
-            --md-sys-color-on-surface: #1C1C1E;
-            --md-sys-color-surface-variant: #E5E5EA;
-            --md-sys-color-on-surface-variant: #8E8E93;
-            --md-sys-color-outline: #C6C6C8;
+        /* iOS safe areas */
+        @supports (padding: env(safe-area-inset-top)) {
+            .top-bar {
+                padding-top: calc(12px + env(safe-area-inset-top));
+            }
 
-            /* Apple Status Colors */
-            --color-present: #34C759;
-            --color-present-container: #E3F9E8;
-            --color-absent: #FF3B30;
-            --color-absent-container: #FFE5E3;
-            --color-leave: #FF9500;
-            --color-leave-container: #FFF4E5;
-
-            --drawer-width: 300px;
-            --top-bar-height: 64px;
+            .sync-bar {
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
         }
 
-        [data-theme="dark"] {
-            /* Apple iOS Dark Theme Colors */
-            --md-sys-color-primary: #0A84FF;
-            --md-sys-color-on-primary: #ffffff;
-            --md-sys-color-primary-container: #0A84FF;
-            --md-sys-color-on-primary-container: #ffffff;
-            --md-sys-color-secondary: #8E8E93;
-            --md-sys-color-on-secondary: #ffffff;
-            --md-sys-color-secondary-container: #3A3A3C;
-            --md-sys-color-on-secondary-container: #E5E5EA;
-            --md-sys-color-tertiary: #5E5CE6;
-            --md-sys-color-on-tertiary: #ffffff;
-            --md-sys-color-tertiary-container: #2C2C2E;
-            --md-sys-color-on-tertiary-container: #E5E5EA;
-            --md-sys-color-error: #FF453A;
-            --md-sys-color-on-error: #ffffff;
-            --md-sys-color-background: #000000;
-            --md-sys-color-on-background: #FFFFFF;
-            --md-sys-color-surface: #1C1C1E;
-            --md-sys-color-on-surface: #FFFFFF;
-            --md-sys-color-surface-variant: #2C2C2E;
-            --md-sys-color-on-surface-variant: #8E8E93;
-            --md-sys-color-outline: #48484A;
-
-            /* Apple Status Colors Dark */
-            --color-present: #30D158;
-            --color-present-container: #1A3D24;
-            --color-absent: #FF453A;
-            --color-absent-container: #3D1A18;
-            --color-leave: #FF9F0A;
-            --color-leave-container: #3D2E0A;
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
-            background-color: var(--md-sys-color-background);
-            color: var(--md-sys-color-on-background);
-            transition: background-color 0.3s ease, color 0.3s ease;
-            font-size: 17px;
-            overflow-x: hidden;
-            padding-bottom: 100px;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* --- Layout --- */
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* --- Navigation Drawer --- */
-        .drawer-scrim {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1200;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .drawer-scrim.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .nav-drawer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--drawer-width);
-            height: 100%;
-            height: 100dvh;
-            /* Dynamic viewport height for mobile */
-            background-color: var(--md-sys-color-surface);
-            color: var(--md-sys-color-on-surface);
-            z-index: 1300;
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            border-top-right-radius: 16px;
-            border-bottom-right-radius: 16px;
-            overflow: hidden;
-        }
-
-        .nav-drawer.open {
-            transform: translateX(0);
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Lock body scroll when drawer is open */
-        body.drawer-open {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-        }
-
-        .drawer-header {
-            padding: 24px 16px 12px;
-            font-family: 'Google Sans', sans-serif;
-            font-size: 22px;
-            font-weight: 500;
-            color: var(--md-sys-color-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .drawer-content {
-            padding: 12px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .drawer-item {
-            display: flex;
-            align-items: center;
-            height: 56px;
-            padding: 0 16px 0 24px;
-            border-radius: 28px;
-            cursor: pointer;
-            color: var(--md-sys-color-on-surface-variant);
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 4px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-
-        .drawer-item:hover {
-            background-color: rgba(var(--md-sys-color-on-surface-variant), 0.08);
-            /* Computed color logic approximation */
-            background-color: #efefef;
-            /* Fallback */
-        }
-
-        .drawer-item.active {
-            background-color: var(--md-sys-color-secondary-container);
-            color: var(--md-sys-color-on-secondary-container);
-        }
-
-        .drawer-item .material-symbols-outlined {
-            margin-right: 12px;
-            font-size: 24px;
-            font-variation-settings: 'FILL' 0;
-        }
-
-        .drawer-item.active .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1;
-        }
-
-        .drawer-divider {
-            height: 1px;
-            background-color: var(--md-sys-color-outline);
-            margin: 8px 16px;
-            opacity: 0.2;
-        }
-
-        .drawer-label {
-            padding: 16px 24px 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        /* --- Main Content --- */
+        /* Main content padding for bottom bar */
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
+            padding-bottom: 100px;
         }
 
-        /* --- Top App Bar (Search Pill Style) --- */
-        .top-app-bar-container {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            padding: 12px 16px 20px 16px;
-            background-color: var(--md-sys-color-background);
-        }
-
-        .search-pill {
-            display: flex;
-            align-items: center;
-            height: 36px;
-            background-color: var(--md-sys-color-surface-variant);
-            border-radius: 10px;
-            padding: 0 12px;
-            box-shadow: none;
-            transition: background-color 0.2s;
-        }
-
-        .search-pill.elevated {
-            background-color: var(--md-sys-color-surface-variant);
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .icon-btn:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        /* User Avatar in Search Pill */
-        .user-avatar-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            margin-right: 4px;
-            overflow: hidden;
-            border: none;
-        }
-
-        .search-content {
-            flex: 1;
-            margin: 0 8px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .app-title {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--md-sys-color-on-surface);
-            line-height: 1.2;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface-variant);
-            line-height: normal;
-            margin-top: 2px;
-        }
-
-        /* --- Action Area (Date, Verify) --- */
-        .action-area {
-            padding: 8px 16px 16px;
-        }
-
-        .control-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: center;
-        }
-
-        .date-input-container {
-            flex: 1;
-            position: relative;
-        }
-
-        .date-input {
-            width: 100%;
-            padding: 12px 12px 12px 40px;
-            border-radius: 8px;
-            border: 1px solid var(--md-sys-color-outline);
-            background: transparent;
-            color: var(--md-sys-color-on-surface);
-            font-family: inherit;
-            font-size: 14px;
-        }
-
-        .date-input-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--md-sys-color-on-surface-variant);
-            pointer-events: none;
-        }
-
-        .verification-card {
-            background-color: var(--md-sys-color-tertiary-container);
-            color: var(--md-sys-color-on-tertiary-container);
-            border-radius: 12px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .verification-card.verified {
-            background-color: var(--color-present-container);
-            color: #00210e;
-            border: 1px solid var(--color-present);
-        }
-
-        .verification-label {
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* --- Student List --- */
-        .student-list-container {
-            padding: 0 16px 100px;
-            /* Bottom padding for FAB */
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .list-header {
-            font-size: 14px;
-            color: var(--md-sys-color-primary);
-            font-weight: 500;
-            margin-bottom: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .student-card {
-            display: flex;
-            align-items: center;
-            background-color: var(--md-sys-color-surface);
-            padding: 12px 16px;
-            border-radius: 12px;
-            border: none;
-            border-bottom: 1px solid var(--md-sys-color-outline);
-            margin-bottom: 1px;
-        }
-
-        .student-card:first-child {
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-        }
-
-        .student-card:last-child {
-            border-bottom: none;
-            border-bottom-left-radius: 12px;
-            border-bottom-right-radius: 12px;
-        }
-
-        .student-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 22px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 17px;
-            font-weight: 600;
-            margin-right: 12px;
-            flex-shrink: 0;
-            background-color: var(--md-sys-color-primary);
-            color: white;
-        }
-
-        .student-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .student-name {
-            font-size: 17px;
-            font-weight: 400;
-            color: var(--md-sys-color-on-surface);
-            margin-bottom: 2px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-height: 1.25;
-            word-break: break-word;
-        }
-
-        .student-id {
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .status-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .status-chip {
-            width: 34px;
-            height: 34px;
-            border-radius: 17px;
-            border: 2px solid var(--md-sys-color-outline);
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--md-sys-color-on-surface-variant);
-            transition: all 0.15s ease;
-        }
-
-        .status-chip.active {
-            color: white;
-            border: none;
-            transform: scale(1.05);
-        }
-
-        .status-chip.status-P.active {
-            background-color: var(--color-present);
-            box-shadow: 0 2px 8px rgba(52, 199, 89, 0.4);
-        }
-
-        .status-chip.status-A.active {
-            background-color: var(--color-absent);
-            box-shadow: 0 2px 8px rgba(255, 59, 48, 0.4);
-        }
-
-        .status-chip.status-L.active {
-            background-color: var(--color-leave);
-            color: white;
-            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.4);
-        }
-
-        /* --- iOS Style Action Buttons --- */
-        .fab {
-            height: 50px;
-            border-radius: 25px;
-            background-color: var(--md-sys-color-primary);
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 24px;
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-            font-size: 17px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            gap: 8px;
-        }
-
-        .fab:active {
-            transform: scale(0.96);
-            opacity: 0.9;
-        }
-
-        .fab.small {
-            height: 44px;
-            padding: 0;
-            width: 44px;
-            justify-content: center;
-            background-color: var(--md-sys-color-surface);
-            color: var(--md-sys-color-primary);
-            border-radius: 22px;
-            border: 1px solid var(--md-sys-color-outline);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .fab-icon {
-            font-size: 20px;
-        }
-
-        .fab-container {
-            position: fixed;
-            bottom: 34px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: row;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
-        }
-
-        /* --- iOS-Style Toast Notifications --- */
-        .ios-toast-container {
-            position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            pointer-events: none;
-        }
-
-        .ios-toast {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 20px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 13px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-            font-size: 15px;
-            font-weight: 500;
-            color: #1C1C1E;
-            min-width: 200px;
-            max-width: 340px;
-            animation: iosToastIn 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-            pointer-events: auto;
-        }
-
-        [data-theme="dark"] .ios-toast {
-            background: rgba(44, 44, 46, 0.95);
-            color: #FFFFFF;
-        }
-
-        .ios-toast.hiding {
-            animation: iosToastOut 0.25s cubic-bezier(0.32, 0, 0.67, 0) forwards;
-        }
-
-        .ios-toast-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .ios-toast-icon .material-symbols-outlined {
-            font-size: 18px;
-            font-variation-settings: 'FILL' 1;
-        }
-
-        .ios-toast.success .ios-toast-icon {
-            background: #34C759;
-            color: white;
-        }
-
-        .ios-toast.error .ios-toast-icon {
-            background: #FF3B30;
-            color: white;
-        }
-
-        .ios-toast.info .ios-toast-icon {
-            background: #007AFF;
-            color: white;
-        }
-
-        .ios-toast.warning .ios-toast-icon {
-            background: #FF9500;
-            color: white;
-        }
-
-        @keyframes iosToastIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.9);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        @keyframes iosToastOut {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.95);
-            }
-        }
-
-        /* --- iOS-Style Loading Overlay --- */
-        .ios-loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            animation: iosOverlayIn 0.2s ease;
-        }
-
-        .ios-loading-overlay.hiding {
-            animation: iosOverlayOut 0.2s ease forwards;
-        }
-
-        .ios-loading-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 24px 32px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-        }
-
-        [data-theme="dark"] .ios-loading-box {
-            background: rgba(44, 44, 46, 0.95);
-        }
-
-        .ios-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 122, 255, 0.2);
-            border-top-color: #007AFF;
-            border-radius: 50%;
-            animation: iosSpinner 0.8s linear infinite;
-        }
-
-        .ios-loading-text {
-            font-size: 15px;
-            font-weight: 500;
-            color: #1C1C1E;
-        }
-
-        [data-theme="dark"] .ios-loading-text {
-            color: #FFFFFF;
-        }
-
-        @keyframes iosSpinner {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        @keyframes iosOverlayIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes iosOverlayOut {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0;
-            }
-        }
-
-        /* Sync Status Badge */
-        .sync-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .sync-badge.synced {
-            background: rgba(52, 199, 89, 0.15);
-            color: #34C759;
-        }
-
-        .sync-badge.not-synced {
-            background: rgba(142, 142, 147, 0.15);
-            color: #8E8E93;
-        }
-
-        /* Switch Toggle */
-        .switch {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Desktop specific tweaks */
-        @media (min-width: 600px) {
-            .app-container {
-                max-width: 600px;
-                margin: 0 auto;
-                background: var(--md-sys-color-surface);
-                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            }
-
-            .drawer-scrim {
-                display: none;
-                /* In Gmail desktop, drawer pushes content. Here we keep it mobile style centered */
-            }
-
-            .nav-drawer {
-                position: absolute;
-                /* Relative to app container if we wanted, but fixed is easier overlay for now */
-            }
-
-            .fab-container {
-                position: fixed;
-                right: calc(50% - 276px);
-                /* Center 600px / 2 = 300 - 24px margin */
-                bottom: 24px;
-            }
-        }
-
-        /* Stats Chips */
-        .stats-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-
-        .stat-chip {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            background-color: var(--md-sys-color-surface-variant);
-            color: var(--md-sys-color-on-surface-variant);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .stat-chip strong {
-            font-size: 14px;
-        }
-
-        /* Admin Tabs and Tracking */
-        .admin-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 0 16px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid var(--md-sys-color-outline-variant);
-        }
-
-        .admin-tab {
-            background: none;
-            border: none;
-            padding: 12px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface-variant);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-        }
-
-        .admin-tab.active {
-            color: var(--md-sys-color-primary);
-            border-bottom-color: var(--md-sys-color-primary);
-        }
-
-        .tracking-table-container {
-            overflow-x: auto;
-            background: var(--md-sys-color-surface);
-            border-radius: 12px;
-            border: 1px solid var(--md-sys-color-outline-variant);
-            margin-top: 12px;
-        }
-
-        .tracking-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            min-width: 600px;
-        }
-
-        .tracking-table th,
-        .tracking-table td {
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--md-sys-color-outline-variant);
-        }
-
-        .tracking-table th {
-            background: var(--md-sys-color-surface-variant);
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .tracking-search-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .badge.present {
-            background: var(--color-present-container);
-            color: #006020;
-        }
-
-        .badge.absent {
-            background: var(--color-absent-container);
-            color: var(--color-absent);
-        }
-
-        .badge.leave {
-            background: var(--color-leave-container);
-            color: #805600;
-        }
-
-        /* ADMIN PANEL v6.0 STYLES */
-        .admin-header {
-            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
-            padding: 20px 16px;
-            color: white;
-            border-radius: 0 0 24px 24px;
-            margin-bottom: 16px;
-        }
-
-        .admin-header-title {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .admin-header-subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .admin-tabs-new {
-            display: flex;
-            gap: 4px;
-            padding: 0 12px;
-            margin-bottom: 16px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .admin-tabs-new::-webkit-scrollbar {
-            display: none;
-        }
-
-        .admin-tab-new {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 12px 16px;
-            border-radius: 16px;
-            border: none;
-            background: var(--md-sys-color-surface);
-            color: var(--md-sys-color-on-surface-variant);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 70px;
-            gap: 4px;
-        }
-
-        .admin-tab-new .material-symbols-outlined {
-            font-size: 24px;
-        }
-
-        .admin-tab-new.active {
-            background: var(--md-sys-color-primary);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-
+        /* Admin panel section */
         .admin-section {
-            padding: 0 16px;
             display: none;
         }
 
         .admin-section.active {
             display: block;
         }
-
-        .stats-cards-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background: var(--md-sys-color-surface);
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid var(--md-sys-color-outline);
-        }
-
-        .stat-card-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--md-sys-color-primary);
-        }
-
-        .stat-card-label {
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-top: 4px;
-        }
-
-        .ranking-card {
-            background: var(--md-sys-color-surface);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border: 1px solid var(--md-sys-color-outline);
-        }
-
-        .ranking-position {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .ranking-position.gold {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #fff;
-        }
-
-        .ranking-position.silver {
-            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
-            color: #fff;
-        }
-
-        .ranking-position.bronze {
-            background: linear-gradient(135deg, #CD7F32, #B87333);
-            color: #fff;
-        }
-
-        .ranking-position.normal {
-            background: var(--md-sys-color-surface-variant);
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .ranking-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .ranking-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--md-sys-color-on-surface);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .ranking-category {
-            font-size: 12px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .ranking-score {
-            text-align: right;
-        }
-
-        .ranking-score-value {
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .ranking-score-label {
-            font-size: 11px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .score-excellent {
-            color: #34C759;
-        }
-
-        .score-good {
-            color: #007AFF;
-        }
-
-        .score-warning {
-            color: #FF9500;
-        }
-
-        .score-danger {
-            color: #FF3B30;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: var(--md-sys-color-surface-variant);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-
-        .ai-card {
-            background: var(--md-sys-color-surface);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid;
-        }
-
-        .ai-card.critical {
-            border-left-color: #FF3B30;
-            background: linear-gradient(90deg, rgba(255, 59, 48, 0.08) 0%, var(--md-sys-color-surface) 100%);
-        }
-
-        .ai-card.warning {
-            border-left-color: #FF9500;
-            background: linear-gradient(90deg, rgba(255, 149, 0, 0.08) 0%, var(--md-sys-color-surface) 100%);
-        }
-
-        .ai-card.info {
-            border-left-color: #007AFF;
-            background: linear-gradient(90deg, rgba(0, 122, 255, 0.08) 0%, var(--md-sys-color-surface) 100%);
-        }
-
-        .ai-card-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .ai-card-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ai-card.critical .ai-card-icon {
-            background: rgba(255, 59, 48, 0.15);
-            color: #FF3B30;
-        }
-
-        .ai-card.warning .ai-card-icon {
-            background: rgba(255, 149, 0, 0.15);
-            color: #FF9500;
-        }
-
-        .ai-card.info .ai-card-icon {
-            background: rgba(0, 122, 255, 0.15);
-            color: #007AFF;
-        }
-
-        .ai-card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--md-sys-color-on-surface);
-        }
-
-        .ai-card-students {
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        .ai-card-suggestion {
-            font-size: 13px;
-            color: var(--md-sys-color-on-surface);
-            padding: 8px 12px;
-            background: var(--md-sys-color-surface-variant);
-            border-radius: 8px;
-        }
-
-        .medal-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .medal-badge.gold {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #fff;
-        }
-
-        .medal-badge.silver {
-            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
-            color: #fff;
-        }
-
-        .medal-badge.bronze {
-            background: linear-gradient(135deg, #CD7F32, #B87333);
-            color: #fff;
-        }
-
-        .medal-badge.at-risk {
-            background: rgba(255, 59, 48, 0.15);
-            color: #FF3B30;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .empty-state .material-symbols-outlined {
-            font-size: 48px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .filter-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-            overflow-x: auto;
-        }
-
-        .filter-pill {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--md-sys-color-outline);
-            background: var(--md-sys-color-surface);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .filter-pill.active {
-            background: var(--md-sys-color-primary);
-            color: white;
-            border-color: var(--md-sys-color-primary);
-        }
-
-        /* --- Sync Tracker Styles --- */
-        .sync-tracker-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--md-sys-color-background);
-            z-index: 3000;
-            display: none;
-            flex-direction: column;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-            }
-
-            to {
-                transform: translateX(0);
-            }
-        }
-
-        .sync-tracker-modal.hiding {
-            animation: slideOutRight 0.25s ease forwards;
-        }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-            }
-
-            to {
-                transform: translateX(100%);
-            }
-        }
-
-        .sync-tracker-header {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            gap: 12px;
-            background: var(--md-sys-color-surface);
-            border-bottom: 1px solid var(--md-sys-color-outline-variant);
-        }
-
-        .sync-tracker-header h2 {
-            flex: 1;
-            font-size: 17px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .sync-tracker-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-
-        .sync-tracker-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: var(--md-sys-color-surface);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-
-        .sync-tracker-table th {
-            background: var(--md-sys-color-surface-variant);
-            padding: 12px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            text-align: center;
-            color: var(--md-sys-color-on-surface-variant);
-        }
-
-        .sync-tracker-table th:first-child {
-            text-align: left;
-            padding-left: 12px;
-        }
-
-        .sync-tracker-table td {
-            padding: 14px 6px;
-            text-align: center;
-            border-bottom: 1px solid var(--md-sys-color-outline-variant);
-            font-size: 13px;
-        }
-
-        .sync-tracker-table td:first-child {
-            text-align: left;
-            padding-left: 12px;
-            font-weight: 500;
-        }
-
-        .sync-tracker-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .sync-tracker-table tr.today {
-            background: rgba(0, 122, 255, 0.05);
-        }
-
-        .status-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .status-dot.synced {
-            background: rgba(52, 199, 89, 0.15);
-            color: #34C759;
-        }
-
-        .status-dot.not-synced {
-            background: rgba(142, 142, 147, 0.1);
-            color: #8E8E93;
-        }
-
-        .status-dot.complete {
-            background: #34C759;
-            color: white;
-        }
-
-        .sync-summary-card {
-            background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(88, 86, 214, 0.1) 100%);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 16px;
-        }
-
-        .sync-summary-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sync-progress-bar {
-            height: 8px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-
-        .sync-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #34C759, #30D158);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .sync-summary-stats {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--md-sys-color-on-surface);
-        }
-
-        .date-range-pills {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .date-range-pill {
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid var(--md-sys-color-outline);
-            background: var(--md-sys-color-surface);
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .date-range-pill.active {
-            background: var(--md-sys-color-primary);
-            color: white;
-            border-color: var(--md-sys-color-primary);
-        }
     </style>
 </head>
 
+
 <body>
 
+    <!-- iOS Toast Container (must be direct child of body for proper centering) -->
+    <div id="iosToastContainer" class="ios-toast-container"></div>
+
+    <!-- iOS AssistiveTouch Floating Button -->
+    <div id="assistiveTouchBtn" class="assistive-touch-btn">
+        <span class="material-symbols-outlined">apps</span>
+    </div>
+
+    <!-- AssistiveTouch Menu Overlay -->
+    <div id="assistiveTouchOverlay" class="assistive-touch-overlay"></div>
+
+    <!-- AssistiveTouch Menu -->
+    <div id="assistiveTouchMenu" class="assistive-touch-menu">
+        <div class="assistive-menu-item" data-category="Yoga">
+            <div class="assistive-menu-icon">
+                <span class="material-symbols-outlined">self_improvement</span>
+            </div>
+            <span class="assistive-menu-text">Yoga</span>
+        </div>
+        <div class="assistive-menu-item" data-category="Mess Day">
+            <div class="assistive-menu-icon">
+                <span class="material-symbols-outlined">restaurant</span>
+            </div>
+            <span class="assistive-menu-text">Mess Day</span>
+        </div>
+        <div class="assistive-menu-item" data-category="Mess Night">
+            <div class="assistive-menu-icon">
+                <span class="material-symbols-outlined">bedtime</span>
+            </div>
+            <span class="assistive-menu-text">Mess Night</span>
+        </div>
+        <div class="assistive-menu-item" data-category="Night Shift">
+            <div class="assistive-menu-icon">
+                <span class="material-symbols-outlined">nights_stay</span>
+            </div>
+            <span class="assistive-menu-text">Night Shift</span>
+        </div>
+    </div>
+
+    <!-- iOS Authentication Sheet -->
+    <div id="iosAuthOverlay" class="ios-auth-overlay">
+        <div class="ios-auth-sheet">
+            <div class="ios-auth-icon">
+                <span class="material-symbols-outlined">lock</span>
+            </div>
+            <h2 class="ios-auth-title">Authentication Required</h2>
+            <p class="ios-auth-subtitle">Enter password to access Admin Panel</p>
+            <div class="ios-auth-input-container">
+                <input type="password" id="iosAuthPassword" class="ios-auth-input" placeholder="Password"
+                    autocomplete="off">
+            </div>
+            <div class="ios-auth-error" id="iosAuthError">Incorrect password. Try again.</div>
+            <div class="ios-auth-buttons">
+                <button class="ios-auth-btn cancel" onclick="closeIOSAuth()">Cancel</button>
+                <button class="ios-auth-btn unlock" onclick="submitIOSAuth()">Unlock</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation Drawer -->
-    <div class="drawer-scrim" id="drawerScrim" onclick="closeDrawer()"></div>
+    <div class="drawer-overlay" id="drawerScrim" onclick="closeDrawer()"></div>
     <nav class="nav-drawer" id="navDrawer">
         <div class="drawer-header">
             <span class="material-symbols-outlined">school</span>
@@ -1493,9 +164,9 @@
                 <span class="material-symbols-outlined">download</span>
                 Download CSV
             </a>
-            <a class="drawer-item" onclick="downloadOverallAttendance()">
-                <span class="material-symbols-outlined">table_view</span>
-                Download Excel
+            <a class="drawer-item" onclick="openQuickDailyReportDialog()">
+                <span class="material-symbols-outlined">cloud_download</span>
+                Quick Daily Report
             </a>
 
             <a class="drawer-item" onclick="openAdminLogin()">
@@ -1517,129 +188,109 @@
         </div>
     </nav>
 
-    <div class="app-container">
-        <div class="main-content">
-            <!-- iOS Style Header -->
-            <div class="top-app-bar-container">
-                <!-- Large Title Row -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <button class="icon-btn" onclick="openDrawer()" style="margin-left: -8px;">
-                            <span class="material-symbols-outlined">menu</span>
-                        </button>
-                        <div>
-                            <div class="app-title" id="headerTitle">Yoga</div>
-                            <div class="subtitle" id="headerDate">Select Date</div>
-                        </div>
+    <!-- App Root - Centers content like Mess Bill -->
+    <div id="app-root">
+        <!-- iOS Top Bar - Mess Bill Style -->
+        <div class="top-bar">
+            <div class="search-pill" id="searchPill">
+                <button class="icon-btn" onclick="openDrawer()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <input type="text" class="search-input" id="studentSearch" placeholder="Search students...">
+                <div class="avatar" onclick="toggleTheme()" id="userAvatar">A</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="content" id="mainContent">
+
+            <!-- Hero Stats Card - Like Mess Bill THIS MONTH -->
+            <div class="card stats-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;"
+                            id="headerTitle">YOGA</div>
+                        <div style="font-size: 36px; font-weight: 800; margin-top: 4px;" id="presentCount">0</div>
+                        <div style="font-size: 14px; opacity: 0.85;" id="headerDate">Present Today</div>
                     </div>
-                    <button class="user-avatar-btn" onclick="toggleTheme()" title="Toggle Theme">
-                        <span id="userInitial">A</span>
-                    </button>
-                </div>
-                <!-- iOS Search Bar -->
-                <div class="search-pill" id="searchPill" style="margin-bottom: 16px;">
-                    <span class="material-symbols-outlined"
-                        style="color: var(--md-sys-color-on-surface-variant); font-size: 20px;">search</span>
-                    <input type="text" id="studentSearch" placeholder="Search student..."
-                        style="flex: 1; border: none; background: transparent; outline: none; font-size: 17px; color: var(--md-sys-color-on-surface); font-family: inherit; margin-left: 8px;">
+                    <div style="text-align: right;">
+                        <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase;">ABSENT
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; margin-top: 4px;" id="absentCount">0</div>
+                        <div style="font-size: 13px; opacity: 0.85;" id="leaveCountLabel">Leave: <span
+                                id="leaveCount">0</span></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Action Area -->
-            <div class="action-area" style="padding-top: 16px; margin-top: 8px;">
-                <!-- Date Selection - iOS Style -->
-                <div class="control-row">
-                    <div class="date-input-container"
-                        style="background: var(--md-sys-color-surface); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--md-sys-color-outline);">
-                        <span class="material-symbols-outlined"
-                            style="color: var(--md-sys-color-primary);">calendar_today</span>
-                        <input type="date" id="attendanceDate"
-                            style="border: none; background: transparent; font-size: 17px; color: var(--md-sys-color-on-surface); font-family: inherit; flex: 1; outline: none;">
-                    </div>
-                </div>
+            <!-- Date Picker - iOS Style -->
+            <div class="ios-date-picker">
+                <span class="material-symbols-outlined">calendar_today</span>
+                <input type="date" class="ios-date-input" id="attendanceDate">
+            </div>
 
-                <!-- Verification Card - iOS Style -->
-                <div class="verification-card" id="verificationCard" onclick="toggleVerification()"
-                    style="background: var(--md-sys-color-surface); border: 1px solid var(--md-sys-color-outline);">
-                    <div class="verification-label">
-                        <span class="material-symbols-outlined" id="verifyIcon">check_circle_outline</span>
-                        <span id="verifyText">Mark as Verified</span>
-                    </div>
-                    <div class="switch">
-                        <span class="material-symbols-outlined" id="verifyCheckmark"
-                            style="opacity: 0; color: var(--color-present);">done</span>
-                    </div>
+            <!-- Verification Toggle - iOS Style -->
+            <div class="ios-verification-row" id="verificationCard" onclick="toggleVerification()">
+                <span class="ios-verification-text" id="verifyText">Mark as Verified</span>
+                <div class="ios-toggle-switch" id="verifyToggle">
+                    <div class="ios-toggle-knob"></div>
                 </div>
+            </div>
 
-                <!-- Fetch from Database Button (only visible for past dates) -->
-                <div id="fetchButtonContainer" style="display: none; margin-bottom: 12px;">
-                    <button onclick="fetchCurrentSectionFromDB()" style="width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--md-sys-color-primary); 
+            <!-- Fetch from Database Button (only visible for past dates) -->
+            <div id="fetchButtonContainer" style="display: none; margin-bottom: 12px;">
+                <button onclick="fetchCurrentSectionFromDB()" style="width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--md-sys-color-primary); 
                         background: linear-gradient(135deg, rgba(0,122,255,0.08) 0%, rgba(88,86,214,0.08) 100%); 
                         color: var(--md-sys-color-primary); font-size: 15px; font-weight: 600; 
                         display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
                         font-family: inherit;">
-                        <span class="material-symbols-outlined" style="font-size: 20px;">cloud_download</span>
-                        Fetch <span id="fetchCategoryName">Yoga</span> from Database
-                    </button>
-                    <div id="fetchStatusText"
-                        style="text-align: center; font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 6px;">
-                    </div>
+                    <span class="material-symbols-outlined" style="font-size: 20px;">cloud_download</span>
+                    Fetch <span id="fetchCategoryName">Yoga</span> from Database
+                </button>
+                <div id="fetchStatusText"
+                    style="text-align: center; font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin-top: 6px;">
                 </div>
+            </div>
 
-                <!-- Stats - iOS Segmented Style -->
-                <div class="stats-row"
-                    style="background: var(--md-sys-color-surface); border-radius: 10px; padding: 8px; display: flex; gap: 4px; border: 1px solid var(--md-sys-color-outline);">
-                    <div class="stat-chip"
-                        style="flex: 1; justify-content: center; background: var(--color-present-container); color: var(--color-present); border-radius: 8px; padding: 8px;">
-                        <span style="font-weight: 400;">Present</span>
-                        <strong id="presentCount">0</strong>
-                    </div>
-                    <div class="stat-chip"
-                        style="flex: 1; justify-content: center; background: var(--color-absent-container); color: var(--color-absent); border-radius: 8px; padding: 8px;">
-                        <span style="font-weight: 400;">Absent</span>
-                        <strong id="absentCount">0</strong>
-                    </div>
-                    <div class="stat-chip"
-                        style="flex: 1; justify-content: center; background: var(--color-leave-container); color: #B86E00; border-radius: 8px; padding: 8px;">
-                        <span style="font-weight: 400;">Leave</span>
-                        <strong id="leaveCount">0</strong>
-                    </div>
-                </div>
-
-                <div class="list-header" style="margin-top: 16px; color: var(--md-sys-color-on-surface-variant);">
-                    <span style="text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;">Students</span>
-                    <span id="totalStudentsCount" style="font-size: 13px;">0 total</span>
-                </div>
+            <!-- Section Title -->
+            <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>STUDENTS</span>
+                <span id="totalStudentsCount" style="font-size: 13px; color: var(--ios-text-tertiary);">0 total</span>
             </div>
 
             <!-- Student List -->
             <div id="studentList" class="student-list-container">
-                <div class="student-card" style="justify-content: center; color: var(--md-sys-color-outline);">
+                <div class="student-card" style="justify-content: center; color: var(--ios-text-tertiary);">
                     No data loaded. Upload CSV to begin.
                 </div>
             </div>
 
+        </main><!-- End main.content -->
+    </div><!-- End #app-root -->
+
+    <!-- iOS Dock Bar - Single Glass Container -->
+    <div class="ios-dock-bar">
+        <div class="ios-dock-glass">
+            <button class="ios-dock-item" onclick="openQuickDailyReportDialog()" title="Report">
+                <span class="material-symbols-outlined">download</span>
+                <span class="ios-dock-text">Report</span>
+            </button>
+            <button class="ios-dock-item" onclick="openSyncTracker()" title="Tracker">
+                <span class="material-symbols-outlined">analytics</span>
+                <span class="ios-dock-text">Tracker</span>
+            </button>
+            <button class="ios-dock-item" onclick="syncCurrentSection()" title="Section">
+                <span class="material-symbols-outlined">cloud_upload</span>
+                <span class="ios-dock-text">Section</span>
+            </button>
+            <button class="ios-dock-item" onclick="syncToGoogleSheet()" title="Sync All">
+                <span class="material-symbols-outlined">cloud_sync</span>
+                <span class="ios-dock-text">Sync All</span>
+            </button>
         </div>
     </div>
 
-    <!-- FABs -->
-    <div class="fab-container">
-        <button class="fab small" onclick="syncCurrentSection()" aria-label="Sync Section" title="Sync Current Section">
-            <span class="material-symbols-outlined fab-icon">cloud_upload</span>
-        </button>
-
-        <button class="fab" onclick="syncToGoogleSheet()">
-            <span class="material-symbols-outlined fab-icon">cloud_sync</span>
-            Sync All
-        </button>
-
-        <button class="fab small" onclick="saveAllAttendance()" aria-label="Save" title="Save All">
-            <span class="material-symbols-outlined fab-icon">save</span>
-        </button>
-    </div>
-
-    <!-- iOS Toast Container -->
-    <div id="iosToastContainer" class="ios-toast-container"></div>
+    <!-- iOS Toast Container moved to top of body for proper centering -->
 
     <!-- iOS Loading Overlay (hidden by default) -->
     <div id="iosLoadingOverlay" class="ios-loading-overlay" style="display:none;">
@@ -1780,22 +431,22 @@
                 </button>
             </div>
 
-            <!-- Summary Stats -->
-            <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+            <!-- Summary Stats - iOS Style -->
+            <div style="display:flex; gap:12px; margin-bottom:20px;">
                 <div
-                    style="flex:1; min-width:80px; background:var(--color-present-container); padding:12px; border-radius:12px; text-align:center;">
-                    <div style="font-size:24px; font-weight:700; color:var(--color-present);" id="dashPresent">0</div>
-                    <div style="font-size:12px; color:var(--color-present);">Present</div>
+                    style="flex:1; background:white; padding:16px; border-radius:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <div style="font-size:28px; font-weight:700; color:#34C759;" id="dashPresent">0</div>
+                    <div style="font-size:13px; color:#8E8E93; margin-top:4px;">Present</div>
                 </div>
                 <div
-                    style="flex:1; min-width:80px; background:var(--color-absent-container); padding:12px; border-radius:12px; text-align:center;">
-                    <div style="font-size:24px; font-weight:700; color:var(--color-absent);" id="dashAbsent">0</div>
-                    <div style="font-size:12px; color:var(--color-absent);">Absent</div>
+                    style="flex:1; background:white; padding:16px; border-radius:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <div style="font-size:28px; font-weight:700; color:#FF3B30;" id="dashAbsent">0</div>
+                    <div style="font-size:13px; color:#8E8E93; margin-top:4px;">Absent</div>
                 </div>
                 <div
-                    style="flex:1; min-width:80px; background:var(--color-leave-container); padding:12px; border-radius:12px; text-align:center;">
-                    <div style="font-size:24px; font-weight:700; color:#805600;" id="dashLeave">0</div>
-                    <div style="font-size:12px; color:#805600;">Leave</div>
+                    style="flex:1; background:white; padding:16px; border-radius:12px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+                    <div style="font-size:28px; font-weight:700; color:#FF9500;" id="dashLeave">0</div>
+                    <div style="font-size:13px; color:#8E8E93; margin-top:4px;">Leave</div>
                 </div>
             </div>
 
@@ -1824,6 +475,7 @@
         const LAST_STATE_KEY = 'hostel_last_state_v1';
         let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLrD98LEE_PQtqySBKqrZLyKvqzM3nXCAEMyYmejkLqwexp6cUTmDlIljQEazc7_8i/exec';
         let autoSaveTimeout = null;
+        let hasUnsyncedChanges = false; // Track if there are unsynced attendance changes
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function () {
@@ -1848,13 +500,31 @@
                 }
             });
 
-            // Save state before page unload (refresh/close)
-            window.addEventListener('beforeunload', function () {
+            // Save state and warn before page unload (refresh/close)
+            window.addEventListener('beforeunload', function (e) {
                 saveCurrentState();
+                saveDraft(); // Also save draft immediately on leave
+
+                // Warn if there are unsynced changes
+                if (hasUnsyncedChanges) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved attendance changes! Are you sure you want to leave?';
+                    return e.returnValue;
+                }
             });
 
             // Auto-fetch students from Google Sheets on load
-            fetchStudentsFromSheet();
+            // Draft will be loaded after students are fetched
+            fetchStudentsFromSheet().then(() => {
+                // Load any saved draft after students are available
+                if (loadAttendanceDraft()) {
+                    renderStudentList();
+                    updateVerificationUI();
+                }
+            }).catch(() => {
+                // Even on error, try to load draft
+                loadAttendanceDraft();
+            });
         });
 
         // --- iOS-Style Toast & Loading Functions ---
@@ -1978,8 +648,153 @@
                         // Update header title to match restored category
                         const headerTitle = document.getElementById('headerTitle');
                         if (headerTitle) headerTitle.textContent = state.category;
+
+                        // Update drawer active state to match restored category
+                        updateDrawerActiveState(state.category);
                     }
                 }
+            } catch (e) { /* ignore */ }
+        }
+
+        // Update drawer active state for a given category
+        function updateDrawerActiveState(category) {
+            document.querySelectorAll('.drawer-item').forEach(el => {
+                el.classList.remove('active');
+            });
+            const navId = `nav-${category}`;
+            const activeItem = document.getElementById(navId);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+
+        // --- Auto-Save Draft System ---
+        const DRAFT_KEY = 'hostel_attendance_draft_v1';
+        let draftSaveTimeout = null;
+
+        // Auto-save attendance draft (debounced)
+        function autoSaveAttendance() {
+            // Clear any pending save
+            if (draftSaveTimeout) clearTimeout(draftSaveTimeout);
+
+            // Debounce: save after 2 seconds of no changes
+            draftSaveTimeout = setTimeout(() => {
+                saveDraft();
+            }, 2000);
+
+            // Also save immediately to existing state system
+            saveCurrentState();
+        }
+
+        // Save draft to localStorage
+        function saveDraft() {
+            try {
+                const date = document.getElementById('attendanceDate')?.value;
+                if (!date) return;
+
+                // Get current timestamp
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                // Only save draft for today's date
+                if (date !== today) return;
+
+                // Build draft object
+                const draft = {
+                    date: date,
+                    category: currentCategory,
+                    attendanceByCategory: {},
+                    verifiedCategories: { ...verifiedCategories },
+                    timestamp: now.toISOString()
+                };
+
+                // Save attendance for all categories that have data
+                CATEGORIES.forEach(cat => {
+                    if (attendanceByCategory[cat] && Object.keys(attendanceByCategory[cat]).length > 0) {
+                        draft.attendanceByCategory[cat] = { ...attendanceByCategory[cat] };
+                    }
+                });
+
+                // Only save if there's actual data
+                if (Object.keys(draft.attendanceByCategory).length > 0) {
+                    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+                }
+            } catch (e) {
+                console.error('Draft save failed:', e);
+            }
+        }
+
+        // Load draft on app start (only for today's date)
+        function loadAttendanceDraft() {
+            try {
+                const saved = localStorage.getItem(DRAFT_KEY);
+                if (!saved) return false;
+
+                const draft = JSON.parse(saved);
+                if (!draft || !draft.date) return false;
+
+                // Get today's date
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                // ONLY restore if draft is for TODAY
+                if (draft.date !== today) {
+                    // Old draft - clear it
+                    localStorage.removeItem(DRAFT_KEY);
+                    return false;
+                }
+
+                // Check if there's actual data to restore
+                if (!draft.attendanceByCategory || Object.keys(draft.attendanceByCategory).length === 0) {
+                    return false;
+                }
+
+                // Count how many records are being restored
+                let totalRestored = 0;
+
+                // Restore attendance by category
+                CATEGORIES.forEach(cat => {
+                    if (draft.attendanceByCategory[cat]) {
+                        ensureCategoryAttendance(cat);
+                        Object.assign(attendanceByCategory[cat], draft.attendanceByCategory[cat]);
+                        totalRestored += Object.keys(draft.attendanceByCategory[cat]).length;
+                    }
+                });
+
+                // Restore verified categories
+                if (draft.verifiedCategories) {
+                    Object.assign(verifiedCategories, draft.verifiedCategories);
+                }
+
+                // Set current attendance
+                if (attendanceByCategory[currentCategory]) {
+                    attendance = attendanceByCategory[currentCategory];
+                }
+
+                // Mark that we have unsaved changes (draft was restored)
+                if (totalRestored > 0) {
+                    hasUnsyncedChanges = true;
+
+                    // Show iOS toast notification
+                    setTimeout(() => {
+                        showIOSToast('📋 Draft restored from earlier session', 'info', 4000);
+                    }, 1500);
+
+                    return true;
+                }
+
+                return false;
+            } catch (e) {
+                console.error('Draft load failed:', e);
+                return false;
+            }
+        }
+
+        // Clear draft after successful sync
+        function clearAttendanceDraft() {
+            try {
+                localStorage.removeItem(DRAFT_KEY);
+                hasUnsyncedChanges = false;
             } catch (e) { /* ignore */ }
         }
 
@@ -2326,8 +1141,11 @@
             closeDrawer();
             const modal = document.getElementById('syncTrackerModal');
             if (modal) {
-                modal.style.display = 'flex';
-                modal.classList.remove('hiding');
+                modal.style.display = 'block';
+                // Use setTimeout to trigger CSS transition
+                setTimeout(() => {
+                    modal.classList.add('open');
+                }, 10);
                 renderSyncTrackerGrid();
             }
         }
@@ -2335,11 +1153,10 @@
         function closeSyncTracker() {
             const modal = document.getElementById('syncTrackerModal');
             if (modal) {
-                modal.classList.add('hiding');
+                modal.classList.remove('open');
                 setTimeout(() => {
                     modal.style.display = 'none';
-                    modal.classList.remove('hiding');
-                }, 250);
+                }, 350); // Match transition duration
             }
         }
 
@@ -2873,6 +1690,7 @@
 
             attendanceByCategory[currentCategory][studentName] = newStatus;
             attendance = attendanceByCategory[currentCategory];
+            hasUnsyncedChanges = true; // Mark that we have unsaved changes
             renderStudentList();
 
             // Auto-save after status change
@@ -2898,19 +1716,35 @@
             const lEl = document.getElementById('leaveCount'); if (lEl) lEl.textContent = l;
         }
 
+        // Mark All Students as Present
+        function markAllPresent() {
+            if (students.length === 0) {
+                showIOSToast('No students to mark', 'warning');
+                return;
+            }
+            ensureCategoryAttendance(currentCategory);
+            students.forEach(student => {
+                attendanceByCategory[currentCategory][student.name] = 'Present';
+            });
+            attendance = attendanceByCategory[currentCategory];
+            renderStudentList();
+            updateStats();
+            showIOSToast(`All ${students.length} students marked present`, 'success');
+        }
+
         // --- Verification Logic ---
         function toggleVerification() {
             if (!verifiedCategories) verifiedCategories = {};
+            const wasVerified = verifiedCategories[currentCategory];
             verifiedCategories[currentCategory] = !verifiedCategories[currentCategory];
-            updateVerificationUI();
+            updateVerificationUI(true, wasVerified);
             saveVerificationState();
         }
 
-        function updateVerificationUI() {
+        function updateVerificationUI(showToast = false, wasVerified = null) {
             const card = document.getElementById('verificationCard');
-            const icon = document.getElementById('verifyIcon');
+            const toggle = document.getElementById('verifyToggle');
             const text = document.getElementById('verifyText');
-            const check = document.getElementById('verifyCheckmark');
 
             if (!card) return;
 
@@ -2918,22 +1752,30 @@
 
             if (isVerified) {
                 card.classList.add('verified');
-                icon.textContent = 'verified';
+                toggle?.classList.add('on');
                 text.textContent = `${currentCategory} Verified`;
-                check.style.opacity = '1';
             } else {
                 card.classList.remove('verified');
-                icon.textContent = 'check_circle_outline';
+                toggle?.classList.remove('on');
                 text.textContent = `Mark ${currentCategory} as Verified`;
-                check.style.opacity = '0';
             }
 
-            // Update Nav Indicators
+            // Show iOS toast notification when toggling
+            if (showToast && wasVerified !== null) {
+                if (isVerified) {
+                    showIOSToast('Marked as Verified', 'success');
+                } else {
+                    showIOSToast('Verification Removed', 'info');
+                }
+            }
+
+            // Update Nav Indicators - iOS style checkmarks
             CATEGORIES.forEach(c => {
                 const ind = document.getElementById(`nav-indicator-${c}`);
                 if (ind) {
-                    ind.textContent = verifiedCategories[c] ? 'check_circle' : '';
-                    if (verifiedCategories[c]) ind.style.color = 'var(--color-present)';
+                    ind.textContent = verifiedCategories[c] ? '✓' : '';
+                    ind.style.color = verifiedCategories[c] ? 'var(--color-present, #34C759)' : '';
+                    ind.style.fontWeight = verifiedCategories[c] ? '600' : '';
                 }
             });
         }
@@ -3262,6 +2104,7 @@
 
                 if (json.result === 'success') {
                     markAsSynced(date, category);
+                    clearAttendanceDraft(); // Clear draft after successful sync
                     showMessage(`${category} synced successfully! 🔒`, 'success');
                 } else {
                     showMessage(`Sync Failed: ${json.error}`, 'error');
@@ -3362,6 +2205,7 @@
                 if (json.result === 'success') {
                     // Mark all synced categories
                     notSynced.forEach(cat => markAsSynced(date, cat));
+                    clearAttendanceDraft(); // Clear draft after successful sync
                     showMessage('Sync Completed! All sections locked 🔒', 'success');
                 } else {
                     showMessage(`Sync Failed: ${json.error}`, 'error');
@@ -3394,19 +2238,89 @@
             showIOSToast(msg, type);
         }
 
+        // --- Admin Panel Password ---
+        const ADMIN_PASSWORD = '26vv13'; // Change this to your actual password
+
         // --- Admin Panel Logic ---
         function openAdminLogin() {
             closeDrawer();
-            const p = prompt("Enter Admin Password:");
-            if (p === 'admin123') {
+            // Show iOS authentication sheet instead of opening directly
+            showIOSAuth();
+        }
+
+        // Show iOS Authentication Sheet
+        function showIOSAuth() {
+            const overlay = document.getElementById('iosAuthOverlay');
+            const input = document.getElementById('iosAuthPassword');
+            const error = document.getElementById('iosAuthError');
+
+            // Reset state
+            input.value = '';
+            input.classList.remove('error');
+            error.classList.remove('visible');
+
+            // Show overlay
+            overlay.classList.add('visible');
+
+            // Focus input after animation
+            setTimeout(() => input.focus(), 300);
+        }
+
+        // Close iOS Authentication Sheet
+        function closeIOSAuth() {
+            const overlay = document.getElementById('iosAuthOverlay');
+            const sheet = overlay.querySelector('.ios-auth-sheet');
+
+            overlay.classList.remove('visible');
+            sheet.classList.remove('shake');
+        }
+
+        // Submit iOS Authentication
+        function submitIOSAuth() {
+            const input = document.getElementById('iosAuthPassword');
+            const error = document.getElementById('iosAuthError');
+            const sheet = document.querySelector('.ios-auth-sheet');
+            const enteredPassword = input.value;
+
+            // Validate password
+            if (enteredPassword === ADMIN_PASSWORD) {
+                // Success - close sheet and open Admin Panel
+                closeIOSAuth();
                 showAdminPanel();
-            } else if (p !== null) {
-                alert("Incorrect Password");
+                showIOSToast('Access Granted', 'success');
+            } else {
+                // Error - shake and show error
+                sheet.classList.add('shake');
+                input.classList.add('error');
+                error.classList.add('visible');
+
+                // Remove shake class after animation
+                setTimeout(() => sheet.classList.remove('shake'), 500);
+
+                // Clear input
+                input.value = '';
+                input.focus();
             }
         }
 
+        // Handle Enter key in password field
+        document.addEventListener('DOMContentLoaded', function () {
+            const authInput = document.getElementById('iosAuthPassword');
+            if (authInput) {
+                authInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        submitIOSAuth();
+                    }
+                });
+            }
+        });
+
         function showAdminPanel() {
-            const main = document.querySelector('.main-content');
+            // Hide FAB to prevent overlap
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) fabContainer.style.display = 'none';
+
+            const main = document.querySelector('main.content');
             main.innerHTML = `
                 <!-- Admin Header -->
                 <div class="admin-header">
@@ -3443,22 +2357,22 @@
 
                 <!-- Overview Section -->
                 <div id="section-overview" class="admin-section active">
-                    <div class="stats-cards-row">
-                        <div class="stat-card">
-                            <div class="stat-card-value" id="totalStudentsOverview">-</div>
-                            <div class="stat-card-label" id="totalStudentsLabel">📊 Total Students</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <div style="background:transparent; border:1.5px solid rgba(0,122,255,0.3); border-radius:20px; padding:16px; text-align:center;">
+                            <div style="font-size:28px; font-weight:700; color:#007AFF;" id="totalStudentsOverview">-</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;" id="totalStudentsLabel">📊 Total Students</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-card-value" id="avgAttendanceOverview">-</div>
-                            <div class="stat-card-label" id="avgAttendanceLabel">📈 Avg Attendance</div>
+                        <div style="background:transparent; border:1.5px solid rgba(52,199,89,0.3); border-radius:20px; padding:16px; text-align:center;">
+                            <div style="font-size:28px; font-weight:700; color:#34C759;" id="avgAttendanceOverview">-</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;" id="avgAttendanceLabel">📈 Avg Attendance</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-card-value score-excellent" id="sectionStudentsCount">-</div>
-                            <div class="stat-card-label" id="sectionStudentsLabel">🧑‍🎓 Section Students</div>
+                        <div style="background:transparent; border:1.5px solid rgba(255,149,0,0.3); border-radius:20px; padding:16px; text-align:center;">
+                            <div style="font-size:28px; font-weight:700; color:#FF9500;" id="sectionStudentsCount">-</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;" id="sectionStudentsLabel">🧑‍🎓 Section Students</div>
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-card-value score-danger" id="atRiskCount">-</div>
-                            <div class="stat-card-label" id="atRiskLabel">⚠️ At Risk</div>
+                        <div style="background:transparent; border:1.5px solid rgba(255,59,48,0.3); border-radius:20px; padding:16px; text-align:center;">
+                            <div style="font-size:28px; font-weight:700; color:#FF3B30;" id="atRiskCount">-</div>
+                            <div style="font-size:12px; color:#666; margin-top:4px;" id="atRiskLabel">⚠️ At Risk</div>
                         </div>
                     </div>
                     <div id="overviewContent" style="margin-top:16px;">
@@ -3471,6 +2385,34 @@
 
                 <!-- Rankings Section -->
                 <div id="section-rankings" class="admin-section">
+                    <!-- Search Bar -->
+                    <div style="margin-bottom:12px; position:relative;">
+                        <span class="material-symbols-outlined" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--md-sys-color-outline); font-size:20px;">search</span>
+                        <input type="text" id="rankingSearch" placeholder="Search student..." oninput="filterRankings(currentRankingFilter)"
+                            style="width:100%; padding:12px 12px 12px 44px; border:1px solid var(--md-sys-color-outline-variant); border-radius:12px; background:var(--md-sys-color-surface); font-size:15px; color:var(--md-sys-color-on-surface);">
+                    </div>
+                    
+                    <!-- Date Filter -->
+                    <div style="margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <select id="rankingDateType" onchange="toggleRankingDateFilter()" 
+                            style="padding:10px 12px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:14px; color:var(--md-sys-color-on-surface);">
+                            <option value="all">📅 All Time</option>
+                            <option value="month">📆 By Month</option>
+                            <option value="range">📊 Date Range</option>
+                        </select>
+                        
+                        <input type="month" id="rankingMonth" onchange="renderRankings()" 
+                            style="display:none; padding:10px 12px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:14px; color:var(--md-sys-color-on-surface);">
+                        
+                        <div id="rankingDateRange" style="display:none; flex:1; display:flex; gap:8px; align-items:center;">
+                            <input type="date" id="rankingStartDate" onchange="renderRankings()" 
+                                style="flex:1; padding:10px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:13px; color:var(--md-sys-color-on-surface);">
+                            <span style="color:var(--md-sys-color-outline);">to</span>
+                            <input type="date" id="rankingEndDate" onchange="renderRankings()" 
+                                style="flex:1; padding:10px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:13px; color:var(--md-sys-color-on-surface);">
+                        </div>
+                    </div>
+                    
                     <div class="filter-pills" id="rankingFilters">
                         <button class="filter-pill active" onclick="filterRankings('All')">All</button>
                         <button class="filter-pill" onclick="filterRankings('Yoga')">🧘 Yoga</button>
@@ -3486,23 +2428,24 @@
                     </div>
                 </div>
 
-                <!-- AI Insights Section -->
+                <!-- AI Insights Section - iOS Style -->
                 <div id="section-ai" class="admin-section">
-                    <div style="margin-bottom:16px;">
-                        <h3 style="margin:0 0 4px 0; font-size:18px; color:var(--md-sys-color-on-surface);">🤖 AI Attendance Analysis</h3>
-                        <p style="margin:0; font-size:13px; color:var(--md-sys-color-on-surface-variant);">Select section to view AI insights</p>
+                    <div class="ios-section-header">
+                        <h3 class="ios-section-title">AI Attendance Analysis</h3>
+                        <p class="ios-section-subtitle">Intelligent insights based on attendance patterns</p>
                     </div>
-                    <div class="filter-pills" id="aiFilters">
-                        <button class="filter-pill active" onclick="filterAIInsights('All')">All</button>
-                        <button class="filter-pill" onclick="filterAIInsights('Yoga')">🧘 Yoga</button>
-                        <button class="filter-pill" onclick="filterAIInsights('Night Shift')">🌙 Night Shift</button>
-                        <button class="filter-pill" onclick="filterAIInsights('Mess Day')">☀️ Mess Day</button>
-                        <button class="filter-pill" onclick="filterAIInsights('Mess Night')">🌃 Mess Night</button>
+                    <div class="ios-filter-scroll" id="aiFilters">
+                        <button class="ios-filter-chip active" onclick="filterAIInsights('All')">All</button>
+                        <button class="ios-filter-chip" onclick="filterAIInsights('Yoga')">Yoga</button>
+                        <button class="ios-filter-chip" onclick="filterAIInsights('Mess Day')">Mess Day</button>
+                        <button class="ios-filter-chip" onclick="filterAIInsights('Mess Night')">Mess Night</button>
+                        <button class="ios-filter-chip" onclick="filterAIInsights('Night Shift')">Night Shift</button>
                     </div>
                     <div id="aiContent">
-                        <div class="empty-state">
-                            <span class="material-symbols-outlined">psychology</span>
-                            <div>Analyzing patterns...</div>
+                        <div class="ios-insight-card ios-empty-card">
+                            <div class="ios-empty-icon" style="background: rgba(0,122,255,0.12); color: #007AFF;">⏳</div>
+                            <div class="ios-empty-title">Analyzing Patterns</div>
+                            <div class="ios-empty-subtitle">Loading attendance data...</div>
                         </div>
                     </div>
                 </div>
@@ -3558,7 +2501,7 @@
                             <button onclick="downloadSectionReport('excel')" class="fab" style="flex:1; justify-content:center; position:static; margin:0;">
                                 <span class="material-symbols-outlined">description</span> Excel
                             </button>
-                            <button onclick="downloadSectionReport('pdf')" class="fab" style="flex:1; justify-content:center; position:static; margin:0; background:var(--md-sys-color-tertiary);">
+                            <button onclick="downloadSectionReport('pdf')" class="fab" style="flex:1; justify-content:center; position:static; margin:0; background:linear-gradient(135deg, #FF3B30, #FF6B6B);">
                                 <span class="material-symbols-outlined">picture_as_pdf</span> PDF
                             </button>
                         </div>
@@ -3712,15 +2655,14 @@
                     const originalIndex = allScores.findIndex(s => s.name === student.name && s.category === student.category);
                     const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
                     html += `
-                        <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer;">
-                            <div class="ranking-position ${tierClass}">${medal}</div>
-                            <div class="ranking-info">
-                                <div class="ranking-name">${student.name}</div>
-                                <div class="ranking-category">${student.category} • P:${student.present} A:${student.absent} L:${student.leave}</div>
+                        <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
+                            <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
+                            <div class="ranking-info" style="flex:1;">
+                                <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
+                                <div style="font-size:12px; color:#8E8E93; margin-top:2px;">${student.category}</div>
                             </div>
-                            <div class="ranking-score">
-                                <div class="ranking-score-value ${scoreClass}">${student.score}%</div>
-                                <div class="ranking-score-label">${student.present}/${student.total}</div>
+                            <div style="text-align:right;">
+                                <div style="font-size:20px; font-weight:700; color:#007AFF;">${student.score}%</div>
                             </div>
                         </div>
                     `;
@@ -3741,39 +2683,161 @@
             renderRankings();
         }
 
-        function renderRankings() {
-            const scores = calculateStudentScores();
-            const filtered = currentRankingFilter === 'All'
+        // Toggle date filter visibility
+        function toggleRankingDateFilter() {
+            const type = document.getElementById('rankingDateType').value;
+            const monthInput = document.getElementById('rankingMonth');
+            const rangeDiv = document.getElementById('rankingDateRange');
+
+            monthInput.style.display = type === 'month' ? 'block' : 'none';
+            rangeDiv.style.display = type === 'range' ? 'flex' : 'none';
+
+            // Set default values
+            if (type === 'month' && !monthInput.value) {
+                const now = new Date();
+                monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            }
+            if (type === 'range') {
+                const startDate = document.getElementById('rankingStartDate');
+                const endDate = document.getElementById('rankingEndDate');
+                if (!startDate.value) {
+                    const now = new Date();
+                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                    startDate.value = firstDay.toISOString().split('T')[0];
+                }
+                if (!endDate.value) {
+                    endDate.value = new Date().toISOString().split('T')[0];
+                }
+            }
+
+            renderRankings();
+        }
+
+        // Get date filter range
+        function getRankingDateFilter() {
+            const type = document.getElementById('rankingDateType')?.value || 'all';
+
+            if (type === 'all') return null; // No filter
+
+            if (type === 'month') {
+                const month = document.getElementById('rankingMonth').value;
+                if (!month) return null;
+                const [year, mo] = month.split('-');
+                const startDate = `${year}-${mo}-01`;
+                const lastDay = new Date(year, parseInt(mo), 0).getDate();
+                const endDate = `${year}-${mo}-${String(lastDay).padStart(2, '0')}`;
+                return { startDate, endDate };
+            }
+
+            if (type === 'range') {
+                const startDate = document.getElementById('rankingStartDate').value;
+                const endDate = document.getElementById('rankingEndDate').value;
+                if (!startDate || !endDate) return null;
+                return { startDate, endDate };
+            }
+
+            return null;
+        }
+
+        async function renderRankings() {
+            const container = document.getElementById('rankingsContent');
+            const dateFilter = getRankingDateFilter();
+
+            // If date filter is applied and different from cached data, refetch
+            if (dateFilter) {
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">hourglass_empty</span><div>Loading...</div></div>';
+
+                try {
+                    const res = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: "get_tracking_data",
+                            startDate: dateFilter.startDate,
+                            endDate: dateFilter.endDate
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.result === 'success') {
+                        window.rankingDataFiltered = json.data;
+                    }
+                } catch (e) {
+                    container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">error</span><div>Failed to fetch data</div></div>';
+                    return;
+                }
+            } else {
+                window.rankingDataFiltered = null; // Use default cache
+            }
+
+            // Use filtered data or cached data
+            const dataSource = window.rankingDataFiltered || window.trackingDataCache || [];
+
+            const scores = dataSource.map(item => {
+                const present = item.present || 0;
+                const absent = item.absent || 0;
+                const total = item.total || 0;
+
+                // For Yoga: Score based only on Present vs Absent (Leave not counted)
+                // For others: Score based on Present vs Total
+                let score = 0;
+                if (item.category === 'Yoga') {
+                    const yogaTotal = present + absent;
+                    score = yogaTotal > 0 ? Math.round((present / yogaTotal) * 100) : 0;
+                } else {
+                    score = total > 0 ? Math.round((present / total) * 100) : 0;
+                }
+
+                let tier = 'normal';
+                if (score >= 90) tier = 'gold';
+                else if (score >= 75) tier = 'silver';
+                else if (score >= 50) tier = 'bronze';
+                else tier = 'at-risk';
+
+                return { ...item, score, tier };
+            }).sort((a, b) => b.score - a.score);
+
+            const searchQuery = (document.getElementById('rankingSearch')?.value || '').toLowerCase().trim();
+
+            // Filter by category first
+            let filtered = currentRankingFilter === 'All'
                 ? scores
                 : scores.filter(s => s.category === currentRankingFilter);
 
-            const container = document.getElementById('rankingsContent');
+            // Store original rank (before search filter) - rank 1 is first
+            filtered.forEach((student, index) => {
+                student.originalRank = index + 1;
+            });
+
+            // Then filter by search query (ranks are preserved)
+            if (searchQuery) {
+                filtered = filtered.filter(s => s.name.toLowerCase().includes(searchQuery));
+            }
+
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">search_off</span><div>No data for this category</div></div>';
+                container.innerHTML = '<div class="empty-state"><span class="material-symbols-outlined">search_off</span><div>No students found</div></div>';
                 return;
             }
 
             let html = '';
-            filtered.forEach((student, i) => {
+            filtered.forEach((student) => {
                 const tierClass = student.tier;
                 const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
-                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+
+                // Use original rank (stored in student object), not filtered index
+                const rank = student.originalRank;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 
                 // Find index in original scores array for the dashboard function
                 const originalIndex = scores.findIndex(s => s.name === student.name && s.category === student.category);
                 html += `
-                    <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer;">
-                        <div class="ranking-position ${tierClass}">${medal}</div>
-                        <div class="ranking-info">
-                            <div class="ranking-name">${student.name}</div>
-                            <div class="ranking-category">${student.category} • P:${student.present} A:${student.absent} L:${student.leave}</div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width:${student.score}%; background:${student.score >= 75 ? '#34C759' : student.score >= 50 ? '#FF9500' : '#FF3B30'};"></div>
-                            </div>
+                    <div class="ranking-card" onclick="openStudentDashboardFromRanking(${originalIndex})" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
+                        <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
+                        <div class="ranking-info" style="flex:1;">
+                            <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
+                            <div style="font-size:12px; color:#8E8E93; margin-top:2px;">${student.category}</div>
                         </div>
-                        <div class="ranking-score">
-                            <div class="ranking-score-value ${scoreClass}">${student.score}%</div>
+                        <div style="text-align:right;">
+                            <div style="font-size:20px; font-weight:700; color:#007AFF;">${student.score}%</div>
                         </div>
                     </div>
                 `;
@@ -3782,68 +2846,11 @@
             container.innerHTML = html;
         }
 
-        // Render AI Insights
+        // Render AI Insights - Use iOS styled version
         function renderAIInsights() {
-            const scores = calculateStudentScores();
-            const container = document.getElementById('aiContent');
-
-            // Categorize issues
-            const criticalAbsent = scores.filter(s => s.score < 50 && s.total >= 5);
-            const excessiveLeave = scores.filter(s => s.total > 0 && (s.leave / s.total) > 0.3);
-            const perfectAttendance = scores.filter(s => s.score === 100 && s.total >= 5);
-
-            let html = '';
-
-            // Critical: Very low attendance
-            if (criticalAbsent.length > 0) {
-                const names = criticalAbsent.slice(0, 5).map(s => `• ${s.name} (${s.category}): ${s.score}%`).join('<br>');
-                html += `
-                    <div class="ai-card critical">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">warning</span></div>
-                            <div class="ai-card-title">⚠️ Critical: Low Attendance (${criticalAbsent.length} students)</div>
-                        </div>
-                        <div class="ai-card-students">${names}${criticalAbsent.length > 5 ? `<br>... and ${criticalAbsent.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Recommendation: Schedule immediate counseling sessions with these students to understand their challenges.</div>
-                    </div>
-                `;
-            }
-
-            // Warning: Excessive leave
-            if (excessiveLeave.length > 0) {
-                const names = excessiveLeave.slice(0, 5).map(s => `• ${s.name}: ${s.leave} leaves (${Math.round(s.leave / s.total * 100)}%)`).join('<br>');
-                html += `
-                    <div class="ai-card warning">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">event_busy</span></div>
-                            <div class="ai-card-title">🟡 Excessive Leave Pattern (${excessiveLeave.length} students)</div>
-                        </div>
-                        <div class="ai-card-students">${names}${excessiveLeave.length > 5 ? `<br>... and ${excessiveLeave.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Recommendation: Review leave requests and verify if there are underlying health or personal issues.</div>
-                    </div>
-                `;
-            }
-
-            // Info: Perfect attendance (positive)
-            if (perfectAttendance.length > 0) {
-                const names = perfectAttendance.slice(0, 5).map(s => `• ${s.name} (${s.category})`).join('<br>');
-                html += `
-                    <div class="ai-card info">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">stars</span></div>
-                            <div class="ai-card-title">🌟 Perfect Attendance (${perfectAttendance.length} students)</div>
-                        </div>
-                        <div class="ai-card-students">${names}${perfectAttendance.length > 5 ? `<br>... and ${perfectAttendance.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Recommendation: Recognize and reward these students to encourage continued excellence!</div>
-                    </div>
-                `;
-            }
-
-            if (html === '') {
-                html = '<div class="empty-state"><span class="material-symbols-outlined">check_circle</span><div>No issues detected! All students are maintaining good attendance.</div></div>';
-            }
-
-            container.innerHTML = html;
+            // Initialize filter to 'All' and render with iOS styling
+            currentAIFilter = 'All';
+            renderAIInsightsFiltered();
         }
 
         // AI Insights Filter
@@ -3851,8 +2858,8 @@
 
         function filterAIInsights(category) {
             currentAIFilter = category;
-            document.querySelectorAll('#aiFilters .filter-pill').forEach(p => {
-                p.classList.toggle('active', p.textContent.includes(category) || (category === 'All' && p.textContent === 'All'));
+            document.querySelectorAll('#aiFilters .ios-filter-chip').forEach(p => {
+                p.classList.toggle('active', p.textContent === category || (category === 'All' && p.textContent === 'All'));
             });
             renderAIInsightsFiltered();
         }
@@ -3871,52 +2878,123 @@
             const excessiveLeave = scores.filter(s => s.total > 0 && (s.leave / s.total) > 0.3);
             const perfectAttendance = scores.filter(s => s.score === 100 && s.total >= 5);
 
-            let html = `<div style="margin-bottom:12px; font-size:13px; color:var(--md-sys-color-on-surface-variant);">Showing ${currentAIFilter === 'All' ? 'all sections' : currentAIFilter} (${scores.length} records)</div>`;
+            let html = `
+                <div class="ios-insights-header">
+                    <span class="ios-insights-subtitle">${currentAIFilter === 'All' ? 'All Sections' : currentAIFilter}</span>
+                    <span class="ios-insights-count">${scores.length} records analyzed</span>
+                </div>
+            `;
 
+            // Critical: Low Attendance Card
             if (criticalAbsent.length > 0) {
-                const names = criticalAbsent.slice(0, 5).map(s => `• ${s.name}: ${s.score}%`).join('<br>');
+                const studentItems = criticalAbsent.slice(0, 5).map(s => `
+                    <div class="ios-insight-student">
+                        <span class="ios-insight-name">${s.name}</span>
+                        <span class="ios-insight-value critical">${s.score}%</span>
+                    </div>
+                `).join('');
+
                 html += `
-                    <div class="ai-card critical">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">warning</span></div>
-                            <div class="ai-card-title">⚠️ Critical: Low Attendance (${criticalAbsent.length})</div>
+                    <div class="ios-insight-card">
+                        <div class="ios-insight-header">
+                            <span class="ios-status-dot critical"></span>
+                            <span class="ios-insight-title">Critical: Low Attendance</span>
+                            <span class="ios-insight-badge critical">${criticalAbsent.length}</span>
                         </div>
-                        <div class="ai-card-students">${names}${criticalAbsent.length > 5 ? `<br>... and ${criticalAbsent.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Schedule counseling sessions</div>
+                        <div class="ios-insight-body">
+                            ${studentItems}
+                            ${criticalAbsent.length > 5 ? `<div class="ios-insight-more">... and ${criticalAbsent.length - 5} more</div>` : ''}
+                        </div>
+                        <div class="ios-insight-recommendation">
+                            <span class="ios-rec-icon">💡</span>
+                            <span>Schedule counseling sessions for students with attendance below 50%</span>
+                        </div>
                     </div>
                 `;
             }
 
+            // Warning: Excessive Leave Card
             if (excessiveLeave.length > 0) {
-                const names = excessiveLeave.slice(0, 5).map(s => `• ${s.name}: ${s.leave} leaves`).join('<br>');
+                const studentItems = excessiveLeave.slice(0, 5).map(s => `
+                    <div class="ios-insight-student">
+                        <span class="ios-insight-name">${s.name}</span>
+                        <span class="ios-insight-value warning">${s.leave} leaves (${Math.round((s.leave / s.total) * 100)}%)</span>
+                    </div>
+                `).join('');
+
                 html += `
-                    <div class="ai-card warning">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">event_busy</span></div>
-                            <div class="ai-card-title">🟡 Excessive Leave (${excessiveLeave.length})</div>
+                    <div class="ios-insight-card">
+                        <div class="ios-insight-header">
+                            <span class="ios-status-dot warning"></span>
+                            <span class="ios-insight-title">Excessive Leave Pattern</span>
+                            <span class="ios-insight-badge warning">${excessiveLeave.length}</span>
                         </div>
-                        <div class="ai-card-students">${names}${excessiveLeave.length > 5 ? `<br>... and ${excessiveLeave.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Review leave patterns</div>
+                        <div class="ios-insight-body">
+                            ${studentItems}
+                            ${excessiveLeave.length > 5 ? `<div class="ios-insight-more">... and ${excessiveLeave.length - 5} more</div>` : ''}
+                        </div>
+                        <div class="ios-insight-recommendation">
+                            <span class="ios-rec-icon">💡</span>
+                            <span>Review leave patterns and verify documentation</span>
+                        </div>
                     </div>
                 `;
             }
 
+            // Positive: Perfect Attendance Card
             if (perfectAttendance.length > 0) {
-                const names = perfectAttendance.slice(0, 5).map(s => `• ${s.name}`).join('<br>');
+                const studentItems = perfectAttendance.slice(0, 5).map(s => `
+                    <div class="ios-insight-student">
+                        <span class="ios-insight-name">${s.name}</span>
+                        <span class="ios-insight-value positive">100%</span>
+                    </div>
+                `).join('');
+
                 html += `
-                    <div class="ai-card info">
-                        <div class="ai-card-header">
-                            <div class="ai-card-icon"><span class="material-symbols-outlined">stars</span></div>
-                            <div class="ai-card-title">🌟 Perfect Attendance (${perfectAttendance.length})</div>
+                    <div class="ios-insight-card">
+                        <div class="ios-insight-header">
+                            <span class="ios-status-dot positive"></span>
+                            <span class="ios-insight-title">Perfect Attendance</span>
+                            <span class="ios-insight-badge positive">${perfectAttendance.length}</span>
                         </div>
-                        <div class="ai-card-students">${names}${perfectAttendance.length > 5 ? `<br>... and ${perfectAttendance.length - 5} more` : ''}</div>
-                        <div class="ai-card-suggestion">💡 Reward these students!</div>
+                        <div class="ios-insight-body">
+                            ${studentItems}
+                            ${perfectAttendance.length > 5 ? `<div class="ios-insight-more">... and ${perfectAttendance.length - 5} more</div>` : ''}
+                        </div>
+                        <div class="ios-insight-recommendation">
+                            <span class="ios-rec-icon">💡</span>
+                            <span>Consider recognition or rewards for these dedicated students</span>
+                        </div>
                     </div>
                 `;
             }
 
+            // No issues state
             if (criticalAbsent.length === 0 && excessiveLeave.length === 0 && perfectAttendance.length === 0) {
-                html += '<div class="empty-state"><span class="material-symbols-outlined">check_circle</span><div>No issues detected!</div></div>';
+                html += `
+                    <div class="ios-insight-card ios-empty-card">
+                        <div class="ios-empty-icon">✓</div>
+                        <div class="ios-empty-title">No Issues Detected</div>
+                        <div class="ios-empty-subtitle">All students have satisfactory attendance</div>
+                    </div>
+                `;
+            }
+
+            // Summary & Recommendations Card
+            if (criticalAbsent.length > 0 || excessiveLeave.length > 0) {
+                html += `
+                    <div class="ios-insight-card ios-summary-card">
+                        <div class="ios-insight-header">
+                            <span class="ios-status-dot info"></span>
+                            <span class="ios-insight-title">Recommendations</span>
+                        </div>
+                        <div class="ios-recommendations-list">
+                            ${criticalAbsent.length > 0 ? `<div class="ios-rec-item">• Contact parents of students with critical low attendance</div>` : ''}
+                            ${excessiveLeave.length > 0 ? `<div class="ios-rec-item">• Review leave approval policies and patterns</div>` : ''}
+                            <div class="ios-rec-item">• Generate detailed report for administrative review</div>
+                        </div>
+                    </div>
+                `;
             }
 
             container.innerHTML = html;
@@ -4532,47 +3610,73 @@
         }
 
         function buildDateSection(title, dates, type, isExpanded, count) {
-            const colors = {
-                present: { bg: 'var(--color-present-container)', text: 'var(--color-present)' },
-                absent: { bg: 'var(--color-absent-container)', text: 'var(--color-absent)' },
-                leave: { bg: 'var(--color-leave-container)', text: '#805600' }
+            const icons = {
+                present: '✓',
+                absent: '✗',
+                leave: '○'
             };
-            const color = colors[type] || colors.present;
+            const iconColors = {
+                present: '#34C759',
+                absent: '#FF3B30',
+                leave: '#FF9500'
+            };
+            const icon = icons[type] || icons.present;
+            const iconColor = iconColors[type] || iconColors.present;
             const actualCount = count || (dates ? dates.length : 0);
 
+            // Simple iOS style header
+            const headerHtml = `
+                <div style="display:flex; align-items:center; gap:8px; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+                    <span style="color:${iconColor}; font-size:16px; font-weight:600;">${icon}</span>
+                    <span style="font-size:15px; font-weight:500; color:#1C1C1E;">${title.replace(/[✅❌🟡]/g, '').trim()}</span>
+                    <span style="margin-left:auto; font-size:15px; color:#8E8E93;">${actualCount}</span>
+                </div>
+            `;
+
             if (!dates || dates.length === 0) {
-                // If count exists but no dates array (backend not updated)
                 if (actualCount > 0) {
                     return `
-                        <div style="margin-bottom:16px;">
-                            <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (${actualCount})</div>
-                            <div style="color:var(--md-sys-color-on-surface-variant); font-size:14px; padding:12px; background:var(--md-sys-color-surface-variant); border-radius:8px;">
-                                ⚠️ Please redeploy Code.gs to see date details
+                        <div style="margin-bottom:8px;">
+                            ${headerHtml}
+                            <div style="color:#8E8E93; font-size:13px; padding:12px 0;">
+                                Redeploy to see dates
                             </div>
                         </div>
                     `;
                 }
                 return `
-                    <div style="margin-bottom:16px;">
-                        <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (0)</div>
-                        <div style="color:var(--md-sys-color-on-surface-variant); font-size:14px; padding:12px; background:var(--md-sys-color-surface-variant); border-radius:8px;">No records</div>
+                    <div style="margin-bottom:8px;">
+                        ${headerHtml}
+                        <div style="color:#8E8E93; font-size:13px; padding:12px 0;">
+                            No records
+                        </div>
                     </div>
                 `;
             }
 
-            const displayStyle = isExpanded ? '' : (dates.length > 6 ? 'max-height:120px; overflow-y:auto;' : '');
+            // Simple comma-separated dates list
+            const allDatesStr = dates.map(d => formatDateShort(d)).join(', ');
+            const shortDatesStr = dates.slice(0, 7).map(d => formatDateShort(d)).join(', ');
+            const hasMore = dates.length > 7 && !isExpanded;
+            const sectionId = `dates-section-${type}-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
 
-            let datesHtml = `<div style="display:flex; flex-wrap:wrap; gap:6px; ${displayStyle}">`;
-            dates.forEach(dateStr => {
-                const formattedDate = formatDateShort(dateStr);
-                datesHtml += `<span style="background:${color.bg}; color:${color.text}; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500;">${formattedDate}</span>`;
-            });
-            datesHtml += '</div>';
+            if (hasMore) {
+                return `
+                    <div style="margin-bottom:8px;">
+                        ${headerHtml}
+                        <div id="${sectionId}" style="color:#3C3C43; font-size:14px; padding:12px 0; line-height:1.5;">
+                            ${shortDatesStr} <span onclick="document.getElementById('${sectionId}').innerHTML='${allDatesStr.replace(/'/g, "\\'")}'" style="color:#007AFF; cursor:pointer;">+${dates.length - 7} more</span>
+                        </div>
+                    </div>
+                `;
+            }
 
             return `
-                <div style="margin-bottom:16px;">
-                    <div style="font-weight:600; margin-bottom:8px; color:${color.text};">${title} (${dates.length})</div>
-                    ${datesHtml}
+                <div style="margin-bottom:8px;">
+                    ${headerHtml}
+                    <div style="color:#3C3C43; font-size:14px; padding:12px 0; line-height:1.5;">
+                        ${allDatesStr}
+                    </div>
                 </div>
             `;
         }
@@ -4626,10 +3730,35 @@
             const wb = XLSX.utils.book_new();
             let hasData = false;
 
+            // Helper to clean date format (ISO to YYYY-MM-DD)
+            function cleanDate(dateVal) {
+                if (!dateVal) return '';
+                const str = String(dateVal);
+                // If ISO format with T, extract just the date part
+                if (str.includes('T')) {
+                    return str.split('T')[0];
+                }
+                return str;
+            }
+
             for (const [sheetName, rows] of Object.entries(data)) {
                 if (rows && rows.length > 0) {
                     hasData = true;
-                    const ws = XLSX.utils.aoa_to_sheet(rows);
+
+                    // Clean date in each row (Date is usually the last column)
+                    const cleanedRows = rows.map((row, rowIndex) => {
+                        if (rowIndex === 0) return row; // Keep header as is
+                        return row.map((cell, colIndex) => {
+                            // Check if it looks like a date
+                            const str = String(cell);
+                            if (str.includes('T') && str.includes('-')) {
+                                return cleanDate(cell);
+                            }
+                            return cell;
+                        });
+                    });
+
+                    const ws = XLSX.utils.aoa_to_sheet(cleanedRows);
                     XLSX.utils.book_append_sheet(wb, ws, sheetName);
                 }
             }
@@ -4642,6 +3771,145 @@
             XLSX.writeFile(wb, `Attendance_Report_${date}.xlsx`);
         }
 
+
+        // Quick Daily Report Dialog (opens from drawer)
+        function openQuickDailyReportDialog() {
+            closeDrawer();
+
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'quickReportOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                padding: 20px;
+            `;
+
+            // Get today's date in YYYY-MM-DD format
+            const today = new Date().toISOString().split('T')[0];
+
+            overlay.innerHTML = `
+                <div style="
+                    background: var(--md-sys-color-surface);
+                    border-radius: 24px;
+                    padding: 24px;
+                    width: 100%;
+                    max-width: 340px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+                ">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; color: var(--md-sys-color-primary);">
+                        📥 Quick Daily Report
+                    </h3>
+                    <div style="margin-bottom: 16px;">
+                        <label style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); font-weight: 500;">
+                            Select Date
+                        </label>
+                        <input type="date" id="quickReportDate" value="${today}" 
+                            style="
+                                width: 100%;
+                                padding: 12px;
+                                margin-top: 8px;
+                                border: 1px solid var(--md-sys-color-outline);
+                                border-radius: 12px;
+                                font-size: 16px;
+                                background: var(--md-sys-color-surface);
+                                color: var(--md-sys-color-on-surface);
+                            ">
+                    </div>
+                    <div id="quickReportMsg" style="min-height: 20px; font-size: 13px; margin-bottom: 12px;"></div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="closeQuickReportDialog()" 
+                            style="
+                                flex: 1;
+                                padding: 14px;
+                                border: 1px solid var(--md-sys-color-outline);
+                                border-radius: 12px;
+                                background: transparent;
+                                color: var(--md-sys-color-on-surface);
+                                font-size: 14px;
+                                font-weight: 500;
+                                cursor: pointer;
+                            ">Cancel</button>
+                        <button onclick="downloadQuickReport()" 
+                            style="
+                                flex: 1;
+                                padding: 14px;
+                                border: none;
+                                border-radius: 12px;
+                                background: var(--md-sys-color-primary);
+                                color: white;
+                                font-size: 14px;
+                                font-weight: 500;
+                                cursor: pointer;
+                            ">Download</button>
+                    </div>
+                </div>
+            `;
+
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeQuickReportDialog();
+            });
+
+            document.body.appendChild(overlay);
+        }
+
+        function closeQuickReportDialog() {
+            const overlay = document.getElementById('quickReportOverlay');
+            if (overlay) overlay.remove();
+        }
+
+        async function downloadQuickReport() {
+            const dateInput = document.getElementById('quickReportDate');
+            const msg = document.getElementById('quickReportMsg');
+            const date = dateInput.value;
+
+            if (!date) {
+                msg.textContent = "Please select a date";
+                msg.style.color = "red";
+                return;
+            }
+
+            msg.textContent = "Fetching from Google Sheet...";
+            msg.style.color = "var(--md-sys-color-primary)";
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "fetch_reports", date: date })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    msg.textContent = "Generating Excel...";
+
+                    // Format date as DD-MM-YYYY for filename
+                    const [year, month, day] = date.split('-');
+                    const formattedDate = `${day}-${month}-${year}`;
+
+                    generateReportExcel(json.data, formattedDate);
+
+                    msg.textContent = "Download Started! ✅";
+                    msg.style.color = "green";
+
+                    setTimeout(() => closeQuickReportDialog(), 1500);
+                } else {
+                    msg.textContent = "Error: " + (json.error || "No data found");
+                    msg.style.color = "red";
+                }
+            } catch (e) {
+                msg.textContent = "Network Error: " + e.message;
+                msg.style.color = "red";
+            }
+        }
 
 
         function downloadTrackingPDF() {
@@ -4729,6 +3997,177 @@
                 console.error(e);
             }
         }
+
+        // ========================================
+        // iOS AssistiveTouch Floating Button
+        // ========================================
+        (function () {
+            const btn = document.getElementById('assistiveTouchBtn');
+            const menu = document.getElementById('assistiveTouchMenu');
+            const overlay = document.getElementById('assistiveTouchOverlay');
+            const menuItems = document.querySelectorAll('.assistive-menu-item');
+
+            if (!btn || !menu || !overlay) return;
+
+            let isDragging = false;
+            let hasMoved = false;
+            let startX, startY, initialX, initialY;
+            const DRAG_THRESHOLD = 10;
+
+            // Get initial position
+            initialX = btn.offsetLeft;
+            initialY = btn.offsetTop;
+
+            // Touch Events
+            btn.addEventListener('touchstart', handleDragStart, { passive: false });
+            btn.addEventListener('touchmove', handleDragMove, { passive: false });
+            btn.addEventListener('touchend', handleDragEnd);
+
+            // Mouse Events (for desktop testing)
+            btn.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+
+            function handleDragStart(e) {
+                if (menu.classList.contains('visible')) return;
+
+                isDragging = true;
+                hasMoved = false;
+
+                const touch = e.touches ? e.touches[0] : e;
+                startX = touch.clientX;
+                startY = touch.clientY;
+                initialX = btn.offsetLeft;
+                initialY = btn.offsetTop;
+
+                btn.style.transition = 'none';
+            }
+
+            function handleDragMove(e) {
+                if (!isDragging) return;
+
+                const touch = e.touches ? e.touches[0] : e;
+                const deltaX = touch.clientX - startX;
+                const deltaY = touch.clientY - startY;
+
+                // Check if moved beyond threshold
+                if (Math.abs(deltaX) > DRAG_THRESHOLD || Math.abs(deltaY) > DRAG_THRESHOLD) {
+                    hasMoved = true;
+                    btn.classList.add('dragging');
+
+                    // Calculate new position
+                    let newX = initialX + deltaX;
+                    let newY = initialY + deltaY;
+
+                    // Constrain to viewport
+                    const maxX = window.innerWidth - btn.offsetWidth - 8;
+                    const maxY = window.innerHeight - btn.offsetHeight - 8;
+                    newX = Math.max(8, Math.min(newX, maxX));
+                    newY = Math.max(8, Math.min(newY, maxY));
+
+                    btn.style.left = newX + 'px';
+                    btn.style.top = newY + 'px';
+                    btn.style.right = 'auto';
+                    btn.style.bottom = 'auto';
+
+                    e.preventDefault();
+                }
+            }
+
+            function handleDragEnd(e) {
+                if (!isDragging) return;
+
+                isDragging = false;
+                btn.classList.remove('dragging');
+                btn.style.transition = '';
+
+                // If not moved, treat as tap
+                if (!hasMoved) {
+                    toggleMenu();
+                } else {
+                    // Snap to nearest horizontal edge
+                    snapToEdge();
+                }
+            }
+
+            function snapToEdge() {
+                const btnRect = btn.getBoundingClientRect();
+                const centerX = btnRect.left + btnRect.width / 2;
+                const screenMidX = window.innerWidth / 2;
+
+                btn.style.transition = 'left 0.3s cubic-bezier(0.32, 0.72, 0, 1), right 0.3s cubic-bezier(0.32, 0.72, 0, 1)';
+
+                if (centerX < screenMidX) {
+                    // Snap to left
+                    btn.style.left = '16px';
+                    btn.style.right = 'auto';
+                } else {
+                    // Snap to right
+                    btn.style.left = 'auto';
+                    btn.style.right = '16px';
+                }
+            }
+
+            function toggleMenu() {
+                const isOpen = menu.classList.contains('visible');
+
+                if (isOpen) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            }
+
+            function openMenu() {
+                // Position menu near button
+                const btnRect = btn.getBoundingClientRect();
+                const menuWidth = 220;
+                const menuHeight = 220;
+
+                let menuX = btnRect.left - menuWidth - 16;
+                let menuY = btnRect.top - menuHeight / 2 + btnRect.height / 2;
+
+                // If button is on left side, show menu on right
+                if (btnRect.left < window.innerWidth / 2) {
+                    menuX = btnRect.right + 16;
+                    menu.style.transformOrigin = 'left center';
+                } else {
+                    menu.style.transformOrigin = 'right center';
+                }
+
+                // Constrain to viewport
+                menuX = Math.max(16, Math.min(menuX, window.innerWidth - menuWidth - 16));
+                menuY = Math.max(80, Math.min(menuY, window.innerHeight - menuHeight - 16));
+
+                menu.style.left = menuX + 'px';
+                menu.style.top = menuY + 'px';
+
+                // Show menu and overlay
+                menu.classList.add('visible');
+                overlay.classList.add('visible');
+                btn.classList.add('menu-open');
+            }
+
+            function closeMenu() {
+                menu.classList.remove('visible');
+                overlay.classList.remove('visible');
+                btn.classList.remove('menu-open');
+            }
+
+            // Close menu when clicking overlay
+            overlay.addEventListener('click', closeMenu);
+
+            // Menu item click handlers
+            menuItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    const category = this.getAttribute('data-category');
+                    if (category && typeof switchCategory === 'function') {
+                        switchCategory(category);
+                    }
+                    closeMenu();
+                });
+            });
+        })();
 
     </script>
 </body>

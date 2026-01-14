@@ -70,55 +70,85 @@ function handleMultiSheetSync(batches) {
     }
     
     // Get existing data for smart UPSERT logic
-    // Map: "date_name" -> { rowIndex, status }
+    // Priority for matching: Application ID → Application Number → Name
     const lastRow = sheet.getLastRow();
-    let existingMap = {};
     
     // Helper function to normalize date to YYYY-MM-DD string
     function normalizeDate(dateVal) {
       if (!dateVal) return '';
       if (dateVal instanceof Date) {
-        // Convert Date object to YYYY-MM-DD
         const y = dateVal.getFullYear();
         const m = String(dateVal.getMonth() + 1).padStart(2, '0');
         const d = String(dateVal.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
       }
-      // Already a string, return as is
       return String(dateVal).trim();
     }
+    
+    // Helper to get best identifier for a row
+    // Priority: Application ID (col 3) → Application Number (col 2) → Name (col 1)
+    function getStudentKey(row, dateStr) {
+      const appId = String(row[2] || '').trim();      // Application: ID (index 2)
+      const appNum = String(row[1] || '').trim();     // Application: Application Number (index 1)
+      const name = String(row[0] || '').trim();       // Full Name (index 0)
+      
+      // Use best available identifier
+      if (appId && appId.length > 0) {
+        return { key: dateStr + '_appId_' + appId, type: 'appId', value: appId };
+      } else if (appNum && appNum.length > 0) {
+        return { key: dateStr + '_appNum_' + appNum, type: 'appNum', value: appNum };
+      } else {
+        return { key: dateStr + '_name_' + name, type: 'name', value: name };
+      }
+    }
+    
+    // Build existing map with ALL possible keys for each row
+    let existingMap = {};
     
     if (lastRow > 1) {
       const existingData = sheet.getRange(2, 1, lastRow - 1, 9).getValues();
       existingData.forEach((row, idx) => {
-        const dateStr = normalizeDate(row[8]); // Date (col 9) - normalized
-        const nameStr = String(row[0]).trim(); // Name (col 1)
-        const key = dateStr + '_' + nameStr;
-        existingMap[key] = {
-          rowIndex: idx + 2,    // Row number (1-indexed, skip header)
-          status: String(row[6]).trim()  // Status (col 7)
+        const dateStr = normalizeDate(row[8]); // Date (col 9)
+        const appId = String(row[2] || '').trim();
+        const appNum = String(row[1] || '').trim();
+        const name = String(row[0] || '').trim();
+        
+        const rowData = {
+          rowIndex: idx + 2,
+          status: String(row[6] || '').trim(),
+          name: name
         };
+        
+        // Store by ALL available identifiers (so we can match by any)
+        if (appId) existingMap[dateStr + '_appId_' + appId] = rowData;
+        if (appNum) existingMap[dateStr + '_appNum_' + appNum] = rowData;
+        if (name) existingMap[dateStr + '_name_' + name] = rowData;
       });
     }
     
-    // Process each incoming row - UPDATE only if status changed, INSERT if new
+    // Process each incoming row - smart matching
     const newRows = [];
     rows.forEach(row => {
-      const name = String(row[0]).trim();      // Full Name (column 1) - normalized
-      const newStatus = String(row[6]).trim(); // Status (column 7) - normalized
-      const date = normalizeDate(row[8]);      // Date (column 9) - normalized
-      const key = date + '_' + name;
+      const date = normalizeDate(row[8]);
+      const newStatus = String(row[6] || '').trim();
+      const newName = String(row[0] || '').trim();
+      const newAppId = String(row[2] || '').trim();
+      const newAppNum = String(row[1] || '').trim();
       
-      const existing = existingMap[key];
+      // Try to find existing entry by priority: appId → appNum → name
+      let existing = null;
+      if (newAppId) existing = existingMap[date + '_appId_' + newAppId];
+      if (!existing && newAppNum) existing = existingMap[date + '_appNum_' + newAppNum];
+      if (!existing && newName) existing = existingMap[date + '_name_' + newName];
       
       if (existing) {
         // Entry exists - check if status CHANGED
         if (existing.status !== newStatus) {
-          // Status changed → UPDATE this row only
+          // Status changed → UPDATE this row (includes updated name!)
           sheet.getRange(existing.rowIndex, 1, 1, row.length).setValues([row]);
           stats.updated++;
         } else {
-          // Status same → SKIP (no update needed, keep as is)
+          // Status same → SKIP
           stats.skipped++;
         }
       } else {
@@ -325,28 +355,394 @@ function handleGetSyncStatus(dates, totalStudents) {
 }
 
 
+// ============================================
+// FIX ALL STUDENT DATA
+// 1) Renames old names to new names
+// 2) Adds Application Numbers to entries missing them
+// Uses smart name matching (first 2 sorted name parts)
+// ============================================
+function fixAllStudentData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
+  let totalRenamed = 0;
+  let totalAppNumFixed = 0;
+  
+  // ===== NAME CHANGES LIST =====
+  // Format: [oldName, newName]
+  const nameChanges = [
+    ['Pachpute aditya', 'Aditya ramdas pachpute'],
+    ['Siddhart Satish Alte', 'Siddharth Satish Alte'],  // Fix typo in name
+    // Add more name changes here as needed
+  ];
+  
+  // Helper: Get first 2 sorted name parts for matching
+  function getNameKey(fullName) {
+    const parts = String(fullName || '').trim().toLowerCase().split(/\s+/).filter(p => p.length > 0);
+    if (parts.length < 2) return parts.join('_');
+    const sorted = [...parts].sort();
+    return sorted[0] + '_' + sorted[1];
+  }
+  
+  // Build student lookup from Students sheet
+  const studentsSheet = ss.getSheetByName('Students');
+  const studentData = {};  // name key → { name, appNum }
+  const exactNameMatch = {};  // exact lowercase name → { name, appNum }
+  
+  if (!studentsSheet) {
+    Logger.log('ERROR: Students sheet not found!');
+    return 'ERROR: Students sheet not found!';
+  }
+  
+  const sData = studentsSheet.getDataRange().getValues();
+  const sHeaders = sData[0].map(h => String(h).toLowerCase());
+  const sNameIdx = sHeaders.findIndex(h => h.includes('name') && !h.includes('hostel'));
+  const sAppNumIdx = sHeaders.findIndex(h => h.includes('application') && h.includes('number'));
+  
+  for (let i = 1; i < sData.length; i++) {
+    const name = String(sData[i][sNameIdx] || '').trim();
+    const appNum = String(sData[i][sAppNumIdx] || '').trim();
+    if (name) {
+      const key = getNameKey(name);
+      studentData[key] = { name: name, appNum: appNum };
+      exactNameMatch[name.toLowerCase()] = { name: name, appNum: appNum };
+    }
+  }
+  Logger.log('Loaded ' + Object.keys(studentData).length + ' students');
+  
+  // Process each attendance sheet
+  sheets.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return;
+    
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).toLowerCase());
+    const nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('hostel'));
+    const appNumIdx = headers.findIndex(h => h.includes('application') && h.includes('number'));
+    
+    if (nameIdx === -1) {
+      Logger.log(sheetName + ': Name column not found');
+      return;
+    }
+    
+    let renamedInSheet = 0;
+    let appNumInSheet = 0;
+    
+    for (let i = 1; i < data.length; i++) {
+      const currentName = String(data[i][nameIdx] || '').trim();
+      const currentAppNum = appNumIdx >= 0 ? String(data[i][appNumIdx] || '').trim() : '';
+      let newName = currentName;
+      let newAppNum = currentAppNum;
+      
+      // Step 1: Check for explicit name changes
+      for (const [oldName, targetName] of nameChanges) {
+        if (currentName.toLowerCase() === oldName.toLowerCase()) {
+          newName = targetName;
+          break;
+        }
+      }
+      
+      // Step 2: If App Number is missing, try to find it
+      if (!newAppNum) {
+        // Try exact match first
+        let match = exactNameMatch[newName.toLowerCase()];
+        
+        // Try smart name matching if no exact match
+        if (!match) {
+          const key = getNameKey(newName);
+          match = studentData[key];
+        }
+        
+        if (match && match.appNum) {
+          newAppNum = match.appNum;
+        }
+      }
+      
+      // Apply changes
+      if (newName !== currentName) {
+        sheet.getRange(i + 1, nameIdx + 1).setValue(newName);
+        renamedInSheet++;
+        Logger.log(sheetName + ' Row ' + (i + 1) + ': "' + currentName + '" → "' + newName + '"');
+      }
+      
+      if (newAppNum && newAppNum !== currentAppNum && appNumIdx >= 0) {
+        sheet.getRange(i + 1, appNumIdx + 1).setValue(newAppNum);
+        appNumInSheet++;
+        if (appNumInSheet <= 5) {
+          Logger.log(sheetName + ' Row ' + (i + 1) + ': AppNum → ' + newAppNum);
+        }
+      }
+    }
+    
+    Logger.log(sheetName + ': Renamed ' + renamedInSheet + ', AppNum fixed ' + appNumInSheet);
+    totalRenamed += renamedInSheet;
+    totalAppNumFixed += appNumInSheet;
+  });
+  
+  Logger.log('=== TOTAL: Renamed ' + totalRenamed + ', AppNum fixed ' + totalAppNumFixed + ' ===');
+  return 'Renamed ' + totalRenamed + ', AppNum fixed ' + totalAppNumFixed + '. Now run forceRefreshTracking()';
+}
+
+
+// ============================================
+// SYNC ALL STUDENT DATA
+// Updates ALL attendance entries with correct:
+// - Application Number
+// - Application ID
+// - Hostel ID
+// - Hostel Allocation
+// from Students sheet (overwrites to ensure correctness)
+// ============================================
+function syncAllStudentData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
+  let totalUpdated = 0;
+  let totalNotFound = 0;
+  
+  // Helper: Get first 2 sorted name parts for matching
+  function getNameKey(fullName) {
+    const parts = String(fullName || '').trim().toLowerCase().split(/\s+/).filter(p => p.length > 0);
+    if (parts.length < 2) return parts.join('_');
+    const sorted = [...parts].sort();
+    return sorted[0] + '_' + sorted[1];
+  }
+  
+  // Build student lookup from Students sheet
+  const studentsSheet = ss.getSheetByName('Students');
+  if (!studentsSheet) {
+    Logger.log('ERROR: Students sheet not found!');
+    return 'ERROR: Students sheet not found!';
+  }
+  
+  // name key → { appNum, appId, hostelId, hostelAllocation }
+  const studentData = {};
+  const exactNameMatch = {};
+  
+  const sData = studentsSheet.getDataRange().getValues();
+  const sHeaders = sData[0].map(h => String(h).toLowerCase());
+  
+  // Find column indices in Students sheet
+  const sNameIdx = sHeaders.findIndex(h => h.includes('name') && !h.includes('hostel'));
+  const sAppNumIdx = sHeaders.findIndex(h => h.includes('application') && h.includes('number'));
+  const sAppIdIdx = sHeaders.findIndex(h => h.includes('application') && h.includes('id') && !h.includes('number'));
+  const sHostelIdIdx = sHeaders.findIndex(h => h.includes('hostel') && h.includes('id'));
+  const sHostelAllocIdx = sHeaders.findIndex(h => h.includes('hostel') && h.includes('allocation'));
+  
+  Logger.log('Students sheet columns: Name=' + sNameIdx + ', AppNum=' + sAppNumIdx + 
+             ', AppId=' + sAppIdIdx + ', HostelId=' + sHostelIdIdx + ', HostelAlloc=' + sHostelAllocIdx);
+  
+  if (sNameIdx === -1) {
+    Logger.log('ERROR: Name column not found in Students sheet');
+    return 'ERROR: Name column not found in Students sheet';
+  }
+  
+  // Build lookup maps
+  for (let i = 1; i < sData.length; i++) {
+    const name = String(sData[i][sNameIdx] || '').trim();
+    if (!name) continue;
+    
+    const info = {
+      appNum: sAppNumIdx >= 0 ? String(sData[i][sAppNumIdx] || '').trim() : '',
+      appId: sAppIdIdx >= 0 ? String(sData[i][sAppIdIdx] || '').trim() : '',
+      hostelId: sHostelIdIdx >= 0 ? String(sData[i][sHostelIdIdx] || '').trim() : '',
+      hostelAlloc: sHostelAllocIdx >= 0 ? String(sData[i][sHostelAllocIdx] || '').trim() : ''
+    };
+    
+    const key = getNameKey(name);
+    studentData[key] = info;
+    exactNameMatch[name.toLowerCase()] = info;
+  }
+  Logger.log('Loaded ' + Object.keys(studentData).length + ' students');
+  
+  // Process each attendance sheet
+  sheets.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return;
+    
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).toLowerCase());
+    
+    // Find column indices in attendance sheet
+    const nameIdx = headers.findIndex(h => h.includes('name') && !h.includes('hostel'));
+    const appNumIdx = headers.findIndex(h => h.includes('application') && h.includes('number'));
+    const appIdIdx = headers.findIndex(h => h.includes('application') && h.includes('id') && !h.includes('number'));
+    const hostelIdIdx = headers.findIndex(h => h.includes('hostel') && h.includes('id'));
+    const hostelAllocIdx = headers.findIndex(h => h.includes('hostel') && h.includes('allocation'));
+    
+    if (nameIdx === -1) {
+      Logger.log(sheetName + ': Name column not found');
+      return;
+    }
+    
+    Logger.log(sheetName + ' columns: Name=' + nameIdx + ', AppNum=' + appNumIdx + 
+               ', AppId=' + appIdIdx + ', HostelId=' + hostelIdIdx + ', HostelAlloc=' + hostelAllocIdx);
+    
+    let updatedInSheet = 0;
+    let notFoundInSheet = 0;
+    
+    for (let i = 1; i < data.length; i++) {
+      const currentName = String(data[i][nameIdx] || '').trim();
+      if (!currentName) continue;
+      
+      // Try exact match first, then smart matching
+      let studentInfo = exactNameMatch[currentName.toLowerCase()];
+      if (!studentInfo) {
+        const key = getNameKey(currentName);
+        studentInfo = studentData[key];
+      }
+      
+      if (studentInfo) {
+        // Update all available columns
+        if (appNumIdx >= 0 && studentInfo.appNum) {
+          sheet.getRange(i + 1, appNumIdx + 1).setValue(studentInfo.appNum);
+        }
+        if (appIdIdx >= 0 && studentInfo.appId) {
+          sheet.getRange(i + 1, appIdIdx + 1).setValue(studentInfo.appId);
+        }
+        if (hostelIdIdx >= 0 && studentInfo.hostelId) {
+          sheet.getRange(i + 1, hostelIdIdx + 1).setValue(studentInfo.hostelId);
+        }
+        if (hostelAllocIdx >= 0 && studentInfo.hostelAlloc) {
+          sheet.getRange(i + 1, hostelAllocIdx + 1).setValue(studentInfo.hostelAlloc);
+        }
+        
+        updatedInSheet++;
+        if (updatedInSheet <= 3) {
+          Logger.log(sheetName + ' Row ' + (i + 1) + ': ' + currentName + ' → Updated');
+        }
+      } else {
+        notFoundInSheet++;
+        if (notFoundInSheet <= 3) {
+          Logger.log(sheetName + ': NOT FOUND: "' + currentName + '"');
+        }
+      }
+    }
+    
+    Logger.log(sheetName + ': Updated ' + updatedInSheet + ', Not found ' + notFoundInSheet);
+    totalUpdated += updatedInSheet;
+    totalNotFound += notFoundInSheet;
+  });
+  
+  Logger.log('=== TOTAL: Updated ' + totalUpdated + ', Not found ' + totalNotFound + ' ===');
+  return 'Updated ' + totalUpdated + ' entries with ALL student data. Not found: ' + totalNotFound;
+}
+
+
+// ============================================
+// FORCE REFRESH TRACKING - Run this to debug
+// ============================================
+function forceRefreshTracking() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log('Sheet Name: ' + ss.getName());
+  
+  // First, let's see what names are in Yoga sheet
+  const yogaSheet = ss.getSheetByName('Yoga');
+  if (yogaSheet) {
+    const data = yogaSheet.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).toLowerCase());
+    const nameIdx = headers.findIndex(h => h.includes('name'));
+    
+    Logger.log('=== YOGA SHEET NAMES (first 20) ===');
+    for (let i = 1; i < Math.min(21, data.length); i++) {
+      const name = String(data[i][nameIdx] || '');
+      if (name.toLowerCase().includes('aditya') || name.toLowerCase().includes('pachpute')) {
+        Logger.log('Found: ' + name);
+      }
+    }
+  }
+  
+  // Delete old sheets to force fresh creation
+  const trackingSheet = ss.getSheetByName('Tracking_Report');
+  if (trackingSheet) {
+    ss.deleteSheet(trackingSheet);
+    Logger.log('Deleted old Tracking_Report');
+  }
+  
+  const detailsSheet = ss.getSheetByName('TrackingDetails');
+  if (detailsSheet) {
+    ss.deleteSheet(detailsSheet);
+    Logger.log('Deleted old TrackingDetails');
+  }
+  
+  // Run the calculation
+  const result = calculateTrackingData(null, null);
+  Logger.log('DONE!');
+  
+  return 'Tracking refreshed!';
+}
+
+
 function calculateTrackingData(startDateStr, endDateStr) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const attendanceSheets = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
   const warnings = [];
 
-  // Date filter strings are used directly for comparison (avoids timezone issues)
+  // Helper: Extract first and last name from full name (handles various formats)
+  // Uses first TWO sorted name parts to create consistent key (ignores middle names)
+  function extractFirstLastName(fullName) {
+    const name = String(fullName || '').trim().toLowerCase();
+    const parts = name.split(/\s+/).filter(p => p.length > 0);
+    
+    if (parts.length === 0) return { first: '', last: '', key: '' };
+    if (parts.length === 1) return { first: parts[0], last: parts[0], key: parts[0] };
+    
+    // Sort parts alphabetically and take FIRST TWO only
+    // "Pachpute aditya" → sorted: ['aditya', 'pachpute'] → key: 'aditya_pachpute'
+    // "Aditya ramdas pachpute" → sorted: ['aditya', 'pachpute', 'ramdas'] → take [0],[1] → key: 'aditya_pachpute'
+    const sortedParts = [...parts].sort();
+    const first = sortedParts[0];  // Alphabetically first
+    const second = sortedParts[1]; // Alphabetically second (ignores middle/extra names)
+    
+    return { first: first, last: second, key: first + '_' + second };
+  }
+  
+  // Helper: Get best identifier for a student
+  // Priority: Application Number → Application ID → First+Last Name
+  function getStudentKey(appNum, appId, name) {
+    const num = String(appNum || '').trim();
+    const id = String(appId || '').trim();
+    
+    // Treat "N/A", "n/a", "NA" as empty (common placeholder values)
+    const isValidNum = num && num.length > 0 && !['n/a', 'na', '-', 'null', 'undefined'].includes(num.toLowerCase());
+    const isValidId = id && id.length > 0 && !['n/a', 'na', '-', 'null', 'undefined'].includes(id.toLowerCase());
+    
+    // Priority 1: Application Number (most reliable)
+    if (isValidNum) return 'appNum_' + num;
+    
+    // Priority 2: Application ID
+    if (isValidId) return 'appId_' + id;
+    
+    // Priority 3: First + Last name (handles name variations)
+    const nameInfo = extractFirstLastName(name);
+    return 'name_' + nameInfo.key;
+  }
 
   // Get all students from EXTERNAL hostel sheet (same source as attendance app)
   const externalStudents = getExternalStudentsData();
   const allStudents = {};
   
+  // Map to track latest name for each unique identifier
+  const idToLatestName = {};
+  
   if (externalStudents && externalStudents.length > 0) {
     externalStudents.forEach(student => {
       const name = student.name;
+      const appId = student.appId || '';
+      const appNum = student.appNumber || '';
+      
       if (name) {
-        const nameKey = String(name).trim().toLowerCase();
+        const studentKey = getStudentKey(appNum, appId, name);
+        
+        // Store latest name for this identifier
+        idToLatestName[studentKey] = String(name).trim();
+        
         // Initialize tracking for each category
         attendanceSheets.forEach(cat => {
-          const key = `${nameKey}_${cat}`;
+          const key = `${studentKey}_${cat}`;
           allStudents[key] = {
             name: String(name).trim(),
-            id: student.appNumber || student.appId || '',
+            id: appNum || appId || '',
+            appId: appId,
+            appNumber: appNum,
             category: cat,
             present: 0,
             absent: 0,
@@ -366,8 +762,8 @@ function calculateTrackingData(startDateStr, endDateStr) {
     const sheet = ss.getSheetByName(sheetName);
     if (!sheet) return;
     
-    // Use getDisplayValues to get exact strings as shown in sheet (no Date conversion)
-    const data = sheet.getDataRange().getDisplayValues();
+    // Use getValues to get actual data (Date objects for dates)
+    const data = sheet.getDataRange().getValues();
     if (data.length <= 1) return;
 
     // Find column indices
@@ -377,6 +773,8 @@ function calculateTrackingData(startDateStr, endDateStr) {
     const pName = getIdx(['full name', 'name']);
     const pStatus = getIdx(['status']);
     const pDate = getIdx(['date', 'timestamp']);
+    const pAppId = getIdx(['application: id', 'app id', 'application id']);
+    const pAppNum = getIdx(['application: application number', 'application number', 'app number']);
 
     if (pName === -1 || pStatus === -1 || pDate === -1) return;
 
@@ -384,40 +782,51 @@ function calculateTrackingData(startDateStr, endDateStr) {
       const row = data[i];
       const rawName = row[pName];
       const status = row[pStatus];
-      const rawDate = String(row[pDate]).trim();
+      const rawDate = row[pDate];
+      const appId = pAppId !== -1 ? String(row[pAppId] || '').trim() : '';
+      const appNum = pAppNum !== -1 ? String(row[pAppNum] || '').trim() : '';
       
       if (!rawName || !rawDate) continue;
-      const nameKey = String(rawName).trim().toLowerCase();
-
-      // Parse date string - try multiple formats
-      let dateStr = '';
       
-      // Format: YYYY-MM-DD (ISO)
-      if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
-        dateStr = rawDate;
-      }
-      // Format: MM/DD/YYYY or M/D/YYYY (US format from Sheets)
-      else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(rawDate)) {
-        const parts = rawDate.split('/');
-        const month = parts[0].padStart(2, '0');
-        const day = parts[1].padStart(2, '0');
-        dateStr = `${parts[2]}-${month}-${day}`;
-      }
-      // Format: DD/MM/YYYY or D/M/YYYY (Indian format)
-      else if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(rawDate)) {
-        const parts = rawDate.split('-');
-        const day = parts[0].padStart(2, '0');
-        const month = parts[1].padStart(2, '0');
-        dateStr = `${parts[2]}-${month}-${day}`;
-      }
-      // Try parsing as Date object as fallback
-      else {
-        const d = new Date(rawDate);
-        if (!isNaN(d.getTime())) {
-          const year = d.getFullYear();
-          const month = String(d.getMonth() + 1).padStart(2, '0');
-          const day = String(d.getDate()).padStart(2, '0');
-          dateStr = `${year}-${month}-${day}`;
+      // Get unique student identifier (Application ID → Application Number → Name)
+      const studentKey = getStudentKey(appNum, appId, rawName);
+
+      // Parse date - handle Date objects and strings
+      let dateStr = '';
+      if (rawDate instanceof Date) {
+        const year = rawDate.getFullYear();
+        const month = String(rawDate.getMonth() + 1).padStart(2, '0');
+        const day = String(rawDate.getDate()).padStart(2, '0');
+        dateStr = `${year}-${month}-${day}`;
+      } else {
+        const rawDateStr = String(rawDate).trim();
+        // Format: YYYY-MM-DD (ISO)
+        if (/^\d{4}-\d{2}-\d{2}$/.test(rawDateStr)) {
+          dateStr = rawDateStr;
+        }
+        // Format: MM/DD/YYYY or M/D/YYYY (US format from Sheets)
+        else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(rawDateStr)) {
+          const parts = rawDateStr.split('/');
+          const month = parts[0].padStart(2, '0');
+          const day = parts[1].padStart(2, '0');
+          dateStr = `${parts[2]}-${month}-${day}`;
+        }
+        // Format: DD/MM/YYYY or D/M/YYYY (Indian format)
+        else if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(rawDateStr)) {
+          const parts = rawDateStr.split('-');
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          dateStr = `${parts[2]}-${month}-${day}`;
+        }
+        // Try parsing as Date object as fallback
+        else {
+          const d = new Date(rawDateStr);
+          if (!isNaN(d.getTime())) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            dateStr = `${year}-${month}-${day}`;
+          }
         }
       }
       
@@ -434,13 +843,17 @@ function calculateTrackingData(startDateStr, endDateStr) {
       // Skip Sundays for Yoga
       if (sheetName === 'Yoga' && dateObj.getDay() === 0) continue;
 
-      const key = `${nameKey}_${sheetName}`;
+      const key = `${studentKey}_${sheetName}`;
 
       // Create entry if not exists (for students in attendance but not in Students sheet)
       if (!allStudents[key]) {
+        // Use latest name from external students if available
+        const displayName = idToLatestName[studentKey] || String(rawName).trim();
         allStudents[key] = {
-          name: String(rawName).trim(),
-          id: '',
+          name: displayName,
+          id: appNum || appId || '',
+          appId: appId,
+          appNumber: appNum,
           category: sheetName,
           present: 0,
           absent: 0,
@@ -450,6 +863,11 @@ function calculateTrackingData(startDateStr, endDateStr) {
           absentDates: [],
           leaveDates: []
         };
+      } else {
+        // Update name to latest (in case name changed)
+        if (idToLatestName[studentKey]) {
+          allStudents[key].name = idToLatestName[studentKey];
+        }
       }
 
       // Count status and store dates
@@ -593,16 +1011,30 @@ function getStoredTrackingDetails() {
   }
 }
 
-function setupDailyTrigger() {
+function setupWeeklyTrigger() {
+  // Remove existing triggers first
   const triggers = ScriptApp.getProjectTriggers();
   for (let i = 0; i < triggers.length; i++) {
     ScriptApp.deleteTrigger(triggers[i]);
   }
-  ScriptApp.newTrigger('calculateTrackingData')
+  
+  // Create weekly trigger - Every Sunday at 1 AM
+  ScriptApp.newTrigger('forceRefreshTracking')
       .timeBased()
-      .everyDays(1)
+      .onWeekDay(ScriptApp.WeekDay.SUNDAY)
       .atHour(1)
       .create();
+  
+  Logger.log('✅ Weekly trigger setup! Tracking will refresh every Sunday at 1 AM.');
+  return 'Weekly trigger created - runs every Sunday at 1 AM';
+}
+
+// Utility: Remove all triggers
+function removeAllTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+  triggers.forEach(t => ScriptApp.deleteTrigger(t));
+  Logger.log('All triggers removed');
+  return 'All triggers removed';
 }
 
 // ============================================
@@ -881,4 +1313,125 @@ function getExternalStudentsData() {
     Logger.log('Error fetching external students: ' + error.toString());
     return [];
   }
+}
+
+// ============================================
+// DEBUG: Find all entries for a student
+// Run this to check why a student's data isn't tracking
+// ============================================
+function debugStudentData() {
+  const searchNames = ['siddhart', 'siddharth', 'alte'];  // Keywords to search
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ['Yoga', 'Mess Day', 'Mess Night', 'Night Shift'];
+  
+  Logger.log('=== SEARCHING FOR: ' + searchNames.join(', ') + ' ===');
+  
+  sheets.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet) return;
+    
+    const data = sheet.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).toLowerCase());
+    const nameIdx = headers.findIndex(h => h.includes('name'));
+    const appNumIdx = headers.findIndex(h => h.includes('application number'));
+    const appIdIdx = headers.findIndex(h => h.includes('application: id'));
+    const dateIdx = headers.findIndex(h => h.includes('date'));
+    
+    let found = 0;
+    for (let i = 1; i < data.length; i++) {
+      const name = String(data[i][nameIdx] || '').toLowerCase();
+      if (searchNames.some(keyword => name.includes(keyword))) {
+        found++;
+        const appNum = appNumIdx >= 0 ? data[i][appNumIdx] : 'N/A';
+        const appId = appIdIdx >= 0 ? data[i][appIdIdx] : 'N/A';
+        const date = dateIdx >= 0 ? data[i][dateIdx] : 'N/A';
+        Logger.log(sheetName + ' Row ' + (i+1) + ': "' + data[i][nameIdx] + '" | AppNum: ' + appNum + ' | AppID: ' + appId + ' | Date: ' + date);
+      }
+    }
+    if (found > 0) Logger.log(sheetName + ' TOTAL: ' + found + ' entries');
+  });
+  
+  // Also check Students sheet
+  const studentsSheet = ss.getSheetByName('Students');
+  if (studentsSheet) {
+    const sData = studentsSheet.getDataRange().getValues();
+    const sHeaders = sData[0].map(h => String(h).toLowerCase());
+    const sNameIdx = sHeaders.findIndex(h => h.includes('name') || h.includes('student'));
+    const sAppNumIdx = sHeaders.findIndex(h => h.includes('application number'));
+    
+    Logger.log('=== STUDENTS SHEET ===');
+    for (let i = 1; i < sData.length; i++) {
+      const name = String(sData[i][sNameIdx] || '').toLowerCase();
+      if (searchNames.some(keyword => name.includes(keyword))) {
+        const appNum = sAppNumIdx >= 0 ? sData[i][sAppNumIdx] : 'N/A';
+        Logger.log('Students Row ' + (i+1) + ': "' + sData[i][sNameIdx] + '" | AppNum: ' + appNum);
+      }
+    }
+  }
+  
+  Logger.log('=== DEBUG COMPLETE ===');
+  return 'Check View → Logs for results';
+}
+
+// ============================================
+// DEBUG: Compare student keys from different sources
+// This shows WHY duplicates happen - key mismatch
+// ============================================
+function debugStudentKeys() {
+  const searchName = 'siddharth';  // Search keyword
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Helper: Extract name key (same as calculateTrackingData)
+  function extractFirstLastName(fullName) {
+    const name = String(fullName || '').trim().toLowerCase();
+    const parts = name.split(/\s+/).filter(p => p.length > 0);
+    if (parts.length === 0) return { key: '' };
+    if (parts.length === 1) return { key: parts[0] };
+    const sortedParts = [...parts].sort();
+    return { key: sortedParts[0] + '_' + sortedParts[1] };
+  }
+  
+  function getStudentKey(appNum, appId, name) {
+    const num = String(appNum || '').trim();
+    const id = String(appId || '').trim();
+    if (num && num.length > 0) return 'appNum_' + num;
+    if (id && id.length > 0) return 'appId_' + id;
+    const nameInfo = extractFirstLastName(name);
+    return 'name_' + nameInfo.key;
+  }
+  
+  // Check External Students
+  Logger.log('=== EXTERNAL STUDENTS ===');
+  const externalStudents = getExternalStudentsData();
+  externalStudents.forEach((s, i) => {
+    if (s.name.toLowerCase().includes(searchName)) {
+      const key = getStudentKey(s.appNumber, s.appId, s.name);
+      Logger.log('External Row ' + (i+2) + ': "' + s.name + '" | AppNum: "' + s.appNumber + '" | AppID: "' + s.appId + '" | KEY: ' + key);
+    }
+  });
+  
+  // Check Yoga sheet
+  Logger.log('=== YOGA SHEET (first match) ===');
+  const yoga = ss.getSheetByName('Yoga');
+  if (yoga) {
+    const data = yoga.getDataRange().getValues();
+    const headers = data[0].map(h => String(h).toLowerCase());
+    const nameIdx = headers.findIndex(h => h.includes('name'));
+    const appNumIdx = headers.findIndex(h => h.includes('application number'));
+    const appIdIdx = headers.findIndex(h => h.includes('application: id'));
+    
+    for (let i = 1; i < data.length; i++) {
+      const name = String(data[i][nameIdx] || '');
+      if (name.toLowerCase().includes(searchName)) {
+        const appNum = appNumIdx >= 0 ? String(data[i][appNumIdx] || '').trim() : '';
+        const appId = appIdIdx >= 0 ? String(data[i][appIdIdx] || '').trim() : '';
+        const key = getStudentKey(appNum, appId, name);
+        Logger.log('Yoga Row ' + (i+1) + ': "' + name + '" | AppNum: "' + appNum + '" | AppID: "' + appId + '" | KEY: ' + key);
+        break; // Just first match
+      }
+    }
+  }
+  
+  Logger.log('=== If KEYs are different, that is why duplicates occur! ===');
+  return 'Check View → Logs for results';
 }
