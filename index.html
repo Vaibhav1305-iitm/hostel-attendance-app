@@ -2517,6 +2517,10 @@
                         <span class="material-symbols-outlined">download</span>
                         Reports
                     </button>
+                    <button class="admin-tab-new" id="tab-data" onclick="switchAdminTabNew('data')">
+                        <span class="material-symbols-outlined">database</span>
+                        Data
+                    </button>
                 </div>
 
                 <!-- Overview Section -->
@@ -2568,7 +2572,7 @@
                         <input type="month" id="rankingMonth" onchange="renderRankings()" 
                             style="display:none; padding:10px 12px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:14px; color:var(--md-sys-color-on-surface);">
                         
-                        <div id="rankingDateRange" style="display:none; flex:1; display:flex; gap:8px; align-items:center;">
+                        <div id="rankingDateRange" style="display:none; gap:8px; align-items:center;">
                             <input type="date" id="rankingStartDate" onchange="renderRankings()" 
                                 style="flex:1; padding:10px; border:1px solid var(--md-sys-color-outline-variant); border-radius:10px; background:var(--md-sys-color-surface); font-size:13px; color:var(--md-sys-color-on-surface);">
                             <span style="color:var(--md-sys-color-outline);">to</span>
@@ -2682,6 +2686,110 @@
                             <span class="material-symbols-outlined">cloud_download</span> Download
                         </button>
                         <div id="adminMsg" style="margin-top:12px; font-weight:500;"></div>
+                    </div>
+                </div>
+
+                <!-- Data Management Section -->
+                <div id="section-data" class="admin-section">
+                    <div class="ios-section-header">
+                        <h3 class="ios-section-title">🗂️ Data Management</h3>
+                        <p class="ios-section-subtitle">Backup, Import, Archive & Statistics</p>
+                    </div>
+
+                    <!-- Data Statistics Card -->
+                    <div class="stat-card" style="margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                            <span style="font-size:20px;">📊</span>
+                            <h3 style="margin:0; font-size:16px; font-weight:600; color:var(--md-sys-color-primary);">Data Statistics</h3>
+                        </div>
+                        <div id="dataStatsContent" style="font-size:14px; color:var(--md-sys-color-on-surface-variant); min-height:60px;">
+                            Click Refresh to load statistics
+                        </div>
+                        <button onclick="loadDataStatistics()" class="fab" style="width:100%; justify-content:center; position:static; margin:12px 0 0 0;">
+                            <span class="material-symbols-outlined">refresh</span> Refresh Stats
+                        </button>
+                    </div>
+
+                    <!-- Backup & Import Row -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                        <!-- Full Backup Card -->
+                        <div class="stat-card" style="margin:0;">
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                                <span style="font-size:18px;">📥</span>
+                                <h3 style="margin:0; font-size:14px; font-weight:600; color:#34C759;">Backup</h3>
+                            </div>
+                            <p style="font-size:11px; color:var(--md-sys-color-on-surface-variant); margin:0 0 10px 0;">
+                                Download all sheets as Excel
+                            </p>
+                            <button onclick="downloadFullBackup()" class="fab" style="width:100%; justify-content:center; position:static; margin:0; background:linear-gradient(135deg, #34C759, #30D158); padding:10px 12px; font-size:13px;">
+                                <span class="material-symbols-outlined" style="font-size:18px;">cloud_download</span> Download
+                            </button>
+                            <div id="backupMsg" style="margin-top:8px; font-weight:500; font-size:12px;"></div>
+                        </div>
+
+                        <!-- Import Backup Card -->
+                        <div class="stat-card" style="margin:0;">
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                                <span style="font-size:18px;">📤</span>
+                                <h3 style="margin:0; font-size:14px; font-weight:600; color:#5856D6;">Import</h3>
+                            </div>
+                            <p style="font-size:11px; color:var(--md-sys-color-on-surface-variant); margin:0 0 10px 0;">
+                                Restore from backup Excel
+                            </p>
+                            <input type="file" id="importBackupFile" accept=".xlsx,.xls" style="display:none;" onchange="handleImportBackup(this)">
+                            <button onclick="document.getElementById('importBackupFile').click()" class="fab" style="width:100%; justify-content:center; position:static; margin:0; background:linear-gradient(135deg, #5856D6, #AF52DE); padding:10px 12px; font-size:13px;">
+                                <span class="material-symbols-outlined" style="font-size:18px;">upload_file</span> Upload
+                            </button>
+                            <div id="importMsg" style="margin-top:8px; font-weight:500; font-size:12px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Archive Old Data Card -->
+                    <div class="stat-card" style="margin-bottom:16px;">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <span style="font-size:20px;">🗓️</span>
+                            <h3 style="margin:0; font-size:16px; font-weight:600; color:#FF9500;">Archive Old Data</h3>
+                        </div>
+                        <p style="font-size:13px; color:var(--md-sys-color-on-surface-variant); margin:0 0 12px 0;">
+                            Move old data to Archive sheets (safe - data is preserved)
+                        </p>
+                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+                            <span style="font-size:14px; color:var(--md-sys-color-on-surface);">Older than:</span>
+                            <select id="archiveMonths" style="flex:1; min-width:120px; padding:10px 14px; border-radius:10px; border:1px solid var(--md-sys-color-outline); background:var(--md-sys-color-surface); font-size:14px;">
+                                <option value="6">6 months</option>
+                                <option value="12" selected>12 months</option>
+                                <option value="18">18 months</option>
+                                <option value="24">24 months</option>
+                            </select>
+                        </div>
+                        <button onclick="confirmArchiveData()" class="fab" style="width:100%; justify-content:center; position:static; margin:0; background:linear-gradient(135deg, #FF9500, #FFCC00);">
+                            <span class="material-symbols-outlined">archive</span> Archive Old Data
+                        </button>
+                        <div id="archiveMsg" style="margin-top:10px; font-weight:500; font-size:13px;"></div>
+                    </div>
+
+                    <!-- Purge Old Data Card -->
+                    <div class="stat-card" style="margin-bottom:16px; border:1.5px solid rgba(255,59,48,0.3); background:rgba(255,59,48,0.02);">
+                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                            <span style="font-size:20px;">🗑️</span>
+                            <h3 style="margin:0; font-size:16px; font-weight:600; color:#FF3B30;">Purge Old Data</h3>
+                        </div>
+                        <p style="font-size:13px; color:#FF3B30; margin:0 0 12px 0; font-weight:500;">
+                            ⚠️ PERMANENTLY delete - cannot be undone!
+                        </p>
+                        <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+                            <span style="font-size:14px; color:var(--md-sys-color-on-surface);">Older than:</span>
+                            <select id="purgeMonths" style="flex:1; min-width:120px; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,59,48,0.3); background:var(--md-sys-color-surface); font-size:14px;">
+                                <option value="12">12 months</option>
+                                <option value="18">18 months</option>
+                                <option value="24" selected>24 months</option>
+                                <option value="36">36 months</option>
+                            </select>
+                        </div>
+                        <button onclick="confirmPurgeData()" class="fab" style="width:100%; justify-content:center; position:static; margin:0; background:linear-gradient(135deg, #FF3B30, #FF6B6B);">
+                            <span class="material-symbols-outlined">delete_forever</span> Purge Old Data
+                        </button>
+                        <div id="purgeMsg" style="margin-top:10px; font-weight:500; font-size:13px;"></div>
                     </div>
                 </div>
             `;
@@ -3171,13 +3279,8 @@
             document.getElementById('customDateRange').style.display = period === 'custom' ? 'block' : 'none';
         }
 
-        // Section-wise Report Download
-        function downloadSectionReport(format) {
-            if (!window.trackingDataCache || window.trackingDataCache.length === 0) {
-                alert('No tracking data available. Please load data first.');
-                return;
-            }
-
+        // Section-wise Report Download - Now fetches date-filtered data from backend
+        async function downloadSectionReport(format) {
             const section = document.getElementById('reportSection').value;
             const period = document.getElementById('reportPeriod').value;
             let startDate, endDate;
@@ -3191,7 +3294,7 @@
                 const [year, month] = monthVal.split('-');
                 startDate = `${year}-${month}-01`;
                 const lastDay = new Date(year, month, 0).getDate();
-                endDate = `${year}-${month}-${lastDay}`;
+                endDate = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
             } else {
                 startDate = document.getElementById('reportStartDate').value;
                 endDate = document.getElementById('reportEndDate').value;
@@ -3201,8 +3304,35 @@
                 }
             }
 
-            // Filter data
-            let filteredData = window.trackingDataCache;
+            const msgEl = document.getElementById('reportMsg');
+            msgEl.textContent = 'Fetching data...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            // Fetch date-filtered data from backend
+            let filteredData = [];
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "get_tracking_data",
+                        startDate: startDate,
+                        endDate: endDate
+                    })
+                });
+                const json = await res.json();
+                if (json.result === 'success' && json.data) {
+                    filteredData = json.data;
+                } else {
+                    msgEl.textContent = 'Failed to fetch data';
+                    msgEl.style.color = '#FF3B30';
+                    return;
+                }
+            } catch (e) {
+                console.error('Failed to fetch report data:', e);
+                msgEl.textContent = 'Network error';
+                msgEl.style.color = '#FF3B30';
+                return;
+            }
 
             // Filter by section
             if (section !== 'All') {
@@ -3210,13 +3340,12 @@
             }
 
             if (filteredData.length === 0) {
-                alert('No data found for selected filters');
+                msgEl.textContent = 'No data found for selected filters';
+                msgEl.style.color = '#FF9500';
                 return;
             }
 
-            const msgEl = document.getElementById('reportMsg');
             msgEl.textContent = 'Generating report...';
-            msgEl.style.color = 'var(--md-sys-color-primary)';
 
             if (format === 'excel') {
                 // Generate Excel
@@ -3277,6 +3406,284 @@
                     msgEl.style.color = '#FF3B30';
                 }
             }
+        }
+
+        // ============================================
+        // DATA MANAGEMENT FUNCTIONS
+        // ============================================
+
+        // Load and display data statistics
+        async function loadDataStatistics() {
+            const container = document.getElementById('dataStatsContent');
+            container.innerHTML = '<div style="color:var(--md-sys-color-primary);">Loading statistics...</div>';
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "get_data_statistics" })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success' && json.stats) {
+                    const stats = json.stats;
+                    let html = `
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                            <div style="background:rgba(0,122,255,0.1); padding:12px; border-radius:10px; text-align:center;">
+                                <div style="font-size:24px; font-weight:700; color:#007AFF;">${stats.totalRows.toLocaleString()}</div>
+                                <div style="font-size:11px; color:#666;">Total Rows</div>
+                            </div>
+                            <div style="background:rgba(52,199,89,0.1); padding:12px; border-radius:10px; text-align:center;">
+                                <div style="font-size:24px; font-weight:700; color:#34C759;">${stats.totalCells.toLocaleString()}</div>
+                                <div style="font-size:11px; color:#666;">Total Cells</div>
+                            </div>
+                        </div>
+                        <div style="font-size:12px; font-weight:600; margin-bottom:8px; color:#666;">Sheets:</div>
+                    `;
+
+                    stats.sheets.filter(s => s.isRelevant).forEach(sheet => {
+                        const dateRange = sheet.oldestDate && sheet.newestDate
+                            ? `${sheet.oldestDate} → ${sheet.newestDate}`
+                            : 'N/A';
+                        html += `
+                            <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; font-size:13px;">
+                                <span style="font-weight:500;">${sheet.name}</span>
+                                <span style="color:#666;">${sheet.rows.toLocaleString()} rows</span>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div style="color:#FF3B30;">Failed to load statistics</div>';
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="color:#FF3B30;">Network error</div>';
+            }
+        }
+
+        // Download full backup as Excel
+        async function downloadFullBackup() {
+            const msgEl = document.getElementById('backupMsg');
+            msgEl.textContent = 'Fetching all data...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "get_full_backup" })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success' && json.backup) {
+                    msgEl.textContent = 'Generating Excel...';
+                    const backup = json.backup;
+                    const wb = XLSX.utils.book_new();
+
+                    // Process each sheet
+                    for (const [sheetName, sheetData] of Object.entries(backup.sheets)) {
+                        // Convert date objects back
+                        const processedData = sheetData.data.map(row =>
+                            row.map(cell => {
+                                if (cell && cell._type === 'date') {
+                                    return new Date(cell.value);
+                                }
+                                return cell;
+                            })
+                        );
+
+                        const ws = XLSX.utils.aoa_to_sheet(processedData);
+                        // Truncate sheet name if too long (max 31 chars)
+                        const safeName = sheetName.substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, safeName);
+                    }
+
+                    // Download with timestamp
+                    const dateStr = new Date().toISOString().split('T')[0];
+                    XLSX.writeFile(wb, `Full_Backup_${backup.spreadsheetName}_${dateStr}.xlsx`);
+
+                    msgEl.textContent = '✓ Full backup downloaded!';
+                    msgEl.style.color = '#34C759';
+                } else {
+                    msgEl.textContent = 'Failed: ' + (json.error || 'Unknown error');
+                    msgEl.style.color = '#FF3B30';
+                }
+            } catch (e) {
+                msgEl.textContent = 'Network error';
+                msgEl.style.color = '#FF3B30';
+            }
+        }
+
+        // Archive old data with confirmation
+        function confirmArchiveData() {
+            const months = document.getElementById('archiveMonths').value;
+            if (confirm(`Archive all attendance data older than ${months} months?\n\nData will be moved to Archive_* sheets (safe operation).`)) {
+                archiveOldData(months);
+            }
+        }
+
+        async function archiveOldData(months) {
+            const msgEl = document.getElementById('archiveMsg');
+            msgEl.textContent = 'Archiving...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "archive_old_data", months: parseInt(months) })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    const details = json.details;
+                    let msg = `✓ Archived ${details.archived} rows\n`;
+                    for (const [sheet, count] of Object.entries(details.sheets)) {
+                        if (count > 0) msg += `${sheet}: ${count} rows\n`;
+                    }
+                    msgEl.textContent = `✓ ${json.message}`;
+                    msgEl.style.color = '#34C759';
+                    showIOSToast(json.message, 'success');
+                } else {
+                    msgEl.textContent = 'Error: ' + json.error;
+                    msgEl.style.color = '#FF3B30';
+                }
+            } catch (e) {
+                msgEl.textContent = 'Network error';
+                msgEl.style.color = '#FF3B30';
+            }
+        }
+
+        // Purge old data with double confirmation
+        function confirmPurgeData() {
+            const months = document.getElementById('purgeMonths').value;
+
+            // First confirmation
+            if (!confirm(`⚠️ WARNING: This will PERMANENTLY DELETE all attendance data older than ${months} months!\n\nThis action CANNOT be undone. Are you sure?`)) {
+                return;
+            }
+
+            // Second confirmation with text input
+            const confirmText = prompt(`To confirm deletion, type "DELETE" (all caps):`);
+            if (confirmText !== 'DELETE') {
+                alert('Purge cancelled - confirmation text did not match.');
+                return;
+            }
+
+            purgeOldData(months);
+        }
+
+        async function purgeOldData(months) {
+            const msgEl = document.getElementById('purgeMsg');
+            msgEl.textContent = 'Deleting...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "purge_old_data", months: parseInt(months) })
+                });
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    msgEl.textContent = `✓ ${json.message}`;
+                    msgEl.style.color = '#34C759';
+                    showIOSToast(json.message, 'success');
+                } else {
+                    msgEl.textContent = 'Error: ' + json.error;
+                    msgEl.style.color = '#FF3B30';
+                }
+            } catch (e) {
+                msgEl.textContent = 'Network error';
+                msgEl.style.color = '#FF3B30';
+            }
+        }
+
+        // Handle Import Backup - Read Excel file and restore to Google Sheets
+        async function handleImportBackup(input) {
+            const msgEl = document.getElementById('importMsg');
+            const file = input.files[0];
+
+            if (!file) return;
+
+            msgEl.textContent = 'Reading file...';
+            msgEl.style.color = 'var(--md-sys-color-primary)';
+
+            try {
+                const data = await file.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+
+                // Get all sheet names
+                const sheetNames = workbook.SheetNames;
+
+                if (sheetNames.length === 0) {
+                    msgEl.textContent = 'No sheets found in file';
+                    msgEl.style.color = '#FF3B30';
+                    return;
+                }
+
+                // Show confirmation with sheet list
+                const confirmMsg = `Found ${sheetNames.length} sheets:\n${sheetNames.join(', ')}\n\nChoose import mode:`;
+                const mode = prompt(confirmMsg + '\n\n1 = MERGE (add to existing data)\n2 = REPLACE (clear and replace)\n\nEnter 1 or 2:');
+
+                if (mode !== '1' && mode !== '2') {
+                    msgEl.textContent = 'Import cancelled';
+                    msgEl.style.color = '#FF9500';
+                    input.value = '';
+                    return;
+                }
+
+                // Double confirm for REPLACE mode
+                if (mode === '2') {
+                    if (!confirm('⚠️ REPLACE mode will DELETE all existing data in matching sheets!\n\nAre you absolutely sure?')) {
+                        msgEl.textContent = 'Import cancelled';
+                        msgEl.style.color = '#FF9500';
+                        input.value = '';
+                        return;
+                    }
+                }
+
+                msgEl.textContent = 'Preparing data...';
+
+                // Prepare sheets data for backend
+                const sheetsData = {};
+                sheetNames.forEach(name => {
+                    const sheet = workbook.Sheets[name];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false });
+
+                    if (jsonData.length > 0) {
+                        sheetsData[name] = jsonData;
+                    }
+                });
+
+                msgEl.textContent = 'Uploading to server...';
+
+                // Send to backend
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "import_backup",
+                        sheets: sheetsData,
+                        mode: mode === '1' ? 'merge' : 'replace'
+                    })
+                });
+
+                const json = await res.json();
+
+                if (json.result === 'success') {
+                    msgEl.textContent = '✓ ' + json.message;
+                    msgEl.style.color = '#34C759';
+                    showIOSToast('Backup imported successfully!', 'success');
+                } else {
+                    msgEl.textContent = 'Error: ' + json.error;
+                    msgEl.style.color = '#FF3B30';
+                }
+            } catch (e) {
+                console.error('Import error:', e);
+                msgEl.textContent = 'Error: ' + e.message;
+                msgEl.style.color = '#FF3B30';
+            }
+
+            // Reset file input
+            input.value = '';
         }
 
         // Open Student Dashboard from Rankings - Fixed to use name+category lookup
@@ -3451,19 +3858,7 @@
             modal.style.display = 'flex';
         }
 
-        function formatDateShort(dateStr) {
-            try {
-                const date = new Date(dateStr);
-                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                return `${date.getDate()} ${months[date.getMonth()]}`;
-            } catch (e) {
-                return dateStr;
-            }
-        }
-
-        function closeStudentDashboard() {
-            document.getElementById('studentDashboardModal').style.display = 'none';
-        }
+        // Note: formatDateShort() and closeStudentDashboard() are defined below (lines 3941-3953)
 
         // Global function to toggle year section expand/collapse
         function toggleYearSection(sectionId, cacheId, year) {
