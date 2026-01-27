@@ -1,0 +1,22 @@
+R_DEF: Internal format may change without notice
+local
+color black
+color colorAccent
+color colorPrimary
+color colorPrimaryDark
+color error_text
+color splash_background
+color white
+id noInternetText
+id webView
+layout activity_main
+layout activity_splash
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string exit_dialog_message
+string exit_dialog_title
+string no
+string no_internet_message
+string splash_subtitle
+string yes

@@ -52,6 +52,17 @@
         .admin-section.active {
             display: block;
         }
+
+        /* Refresh icon spin animation */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -208,6 +219,9 @@
                     <span class="material-symbols-outlined">menu</span>
                 </button>
                 <input type="text" class="search-input" id="studentSearch" placeholder="Search students...">
+                <button class="icon-btn" onclick="refreshApp()" title="Refresh App" style="margin-right: 8px;">
+                    <span class="material-symbols-outlined" id="refreshIcon">refresh</span>
+                </button>
                 <div class="avatar" onclick="toggleTheme()" id="userAvatar">A</div>
             </div>
         </div>
@@ -218,11 +232,18 @@
             <!-- Hero Stats Card - Like Mess Bill THIS MONTH -->
             <div class="card stats-card">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;"
-                            id="headerTitle">YOGA</div>
-                        <div style="font-size: 36px; font-weight: 800; margin-top: 4px;" id="presentCount">0</div>
-                        <div style="font-size: 14px; opacity: 0.85;" id="headerDate">Present Today</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;"
+                                id="headerTitle">YOGA</div>
+                            <div style="font-size: 36px; font-weight: 800; margin-top: 4px;" id="presentCount">0</div>
+                            <div style="font-size: 14px; opacity: 0.85;" id="headerDate">Present Today</div>
+                        </div>
+                        <button id="adminRefreshBtn" onclick="refreshAdminPanel()" title="Refresh Admin Data"
+                            style="display: none; background:none; border:none; cursor:pointer; padding:4px; margin-top:-8px;">
+                            <span class="material-symbols-outlined" id="adminRefreshIcon"
+                                style="color:var(--md-sys-color-primary); font-size:22px;">refresh</span>
+                        </button>
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 13px; font-weight: 600; opacity: 0.9; text-transform: uppercase;">ABSENT
@@ -360,6 +381,11 @@
                 <span class="material-symbols-outlined" style="color:var(--md-sys-color-primary);">arrow_back_ios</span>
             </button>
             <h2>📊 Sync Tracker</h2>
+            <button onclick="refreshSyncTracker()" title="Refresh Tracker"
+                style="background:none; border:none; cursor:pointer; padding:8px; margin-left:auto;">
+                <span class="material-symbols-outlined" id="trackerRefreshIconMain"
+                    style="color:var(--md-sys-color-primary); font-size:24px;">refresh</span>
+            </button>
         </div>
         <div class="sync-tracker-content">
             <!-- Date Range Pills -->
@@ -383,6 +409,12 @@
                         style="padding:8px 12px; border-radius:8px; border:1px solid var(--md-sys-color-outline); background:var(--md-sys-color-surface); color:var(--md-sys-color-on-surface); font-size:14px;">
                     <button onclick="applyCustomDateRange()"
                         style="padding:8px 16px; border-radius:8px; border:none; background:var(--md-sys-color-primary); color:white; font-size:13px; font-weight:500; cursor:pointer;">Apply</button>
+                    <button onclick="refreshSyncTracker()" title="Refresh Tracker Data"
+                        style="padding:8px 16px; border-radius:8px; border:none; background:var(--md-sys-color-tertiary); color:white; font-size:13px; font-weight:500; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                        <span class="material-symbols-outlined" id="trackerRefreshIcon"
+                            style="font-size:16px;">refresh</span>
+                        Refresh
+                    </button>
                 </div>
             </div>
 
@@ -487,6 +519,7 @@
         let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLrD98LEE_PQtqySBKqrZLyKvqzM3nXCAEMyYmejkLqwexp6cUTmDlIljQEazc7_8i/exec';
         let autoSaveTimeout = null;
         let hasUnsyncedChanges = false; // Track if there are unsynced attendance changes
+        let allowPastDateEdit = false; // Flag to allow editing past dates (when updating from Sync Tracker)
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function () {
@@ -524,17 +557,24 @@
                 }
             });
 
-            // Auto-fetch students from Google Sheets on load
-            // Draft will be loaded after students are fetched
-            fetchStudentsFromSheet().then(() => {
-                // Load any saved draft after students are available
-                if (loadAttendanceDraft()) {
-                    renderStudentList();
-                    updateVerificationUI();
-                }
-            }).catch(() => {
-                // Even on error, try to load draft
-                loadAttendanceDraft();
+            // Initialize attendance data on load AND fetch students from Google Sheets
+            initializeAllCategoriesAttendance();
+            loadAttendanceDraft(); // Load any saved draft
+
+            // Fetch students from Google Sheets - CRITICAL for app to work!
+            fetchStudents().then(() => {
+                renderStudentList(); // Render after students are loaded
+                updateVerificationUI(); // Update UI
+
+                // Check sync status for current date/category on load
+                // This ensures "already submitted" banner shows on app open
+                setTimeout(() => {
+                    handleSyncStatusCheck();
+                }, 500);
+            }).catch(err => {
+                console.error('Failed to load students:', err);
+                renderStudentList(); // Render even if fetch fails (shows empty state)
+                updateVerificationUI();
             });
         });
 
@@ -849,6 +889,141 @@
             }
         }
 
+        // ============================================
+        // FETCH STUDENTS FROM EXTERNAL GOOGLE SHEET
+        // ============================================
+        async function fetchStudents() {
+            try {
+                showIOSLoading('Loading students...');
+
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'get_students'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch students');
+                }
+
+                const result = await response.json();
+
+                if (result.result === 'success' && result.students) {
+                    students = result.students;
+                    console.log('Loaded ' + students.length + ' students from Google Sheets');
+                    hideIOSLoading();
+                    showIOSToast(`✅ Loaded ${students.length} students`, 'success', 2000);
+                    return students;
+                } else {
+                    throw new Error(result.error || 'Invalid response');
+                }
+            } catch (e) {
+                console.error('Failed to load students:', e);
+                hideIOSLoading();
+                showIOSToast('❌ Failed to load students', 'error', 3000);
+                throw e;
+            }
+        }
+
+        // ============================================
+        // SMART REFRESH FUNCTION
+        // Refreshes students, attendance data, and sync status
+        // ============================================
+        async function refreshApp() {
+            try {
+                // Animate refresh icon
+                const refreshIcon = document.getElementById('refreshIcon');
+                if (refreshIcon) {
+                    refreshIcon.style.animation = 'spin 1s linear infinite';
+                }
+
+                showIOSLoading('Refreshing...');
+
+                // 1. Re-fetch students from Google Sheets
+                await fetchStudents();
+
+                // 2. Re-initialize attendance for all categories
+                initializeAllCategoriesAttendance();
+
+                // 3. Reload current date's attendance
+                const date = document.getElementById('attendanceDate')?.value;
+                if (date && students.length > 0) {
+                    loadedFromSheets[date] = loadedFromSheets[date] || {};
+                    ensureCategoryAttendance(currentCategory);
+                    attendance = attendanceByCategory[currentCategory];
+                }
+
+                // 4. Re-render everything
+                renderStudentList();
+                updateVerificationUI();
+                updateStats();
+
+                // 5. Re-check sync status
+                await handleSyncStatusCheck();
+
+                hideIOSLoading();
+                showIOSToast('✅ Refreshed successfully!', 'success', 2000);
+
+                // Stop animation
+                if (refreshIcon) {
+                    refreshIcon.style.animation = '';
+                }
+            } catch (err) {
+                console.error('Refresh failed:', err);
+                hideIOSLoading();
+                showIOSToast('❌ Refresh failed', 'error', 3000);
+
+                const refreshIcon = document.getElementById('refreshIcon');
+                if (refreshIcon) {
+                    refreshIcon.style.animation = '';
+                }
+            }
+        }
+
+        // Refresh Admin Panel Only (tracking/rankings data)
+        async function refreshAdminPanel() {
+            try {
+                const icon = document.getElementById('adminPanelRefreshIcon');
+                if (icon) {
+                    icon.style.animation = 'spin 1s linear infinite';
+                }
+
+                showIOSLoading('Refreshing admin data...');
+
+                // Check which admin tab is currently active
+                const activeTab = document.querySelector('.admin-tab-new.active')?.id;
+
+                // Re-render the active admin section
+                if (activeTab === 'tab-rankings') {
+                    // Refresh rankings table
+                    switchAdminTabNew('rankings');
+                } else if (activeTab === 'tab-tracking') {
+                    // Refresh tracking table
+                    switchAdminTabNew('tracking');
+                } else {
+                    // Refresh overview/default
+                    switchAdminTabNew('overview');
+                }
+
+                hideIOSLoading();
+                showIOSToast('✅ Admin data refreshed!', 'success', 2000);
+
+                if (icon) {
+                    icon.style.animation = '';
+                }
+            } catch (err) {
+                console.error('Admin refresh failed:', err);
+                hideIOSLoading();
+                showIOSToast('❌ Refresh failed', 'error', 2000);
+
+                const icon = document.getElementById('adminPanelRefreshIcon');
+                if (icon) {
+                    icon.style.animation = '';
+                }
+            }
+        }
+
         // Show sync status banner
         function showSyncBanner(status, message, type = 'submitted') {
             const banner = document.getElementById('syncStatusBanner');
@@ -1065,6 +1240,56 @@
         }
 
         function handleDateChange() {
+            const selectedDate = document.getElementById('attendanceDate').value;
+            if (!selectedDate) return;
+
+            // Get today's date
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            // If selected date is today or allowPastDateEdit is already true, proceed normally
+            if (selectedDate === today || allowPastDateEdit) {
+                loadDateAttendanceNormal();
+                return;
+            }
+
+            // Past date selected - show confirmation dialog
+            const dateObj = new Date(selectedDate);
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+
+            // Check if already synced
+            const dateIsSynced = isSynced(selectedDate, currentCategory);
+
+            // Create confirmation message
+            const confirmMsg = dateIsSynced
+                ? `Attendance for ${formattedDate} was already synced to database.\n\nDo you want to update it?`
+                : `Attendance for ${formattedDate} was not found in database.\n\nDo you want to fill it now?`;
+
+            if (confirm(confirmMsg)) {
+                // User clicked YES - allow editing
+                allowPastDateEdit = true;
+                showIOSToast(`✏️ Editing enabled for ${formattedDate}`, 'success', 3000);
+                loadDateAttendanceNormal();
+
+                // Reset flag after 10 minutes (safety)
+                setTimeout(() => {
+                    allowPastDateEdit = false;
+                    showIOSToast('Edit mode disabled for past dates', 'info', 2000);
+                }, 600000);
+            } else {
+                // User clicked NO - redirect to today
+                document.getElementById('attendanceDate').value = today;
+                showIOSToast('Redirected to today\'s date', 'info', 2000);
+                loadDateAttendanceNormal();
+            }
+        }
+
+        // Original date loading logic (renamed to avoid duplicate)
+        function loadDateAttendanceNormal() {
             const dateStr = document.getElementById('attendanceDate').value;
             if (!dateStr) return;
 
@@ -1338,6 +1563,42 @@
             if (customPicker) customPicker.style.display = 'none';
 
             renderSyncTrackerGrid();
+        }
+
+        // Refresh Sync Tracker Data
+        async function refreshSyncTracker() {
+            try {
+                // Animate both icons
+                const iconMain = document.getElementById('trackerRefreshIconMain');
+                const iconCustom = document.getElementById('trackerRefreshIcon');
+
+                if (iconMain) iconMain.style.animation = 'spin 1s linear infinite';
+                if (iconCustom) iconCustom.style.animation = 'spin 1s linear infinite';
+
+                showIOSLoading('Refreshing tracker...');
+
+                // Re-render with current settings
+                if (isCustomRange && customStartDate && customEndDate) {
+                    renderSyncTrackerGridCustom(new Date(customStartDate), new Date(customEndDate));
+                } else {
+                    renderSyncTrackerGrid();
+                }
+
+                hideIOSLoading();
+                showIOSToast('✅ Tracker refreshed!', 'success', 2000);
+
+                if (iconMain) iconMain.style.animation = '';
+                if (iconCustom) iconCustom.style.animation = '';
+            } catch (err) {
+                console.error('Tracker refresh failed:', err);
+                hideIOSLoading();
+                showIOSToast('❌ Refresh failed', 'error', 2000);
+
+                const iconMain = document.getElementById('trackerRefreshIconMain');
+                const iconCustom = document.getElementById('trackerRefreshIcon');
+                if (iconMain) iconMain.style.animation = '';
+                if (iconCustom) iconCustom.style.animation = '';
+            }
         }
 
         function showCustomDatePicker() {
@@ -1828,20 +2089,20 @@
         function cycleStatus(studentName) {
             const date = document.getElementById('attendanceDate').value;
 
-            // RESTRICTION: Only allow changes for TODAY's date
+            // RESTRICTION: Only allow changes for TODAY's date (unless allowPastDateEdit flag is set)
             const now = new Date();
             const today = now.getFullYear() + '-' +
                 String(now.getMonth() + 1).padStart(2, '0') + '-' +
                 String(now.getDate()).padStart(2, '0');
 
-            if (date !== today) {
-                showMessage('❌ Past dates are read-only!', 'warning');
+            if (date !== today && !allowPastDateEdit) {
+                showIOSToast('❌ Past dates are read-only!', 'warning');
                 return;
             }
 
-            // Don't allow changes if this category is already synced
-            if (isSynced(date, currentCategory)) {
-                showMessage(`${currentCategory} is synced. Cannot modify.`, 'warning');
+            // Don't allow changes if this category is already synced (unless updating from tracker)
+            if (isSynced(date, currentCategory) && !allowPastDateEdit) {
+                showIOSToast(`${currentCategory} is synced. Cannot modify.`, 'warning');
                 return;
             }
 
@@ -1854,11 +2115,27 @@
 
             attendanceByCategory[currentCategory][studentName] = newStatus;
             attendance = attendanceByCategory[currentCategory];
-            hasUnsyncedChanges = true; // Mark that we have unsaved changes
+            hasUnsyncedChanges = true;
             renderStudentList();
-
-            // Auto-save after status change
             autoSaveAttendance();
+        }
+
+        /**
+         * Update Presenty for Previous Incomplete Dates
+         * Called from Sync Tracker to fill missed attendance
+         */
+        function updatePresenty(date, category) {
+            allowPastDateEdit = true;
+            const syncModal = document.getElementById('syncTrackerModal');
+            if (syncModal) syncModal.classList.remove('active');
+            switchCategory(category);
+            const dateInput = document.getElementById('attendanceDate');
+            if (dateInput) {
+                dateInput.value = date;
+                handleDateChange();
+            }
+            showIOSToast(`📝 Updating ${category} for ${date}`, 'info', 4000);
+            setTimeout(() => { allowPastDateEdit = false; }, 300000);
         }
 
         function updateStatus(studentName, status) {
@@ -2492,10 +2769,13 @@
                         <button onclick="location.reload()" style="background:rgba(255,255,255,0.2); border:none; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                             <span class="material-symbols-outlined" style="color:white;">arrow_back</span>
                         </button>
-                        <div>
+                        <div style="flex:1;">
                             <div class="admin-header-title">Admin Panel</div>
                             <div class="admin-header-subtitle">v6.0 • Rankings & AI Insights</div>
                         </div>
+                        <button onclick="refreshAdminPanel()" title="Refresh Admin Data" style="background:rgba(255,255,255,0.2); border:none; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                            <span class="material-symbols-outlined" id="adminPanelRefreshIcon" style="color:white;">refresh</span>
+                        </button>
                     </div>
                 </div>
 
