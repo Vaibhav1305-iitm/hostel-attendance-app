@@ -1,0 +1,60 @@
+/* ========================================
+   View Only Button for Past Records
+   ======================================== */
+.past-record-buttons {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.view-only-btn,
+.edit-past-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view-only-btn {
+    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.edit-past-btn {
+    background: linear-gradient(135deg, #34C759 0%, #2BA84A 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+}
+
+.view-only-btn:hover,
+.edit-past-btn:hover {
+    transform: translateY(-2px);
+}
+
+.view-only-btn:hover {
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+}
+
+.edit-past-btn:hover {
+    box-shadow: 0 6px 16px rgba(52, 199, 89, 0.4);
+}
+
+.view-only-btn:active,
+.edit-past-btn:active {
+    transform: scale(0.96);
+}
+
+.view-only-btn .material-symbols-outlined,
+.edit-past-btn .material-symbols-outlined {
+    font-size: 20px;
+    font-variation-settings: 'FILL' 1;
+}

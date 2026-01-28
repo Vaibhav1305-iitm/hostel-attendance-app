@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="attendance.css">
     <!-- Attendance-specific overrides -->
     <link rel="stylesheet" href="attendance-overrides.css">
+    <link rel="stylesheet" href="view-only-button.css">
 
     <!-- Minimal inline overrides -->
     <style>
@@ -62,6 +63,91 @@
             to {
                 transform: rotate(360deg);
             }
+        }
+
+        /* Past Date Confirmation Dialog */
+        .ios-confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .ios-confirm-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+
+        .ios-confirm-content {
+            position: relative;
+            background: var(--md-sys-color-surface);
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        .ios-confirm-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--md-sys-color-on-surface);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .ios-confirm-message {
+            font-size: 14px;
+            color: var(--md-sys-color-on-surface-variant);
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .ios-confirm-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .ios-confirm-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            /* Fix double-click issue */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ios-confirm-btn.cancel {
+            background: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .ios-confirm-btn.confirm {
+            background: var(--md-sys-color-primary);
+            color: white;
         }
     </style>
 </head>
@@ -255,10 +341,14 @@
                 </div>
             </div>
 
-            <!-- Date Picker - iOS Style -->
-            <div class="ios-date-picker">
-                <span class="material-symbols-outlined">calendar_today</span>
-                <input type="date" class="ios-date-input" id="attendanceDate">
+            <!-- Date Picker - iOS Style Card -->
+            <div class="card"
+                style="margin-bottom: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px;">
+                <span class="material-symbols-outlined"
+                    style="color: var(--md-sys-color-primary); font-size: 24px;">calendar_today</span>
+                <input type="date" id="attendanceDate" onchange="handleDateChange()" style="flex: 1; border: none; background: transparent; font-size: 16px; font-weight: 500; 
+                           color: var(--md-sys-color-on-surface); font-family: inherit; outline: none; 
+                           cursor: pointer; padding: 0;" />
             </div>
 
             <!-- Verification Toggle - iOS Style -->
@@ -520,6 +610,45 @@
         let autoSaveTimeout = null;
         let hasUnsyncedChanges = false; // Track if there are unsynced attendance changes
         let allowPastDateEdit = false; // Flag to allow editing past dates (when updating from Sync Tracker)
+
+        // --- SYNC STATUS CACHE (localStorage for instant checks) ---
+        let syncStatusCache = {}; // { "2026-01-22": { "Yoga": true, "Mess Day": true, ... }, ... }
+
+        // Load sync status from localStorage on app start
+        function loadSyncStatus() {
+            try {
+                const stored = localStorage.getItem(SYNC_STATUS_KEY);
+                if (stored) {
+                    syncStatusCache = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Failed to load sync status:', e);
+                syncStatusCache = {};
+            }
+        }
+
+        // Save sync status to localStorage (permanent)
+        function saveSyncStatus() {
+            try {
+                localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(syncStatusCache));
+            } catch (e) {
+                console.error('Failed to save sync status:', e);
+            }
+        }
+
+        // Check if date+category is synced (INSTANT - just object lookup!)
+        function isSynced(date, category) {
+            return syncStatusCache[date]?.[category] === true;
+        }
+
+        // Mark date+category as synced (call this when data is successfully synced)
+        function markAsSynced(date, category) {
+            if (!syncStatusCache[date]) {
+                syncStatusCache[date] = {};
+            }
+            syncStatusCache[date][category] = true;
+            saveSyncStatus(); // Persist to localStorage
+        }
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function () {
@@ -981,6 +1110,84 @@
             }
         }
 
+        // ============================================
+        // SYNC STATUS BANNER - Multi-Device Awareness
+        // ============================================
+
+        async function handleSyncStatusCheck() {
+            try {
+                const date = document.getElementById('attendanceDate').value;
+                if (!date || !currentCategory) return;
+
+                const syncResult = await checkServerSyncStatus(date, currentCategory);
+
+                if (syncResult && syncResult.status === 'submitted') {
+                    // Format date in iOS style
+                    const dateObj = new Date(date);
+                    const formattedDate = dateObj.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+
+                    // Show banner with formatted date
+                    showSyncBanner(
+                        `${currentCategory} attendance already submitted for ${formattedDate} (${syncResult.recordCount}/${syncResult.totalStudents} students)`,
+                        'submitted'
+                    );
+                } else {
+                    dismissSyncBanner();
+                }
+            } catch (err) {
+                console.error('Sync status check failed:', err);
+            }
+        }
+
+        function showSyncBanner(message) {
+            console.log('🟢 BANNER MESSAGE:', message); // Debug
+
+            const banner = document.getElementById('syncStatusBanner');
+            const textEl = document.getElementById('syncBannerText');
+
+            if (!banner || !textEl) {
+                console.error('❌ Banner elements not found!');
+                return;
+            }
+
+            // Set message
+            textEl.textContent = message;
+            banner.style.display = 'flex';
+
+            console.log('✅ Banner shown with date');
+
+            // iOS style: Auto-hide after 3 seconds with animation
+            setTimeout(() => {
+                banner.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                banner.style.transform = 'translateY(-100%)';
+                banner.style.opacity = '0';
+
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                    banner.style.transform = '';
+                    banner.style.opacity = '';
+                    banner.style.transition = '';
+                }, 300);
+            }, 3000);
+        }
+
+        function dismissSyncBannerV2() {
+            const banner = document.getElementById('syncStatusBannerV2');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+        }
+
+        // Legacy compatibility
+        function dismissSyncBanner() {
+            dismissSyncBannerV2();
+        }
+
         // Refresh Admin Panel Only (tracking/rankings data)
         async function refreshAdminPanel() {
             try {
@@ -1028,9 +1235,10 @@
         function showSyncBanner(status, message, type = 'submitted') {
             const banner = document.getElementById('syncStatusBanner');
             const textEl = document.getElementById('syncBannerText');
-            const iconEl = banner.querySelector('.sync-banner-icon');
 
-            if (!banner) return;
+            if (!banner || !textEl) return;
+
+            const iconEl = banner.querySelector('.sync-banner-icon');
 
             // Set message
             textEl.textContent = message;
@@ -1039,12 +1247,12 @@
             banner.classList.remove('warning', 'info');
             if (type === 'warning') {
                 banner.classList.add('warning');
-                iconEl.textContent = 'warning';
+                if (iconEl) iconEl.textContent = 'warning';
             } else if (type === 'info') {
                 banner.classList.add('info');
-                iconEl.textContent = 'cloud_sync';
+                if (iconEl) iconEl.textContent = 'cloud_sync';
             } else {
-                iconEl.textContent = 'cloud_done';
+                if (iconEl) iconEl.textContent = 'cloud_done';
             }
 
             // Show banner
@@ -1054,6 +1262,20 @@
             if (status === 'submitted') {
                 document.body.classList.add('attendance-readonly');
             }
+
+            // iOS style: Auto-hide after 5 seconds with smooth animation
+            setTimeout(() => {
+                banner.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                banner.style.transform = 'translateY(-100%)';
+                banner.style.opacity = '0';
+
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                    banner.style.transform = '';
+                    banner.style.opacity = '';
+                    banner.style.transition = '';
+                }, 300);
+            }, 5000);
         }
 
         // Dismiss sync banner
@@ -1108,9 +1330,14 @@
 
             if (status.status === 'submitted') {
                 // Attendance already submitted!
-                // Format date for banner display
+                // Format date for display
                 const dateObj = new Date(date);
-                const formattedDate = dateObj.toDateString(); // e.g., "Wed Jan 28 2026"
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
 
                 showSyncBanner('submitted',
                     `✓ ${currentCategory} attendance already submitted for ${formattedDate} (${status.recordCount}/${status.totalStudents} students)`,
@@ -1243,7 +1470,10 @@
             if (hDate) hDate.textContent = new Date(dateStr).toDateString();
         }
 
-        function handleDateChange() {
+        async function handleDateChange() {
+            // CRITICAL: Remove focus from date input to prevent first click being consumed
+            document.activeElement.blur();
+
             const selectedDate = document.getElementById('attendanceDate').value;
             if (!selectedDate) return;
 
@@ -1257,24 +1487,169 @@
                 return;
             }
 
-            // Past date selected - show confirmation dialog
-            const dateObj = new Date(selectedDate);
+            // Past date selected - format date for display
+            const dateObj = new Date(selectedDate + 'T00:00:00');
             const formattedDate = dateObj.toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric'
             });
 
-            // Check if already synced
-            const dateIsSynced = isSynced(selectedDate, currentCategory);
+            // Check local cache first (instant!)
+            let hasDataInDB = isSynced(selectedDate, currentCategory);
 
-            // Create confirmation message
-            const confirmMsg = dateIsSynced
-                ? `Attendance for ${formattedDate} was already synced to database.\n\nDo you want to update it?`
-                : `Attendance for ${formattedDate} was not found in database.\n\nDo you want to fill it now?`;
+            // If local says NO, verify with server (for old synced dates)
+            if (!hasDataInDB) {
+                try {
+                    // Use POST method (works without CORS issues)
+                    const res = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'fetch_category_data',
+                            date: selectedDate,
+                            category: currentCategory
+                        })
+                    });
+                    const data = await res.json();
 
-            if (confirm(confirmMsg)) {
-                // User clicked YES - allow editing
+                    // If records returned, data exists
+                    if (data.result === 'success' && data.records && data.records.length > 0) {
+                        hasDataInDB = true;
+                        // Update cache for future instant checks
+                        markAsSynced(selectedDate, currentCategory);
+                    }
+                } catch (e) {
+                    console.log('Server check failed, using local cache');
+                }
+            }
+            // Show dialog with small delay to let browser fully process date change
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    showPastDateConfirm(formattedDate, selectedDate, today, hasDataInDB);
+                });
+            }, 50);
+        }
+
+        // Custom past date confirmation functions (Android WebView compatible)
+        let pastDateContext = null; // Store context for confirmation
+
+        function showPastDateConfirm(formattedDate, selectedDate, today, hasDataInDB) {
+            // Store context
+            pastDateContext = { formattedDate, selectedDate, today };
+
+            // Create dialog dynamically
+            const dialog = document.createElement('div');
+            dialog.id = 'pastDateConfirmDialog';
+            dialog.className = 'ios-confirm-dialog';
+
+            if (hasDataInDB) {
+                // HAS DATA: View Only + Update + X icon
+                dialog.onclick = function (e) { if (e.target === dialog) handlePastDateConfirm(false); };
+                dialog.innerHTML = `
+                    <div class="ios-confirm-content" onclick="event.stopPropagation()" style="position: relative;">
+                        <button type="button" class="close-x-btn" onclick="handlePastDateConfirm(false)" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(142,142,147,0.18);color:var(--md-sys-color-on-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                            <span class="material-symbols-outlined" style="font-size:18px;pointer-events:none;">close</span>
+                        </button>
+                        <div class="ios-confirm-title">Past Date Selected</div>
+                        <div class="ios-confirm-message">${currentCategory} attendance for ${formattedDate} was already submitted to database.</div>
+                        <div class="ios-confirm-buttons">
+                            <button type="button" class="ios-confirm-btn view-only" onclick="handlePastDateViewOnly()" style="border:1px solid var(--md-sys-color-primary);background:transparent;color:var(--md-sys-color-primary);">
+                                <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">visibility</span>View Only
+                            </button>
+                            <button type="button" class="ios-confirm-btn confirm" onclick="handlePastDateConfirm(true)">
+                                <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">edit</span>Update
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // NO DATA: Cancel + Update
+                dialog.onclick = function (e) { if (e.target === dialog) handlePastDateConfirm(false); };
+                dialog.innerHTML = `
+                    <div class="ios-confirm-content" onclick="event.stopPropagation()">
+                        <div class="ios-confirm-title">Update Past Date</div>
+                        <div class="ios-confirm-message">No ${currentCategory} attendance for ${formattedDate} in database.</div>
+                        <div class="ios-confirm-buttons">
+                            <button type="button" class="ios-confirm-btn cancel" onclick="handlePastDateConfirm(false)">Cancel</button>
+                            <button type="button" class="ios-confirm-btn confirm" onclick="handlePastDateConfirm(true)">
+                                <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">edit</span>Update
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.body.appendChild(dialog);
+
+            // Add touch event handlers for Android WebView
+            let handled = false;
+            function execAction(action) {
+                return function (e) {
+                    if (handled) return;
+                    handled = true;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    action();
+                };
+            }
+
+            // Get all buttons and add BOTH touch and click handlers
+            const viewOnlyBtn = dialog.querySelector('.view-only');
+            const confirmBtn = dialog.querySelector('.confirm');
+            const cancelBtn = dialog.querySelector('.cancel');
+            const closeXBtn = dialog.querySelector('.close-x-btn');
+            const content = dialog.querySelector('.ios-confirm-content');
+
+            if (viewOnlyBtn) {
+                viewOnlyBtn.ontouchend = execAction(handlePastDateViewOnly);
+                viewOnlyBtn.onclick = execAction(handlePastDateViewOnly);
+            }
+            if (confirmBtn) {
+                confirmBtn.ontouchend = execAction(() => handlePastDateConfirm(true));
+                confirmBtn.onclick = execAction(() => handlePastDateConfirm(true));
+            }
+            if (cancelBtn) {
+                cancelBtn.ontouchend = execAction(() => handlePastDateConfirm(false));
+                cancelBtn.onclick = execAction(() => handlePastDateConfirm(false));
+            }
+            if (closeXBtn) {
+                closeXBtn.ontouchend = execAction(() => handlePastDateConfirm(false));
+                closeXBtn.onclick = execAction(() => handlePastDateConfirm(false));
+            }
+            if (content) {
+                content.ontouchend = function (e) { e.stopPropagation(); };
+            }
+
+            // Show dialog
+            dialog.style.display = 'flex';
+        }
+
+        // Handle View Only button click
+        function handlePastDateViewOnly() {
+            const dialog = document.getElementById('pastDateConfirmDialog');
+            if (dialog) dialog.remove();
+
+            if (!pastDateContext) return;
+
+            const { formattedDate, selectedDate } = pastDateContext;
+
+            // Load data from database in read-only mode
+            fetchAndViewPastData(true);
+        }
+
+        function handlePastDateConfirm(confirmed) {
+            // Remove dialog
+            const dialog = document.getElementById('pastDateConfirmDialog');
+            if (dialog) {
+                dialog.remove();
+            }
+
+            if (!pastDateContext) return;
+
+            const { formattedDate, selectedDate, today } = pastDateContext;
+
+            if (confirmed) {
+                // User clicked Continue - allow editing
                 allowPastDateEdit = true;
                 showIOSToast(`✏️ Editing enabled for ${formattedDate}`, 'success', 3000);
                 loadDateAttendanceNormal();
@@ -1285,11 +1660,14 @@
                     showIOSToast('Edit mode disabled for past dates', 'info', 2000);
                 }, 600000);
             } else {
-                // User clicked NO - redirect to today
+                // User clicked Cancel - redirect to today
                 document.getElementById('attendanceDate').value = today;
-                showIOSToast('Redirected to today\'s date', 'info', 2000);
+                showIOSToast("Redirected to today's date", 'info', 2000);
                 loadDateAttendanceNormal();
             }
+
+            // Clear context
+            pastDateContext = null;
         }
 
         // Original date loading logic (renamed to avoid duplicate)
@@ -1320,6 +1698,9 @@
 
             // Multi-device sync: Check if this date is already submitted
             handleSyncStatusCheck();
+
+            // Update View/Edit buttons visibility
+            updatePastRecordButtonsVisibility();
         }
 
         function switchCategory(newCategory) {
@@ -1360,6 +1741,9 @@
 
             // Multi-device sync: Check if this section is already submitted
             handleSyncStatusCheck();
+
+            // Update View/Edit buttons visibility
+            updatePastRecordButtonsVisibility();
         }
 
         // --- Fetch Button Logic ---
@@ -1458,6 +1842,224 @@
                 showMessage(`Network Error: ${e.message}`, 'error');
             }
         }
+
+        // ========================================
+        // VIEW ONLY / EDIT PAST RECORDS FEATURE
+        // ========================================
+
+        // Fetch and display past attendance data (View Only or Edit mode)
+        async function fetchAndViewPastData(viewOnlyMode) {
+            const date = document.getElementById('attendanceDate').value;
+            const category = currentCategory;
+
+            if (!date) {
+                showIOSToast('Please select a date', 'error', 2000);
+                return;
+            }
+
+            showIOSLoading(`Loading ${category} data...`);
+
+            try {
+                const res = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: "fetch_category_data",
+                        date: date,
+                        category: category
+                    })
+                });
+                const json = await res.json();
+                hideIOSLoading();
+
+                if (json.result === 'success' && json.data && json.data.length > 1) {
+                    const rows = json.data;
+                    const headers = rows[0];
+                    const nameIdx = headers.indexOf('Full Name');
+                    const statusIdx = headers.indexOf('Status');
+
+                    if (nameIdx !== -1 && statusIdx !== -1) {
+                        ensureCategoryAttendance(category);
+                        let count = 0;
+                        for (let i = 1; i < rows.length; i++) {
+                            const name = rows[i][nameIdx];
+                            const status = rows[i][statusIdx];
+                            if (name && ['Present', 'Absent', 'Leave'].includes(status)) {
+                                attendanceByCategory[category][name] = status;
+                                count++;
+                            }
+                        }
+
+                        if (!loadedFromSheets[date]) loadedFromSheets[date] = {};
+                        loadedFromSheets[date][category] = true;
+                        markAsSynced(date, category);
+
+                        attendance = attendanceByCategory[currentCategory];
+                        renderStudentList();
+
+                        // Update header date to show selected date
+                        const hDate = document.getElementById('headerDate');
+                        if (hDate) hDate.textContent = new Date(date + 'T00:00:00').toDateString();
+
+                        // Update stats
+                        updateStats();
+
+                        // Apply mode
+                        if (viewOnlyMode) {
+                            document.body.classList.add('attendance-readonly');
+                            showIOSToast(`📖 Viewing ${count} records (Read-Only)`, 'info', 3000);
+                        } else {
+                            allowPastDateEdit = true;
+                            document.body.classList.remove('attendance-readonly');
+                            showIOSToast(`✏️ Loaded ${count} records for editing`, 'success', 3000);
+
+                            setTimeout(() => { allowPastDateEdit = false; }, 600000);
+                        }
+                    } else {
+                        showIOSToast('Invalid data format', 'error', 3000);
+                    }
+                } else if (json.result === 'success') {
+                    showIOSToast(`No ${category} data found for ${date}`, 'warning', 3000);
+                } else {
+                    showIOSToast(`Fetch Failed: ${json.error || 'Unknown error'}`, 'error', 3000);
+                }
+            } catch (e) {
+                hideIOSLoading();
+                showIOSToast(`Network Error: ${e.message}`, 'error', 3000);
+            }
+        }
+
+        // Update button visibility based on date and database status
+        async function updatePastRecordButtonsVisibility() {
+            const btnContainer = document.getElementById('mainPastRecordBtns');
+            if (!btnContainer) return;
+
+            const dateInput = document.getElementById('mainAttendanceDate');
+            const date = dateInput ? dateInput.value : '';
+            if (!date || !currentCategory) {
+                btnContainer.style.display = 'none';
+                return;
+            }
+
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            if (date >= today) {
+                btnContainer.style.display = 'none';
+                return;
+            }
+
+            try {
+                const syncStatus = await checkServerSyncStatus(date, currentCategory);
+
+                if (syncStatus && syncStatus.status === 'submitted' && syncStatus.recordCount > 0) {
+                    btnContainer.style.display = 'inline-flex';
+                } else {
+                    btnContainer.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Button visibility check failed:', err);
+                btnContainer.style.display = 'none';
+            }
+        }
+
+        // ========================================
+        // SMART PAST DATE DIALOG
+        // ========================================
+
+        async function showPastDateDialog(date, category, hasData) {
+            const overlay = document.createElement('div');
+            overlay.id = 'pastDateDialogOverlay';
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+            const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
+
+            const dialog = document.createElement('div');
+            dialog.style.cssText = 'background:var(--md-sys-color-surface);border-radius:24px;padding:24px;max-width:400px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.4);position:relative;';
+
+            if (hasData) {
+                dialog.innerHTML = `
+                    <button onclick="closePastDateDialog()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(142,142,147,0.18);color:var(--md-sys-color-on-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                        <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+                    </button>
+                    <h3 style="font-size:20px;font-weight:700;margin:0 0 8px 0;color:var(--md-sys-color-on-surface);">Past Date Selected</h3>
+                    <p style="margin:0 0 24px 0;color:var(--md-sys-color-on-surface-variant);font-size:15px;">${category} attendance for <strong>${formattedDate}</strong> was already submitted.</p>
+                    <div style="display:flex;gap:12px;">
+                        <button onclick="handleViewOnly()" style="flex:1;padding:14px 20px;border-radius:12px;border:1px solid var(--md-sys-color-primary);background:transparent;color:var(--md-sys-color-primary);font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+                            <span class="material-symbols-outlined" style="font-size:20px;">visibility</span>View Only
+                        </button>
+                        <button onclick="handleUpdate()" style="flex:1;padding:14px 20px;border-radius:12px;border:none;background:var(--md-sys-color-primary);color:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+                            <span class="material-symbols-outlined" style="font-size:20px;">edit</span>Update
+                        </button>
+                    </div>`;
+            } else {
+                dialog.innerHTML = `
+                    <h3 style="font-size:20px;font-weight:700;margin:0 0 8px 0;color:var(--md-sys-color-on-surface);">Update Past Date</h3>
+                    <p style="margin:0 0 24px 0;color:var(--md-sys-color-on-surface-variant);font-size:15px;">No ${category} attendance for <strong>${formattedDate}</strong> in database.</p>
+                    <div style="display:flex;gap:12px;">
+                        <button onclick="closePastDateDialog()" style="flex:1;padding:14px 20px;border-radius:12px;border:1px solid rgba(142,142,147,0.3);background:transparent;color:var(--md-sys-color-on-surface);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+                        <button onclick="handleUpdate()" style="flex:1;padding:14px 20px;border-radius:12px;border:none;background:var(--md-sys-color-primary);color:white;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;">
+                            <span class="material-symbols-outlined" style="font-size:20px;">edit</span>Update
+                        </button>
+                    </div>`;
+            }
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+        }
+
+        function closePastDateDialog() {
+            const overlay = document.getElementById('pastDateDialogOverlay');
+            if (overlay) overlay.remove();
+        }
+
+        function handleViewOnly() {
+            closePastDateDialog();
+            fetchAndViewPastData(true);
+        }
+
+        function handleUpdate() {
+            closePastDateDialog();
+            fetchAndViewPastData(false);
+        }
+
+        // Handle main date picker change
+        async function handleMainDateChange() {
+            const dateInput = document.getElementById('mainAttendanceDate');
+            if (!dateInput) return;
+
+            const newDate = dateInput.value;
+            if (!newDate) return;
+
+            const now = new Date();
+            const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            if (newDate < today) {
+                try {
+                    const syncStatus = await checkServerSyncStatus(newDate, currentCategory);
+                    const hasData = syncStatus && syncStatus.status === 'submitted' && syncStatus.recordCount > 0;
+                    showPastDateDialog(newDate, currentCategory, hasData);
+                } catch (err) {
+                    showPastDateDialog(newDate, currentCategory, false);
+                }
+            } else {
+                ensureCategoryAttendance(currentCategory);
+                attendance = attendanceByCategory[currentCategory];
+                renderStudentList();
+                updateFetchButtonVisibility();
+                handleSyncStatusCheck();
+            }
+        }
+
+        // Initialize main date picker to today
+        function setMainDateToToday() {
+            const dateInput = document.getElementById('mainAttendanceDate');
+            if (!dateInput) return;
+
+            const today = new Date();
+            const formatted = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            dateInput.value = formatted;
+        }
+
+
 
         // --- Sync Tracker Logic (YouTube-Level Optimized) ---
         let trackerDaysRange = 7;
@@ -1685,6 +2287,20 @@
             const dbStatus = await fetchSyncStatusFromDB(dates);
             const totalStudents = students.length;
 
+            // POPULATE LOCAL CACHE from server data (for instant checks in handleDateChange)
+            if (dbStatus) {
+                for (const dateStr of dates) {
+                    const dateData = dbStatus[dateStr];
+                    if (dateData) {
+                        for (const category of CATEGORIES) {
+                            if (dateData[category] && dateData[category] > 0) {
+                                markAsSynced(dateStr, category);
+                            }
+                        }
+                    }
+                }
+            }
+
             let html = '';
             let totalDays = 0;
             let completeDays = 0;
@@ -1794,6 +2410,20 @@
             // Batch fetch from database (like preset ranges)
             const dbStatus = await fetchSyncStatusFromDB(dates);
             const totalStudents = students.length;
+
+            // POPULATE LOCAL CACHE from server data
+            if (dbStatus) {
+                for (const dateStr of dates) {
+                    const dateData = dbStatus[dateStr];
+                    if (dateData) {
+                        for (const category of CATEGORIES) {
+                            if (dateData[category] && dateData[category] > 0) {
+                                markAsSynced(dateStr, category);
+                            }
+                        }
+                    }
+                }
+            }
 
             let html = '';
             let totalDays = 0;
@@ -5105,6 +5735,8 @@
             });
         })();
 
+        // Initialize main date picker
+        setMainDateToToday();
     </script>
 </body>
 
