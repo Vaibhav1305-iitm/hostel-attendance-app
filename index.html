@@ -351,14 +351,6 @@
                            cursor: pointer; padding: 0;" />
             </div>
 
-            <!-- Verification Toggle - iOS Style -->
-            <div class="ios-verification-row" id="verificationCard" onclick="toggleVerification()">
-                <span class="ios-verification-text" id="verifyText">Mark as Verified</span>
-                <div class="ios-toggle-switch" id="verifyToggle">
-                    <div class="ios-toggle-knob"></div>
-                </div>
-            </div>
-
             <!-- Fetch from Database Button (only visible for past dates) -->
             <div id="fetchButtonContainer" style="display: none; margin-bottom: 12px;">
                 <button onclick="fetchCurrentSectionFromDB()" style="width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--md-sys-color-primary); 
@@ -374,16 +366,33 @@
                 </div>
             </div>
 
-            <!-- Section Title -->
+            <!-- Section Title with Refresh Button -->
             <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>STUDENTS</span>
-                <span id="totalStudentsCount" style="font-size: 13px; color: var(--ios-text-tertiary);">0 total</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <button onclick="refreshCurrentSection()" title="Refresh Section"
+                        style="background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                        <span class="material-symbols-outlined"
+                            style="font-size: 20px; color: var(--md-sys-color-primary);">refresh</span>
+                    </button>
+                    <span id="totalStudentsCount" style="font-size: 13px; color: var(--ios-text-tertiary);">0
+                        total</span>
+                </div>
             </div>
 
             <!-- Student List -->
             <div id="studentList" class="student-list-container">
                 <div class="student-card" style="justify-content: center; color: var(--ios-text-tertiary);">
                     No data loaded. Upload CSV to begin.
+                </div>
+            </div>
+
+            <!-- Verification Toggle - iOS Style (at bottom after marking all attendance) -->
+            <div class="ios-verification-row" id="verificationCard" onclick="toggleVerification()"
+                style="margin-top: 16px;">
+                <span class="ios-verification-text" id="verifyText">Mark as Verified</span>
+                <div class="ios-toggle-switch" id="verifyToggle">
+                    <div class="ios-toggle-knob"></div>
                 </div>
             </div>
 
@@ -541,6 +550,13 @@
         </div>
     </div>
 
+    <!-- Admin Panel Modal (slides from right like Sync Tracker) -->
+    <div id="adminPanelModal" class="admin-panel-modal">
+        <div id="adminPanelContent">
+            <!-- Content will be populated by showAdminPanel() -->
+        </div>
+    </div>
+
     <!-- Student Dashboard Modal -->
     <div id="studentDashboardModal"
         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:3000; justify-content:center; align-items:center; padding:16px;">
@@ -661,6 +677,35 @@
                 studentSearchQuery = (this.value || '').trim().toLowerCase();
                 renderStudentList();
             });
+
+            // GLOBAL HANDLER for dialog buttons - most reliable approach
+            let dialogHandled = false;
+            function handleDialogAction(e) {
+                const target = e.target.closest('[data-dialog-action]');
+                if (!target) return;
+                if (dialogHandled) return;
+                dialogHandled = true;
+
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                const action = target.getAttribute('data-dialog-action');
+                if (action === 'view-only') {
+                    handlePastDateViewOnly();
+                } else if (action === 'confirm') {
+                    handlePastDateConfirm(true);
+                } else if (action === 'cancel') {
+                    handlePastDateConfirm(false);
+                }
+
+                // Reset flag after a short delay for next dialog
+                setTimeout(() => { dialogHandled = false; }, 500);
+            }
+
+            // Capture phase catches events BEFORE bubbling
+            document.addEventListener('touchstart', handleDialogAction, { capture: true, passive: false });
+            document.addEventListener('click', handleDialogAction, { capture: true });
 
             // Scroll effect
             window.addEventListener('scroll', () => {
@@ -1544,19 +1589,18 @@
 
             if (hasDataInDB) {
                 // HAS DATA: View Only + Update + X icon
-                dialog.onclick = function (e) { if (e.target === dialog) handlePastDateConfirm(false); };
                 dialog.innerHTML = `
-                    <div class="ios-confirm-content" onclick="event.stopPropagation()" style="position: relative;">
-                        <button type="button" class="close-x-btn" onclick="handlePastDateConfirm(false)" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(142,142,147,0.18);color:var(--md-sys-color-on-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                    <div class="ios-confirm-content" style="position: relative;">
+                        <button type="button" class="close-x-btn" data-dialog-action="cancel" style="position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(142,142,147,0.18);color:var(--md-sys-color-on-surface);display:flex;align-items:center;justify-content:center;cursor:pointer;">
                             <span class="material-symbols-outlined" style="font-size:18px;pointer-events:none;">close</span>
                         </button>
                         <div class="ios-confirm-title">Past Date Selected</div>
                         <div class="ios-confirm-message">${currentCategory} attendance for ${formattedDate} was already submitted to database.</div>
                         <div class="ios-confirm-buttons">
-                            <button type="button" class="ios-confirm-btn view-only" onclick="handlePastDateViewOnly()" style="border:1px solid var(--md-sys-color-primary);background:transparent;color:var(--md-sys-color-primary);">
+                            <button type="button" class="ios-confirm-btn view-only" data-dialog-action="view-only" style="border:1px solid var(--md-sys-color-primary);background:transparent;color:var(--md-sys-color-primary);">
                                 <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">visibility</span>View Only
                             </button>
-                            <button type="button" class="ios-confirm-btn confirm" onclick="handlePastDateConfirm(true)">
+                            <button type="button" class="ios-confirm-btn confirm" data-dialog-action="confirm">
                                 <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">edit</span>Update
                             </button>
                         </div>
@@ -1564,14 +1608,13 @@
                 `;
             } else {
                 // NO DATA: Cancel + Update
-                dialog.onclick = function (e) { if (e.target === dialog) handlePastDateConfirm(false); };
                 dialog.innerHTML = `
-                    <div class="ios-confirm-content" onclick="event.stopPropagation()">
+                    <div class="ios-confirm-content">
                         <div class="ios-confirm-title">Update Past Date</div>
                         <div class="ios-confirm-message">No ${currentCategory} attendance for ${formattedDate} in database.</div>
                         <div class="ios-confirm-buttons">
-                            <button type="button" class="ios-confirm-btn cancel" onclick="handlePastDateConfirm(false)">Cancel</button>
-                            <button type="button" class="ios-confirm-btn confirm" onclick="handlePastDateConfirm(true)">
+                            <button type="button" class="ios-confirm-btn cancel" data-dialog-action="cancel">Cancel</button>
+                            <button type="button" class="ios-confirm-btn confirm" data-dialog-action="confirm">
                                 <span class="material-symbols-outlined" style="font-size:18px;margin-right:6px;pointer-events:none;">edit</span>Update
                             </button>
                         </div>
@@ -1581,53 +1624,24 @@
 
             document.body.appendChild(dialog);
 
-            // Add touch event handlers for Android WebView
-            let handled = false;
-            function execAction(action) {
-                return function (e) {
-                    if (handled) return;
-                    handled = true;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    action();
-                };
-            }
-
-            // Get all buttons and add BOTH touch and click handlers
-            const viewOnlyBtn = dialog.querySelector('.view-only');
-            const confirmBtn = dialog.querySelector('.confirm');
-            const cancelBtn = dialog.querySelector('.cancel');
-            const closeXBtn = dialog.querySelector('.close-x-btn');
-            const content = dialog.querySelector('.ios-confirm-content');
-
-            if (viewOnlyBtn) {
-                viewOnlyBtn.ontouchend = execAction(handlePastDateViewOnly);
-                viewOnlyBtn.onclick = execAction(handlePastDateViewOnly);
-            }
-            if (confirmBtn) {
-                confirmBtn.ontouchend = execAction(() => handlePastDateConfirm(true));
-                confirmBtn.onclick = execAction(() => handlePastDateConfirm(true));
-            }
-            if (cancelBtn) {
-                cancelBtn.ontouchend = execAction(() => handlePastDateConfirm(false));
-                cancelBtn.onclick = execAction(() => handlePastDateConfirm(false));
-            }
-            if (closeXBtn) {
-                closeXBtn.ontouchend = execAction(() => handlePastDateConfirm(false));
-                closeXBtn.onclick = execAction(() => handlePastDateConfirm(false));
-            }
-            if (content) {
-                content.ontouchend = function (e) { e.stopPropagation(); };
-            }
-
             // Show dialog
             dialog.style.display = 'flex';
         }
 
         // Handle View Only button click
         function handlePastDateViewOnly() {
-            const dialog = document.getElementById('pastDateConfirmDialog');
-            if (dialog) dialog.remove();
+            // FORCE close dialog with multiple methods
+            const dialogById = document.getElementById('pastDateConfirmDialog');
+            if (dialogById) {
+                dialogById.style.display = 'none';
+                dialogById.remove();
+            }
+            // Fallback: remove by class
+            const dialogByClass = document.querySelector('.ios-confirm-dialog');
+            if (dialogByClass) {
+                dialogByClass.style.display = 'none';
+                dialogByClass.remove();
+            }
 
             if (!pastDateContext) return;
 
@@ -1638,10 +1652,17 @@
         }
 
         function handlePastDateConfirm(confirmed) {
-            // Remove dialog
-            const dialog = document.getElementById('pastDateConfirmDialog');
-            if (dialog) {
-                dialog.remove();
+            // FORCE close dialog with multiple methods
+            const dialogById = document.getElementById('pastDateConfirmDialog');
+            if (dialogById) {
+                dialogById.style.display = 'none';
+                dialogById.remove();
+            }
+            // Fallback: remove by class
+            const dialogByClass = document.querySelector('.ios-confirm-dialog');
+            if (dialogByClass) {
+                dialogByClass.style.display = 'none';
+                dialogByClass.remove();
             }
 
             if (!pastDateContext) return;
@@ -1744,6 +1765,40 @@
 
             // Update View/Edit buttons visibility
             updatePastRecordButtonsVisibility();
+        }
+
+        // Refresh only the current section's data
+        function refreshCurrentSection() {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) {
+                showIOSToast('Please select a date first', 'info');
+                return;
+            }
+            if (!currentCategory) {
+                showIOSToast('No category selected', 'info');
+                return;
+            }
+
+            // Show loading
+            showIOSToast(`🔄 Refreshing ${currentCategory}...`, 'info', 1500);
+
+            // Clear current section's loaded state to force reload
+            if (loadedFromSheets[date]) {
+                delete loadedFromSheets[date][currentCategory];
+            }
+
+            // Clear current section's attendance data
+            if (attendanceByCategory[currentCategory]) {
+                attendanceByCategory[currentCategory] = {};
+            }
+            attendance = {};
+
+            // Reload the data (from draft/localStorage or fresh)
+            loadAttendanceData();
+            renderStudentList();
+            updateVerificationUI();
+
+            showIOSToast(`✅ ${currentCategory} refreshed`, 'success', 2000);
         }
 
         // --- Fetch Button Logic ---
@@ -3390,17 +3445,39 @@
             }
         });
 
+        // Close admin panel modal (slide out)
+        function closeAdminPanel() {
+            const modal = document.getElementById('adminPanelModal');
+            if (modal) {
+                modal.classList.remove('open');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 350); // Match transition duration
+            }
+            // Restore FAB
+            const fabContainer = document.querySelector('.fab-container');
+            if (fabContainer) fabContainer.style.display = '';
+
+            showIOSToast('Returned to attendance', 'info', 1500);
+        }
+
         function showAdminPanel() {
+            closeDrawer();
+
             // Hide FAB to prevent overlap
             const fabContainer = document.querySelector('.fab-container');
             if (fabContainer) fabContainer.style.display = 'none';
 
-            const main = document.querySelector('main.content');
-            main.innerHTML = `
+            // Get modal and content container
+            const modal = document.getElementById('adminPanelModal');
+            const contentContainer = document.getElementById('adminPanelContent');
+
+            // Populate the admin panel content
+            contentContainer.innerHTML = `
                 <!-- Admin Header -->
                 <div class="admin-header">
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <button onclick="location.reload()" style="background:rgba(255,255,255,0.2); border:none; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                        <button onclick="closeAdminPanel()" style="background:rgba(255,255,255,0.2); border:none; border-radius:12px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
                             <span class="material-symbols-outlined" style="color:white;">arrow_back</span>
                         </button>
                         <div style="flex:1;">
@@ -3707,6 +3784,12 @@
                     </div>
                 </div>
             `;
+
+            // Show modal with slide-in animation
+            modal.style.display = 'block';
+            setTimeout(() => {
+                modal.classList.add('open');
+            }, 10);
 
             // Set today's date and current month
             const today = new Date().toISOString().split('T')[0];

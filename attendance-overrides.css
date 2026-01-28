@@ -605,6 +605,26 @@ body {
 }
 
 /* ========================================
+   Admin Panel Modal - Full Screen Slide Over (like Sync Tracker)
+   ======================================== */
+.admin-panel-modal {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg, #F2F2F7);
+    z-index: 2000;
+    transition: right 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+}
+
+.admin-panel-modal.open {
+    right: 0;
+}
+
+/* ========================================
    Admin Panel Tabs
    ======================================== */
 .admin-tabs {
