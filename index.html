@@ -1108,8 +1108,12 @@
 
             if (status.status === 'submitted') {
                 // Attendance already submitted!
+                // Format date for banner display
+                const dateObj = new Date(date);
+                const formattedDate = dateObj.toDateString(); // e.g., "Wed Jan 28 2026"
+
                 showSyncBanner('submitted',
-                    `✓ ${currentCategory} attendance already submitted (${status.recordCount}/${status.totalStudents} students)`,
+                    `✓ ${currentCategory} attendance already submitted for ${formattedDate} (${status.recordCount}/${status.totalStudents} students)`,
                     'submitted'
                 );
 
