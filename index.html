@@ -3516,22 +3516,57 @@
 
                 <!-- Overview Section -->
                 <div id="section-overview" class="admin-section active">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
-                        <div style="background:transparent; border:1.5px solid rgba(0,122,255,0.3); border-radius:20px; padding:16px; text-align:center;">
-                            <div style="font-size:28px; font-weight:700; color:#007AFF;" id="totalStudentsOverview">-</div>
-                            <div style="font-size:12px; color:#666; margin-top:4px;" id="totalStudentsLabel">📊 Total Students</div>
+                    <div class="ios-stat-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                        <!-- iOS Style Stat Card - Total Students -->
+                        <div class="ios-stat-card" style="background: linear-gradient(135deg, rgba(0,122,255,0.1) 0%, rgba(88,86,214,0.1) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(0,122,255,0.15); border: 1px solid rgba(0,122,255,0.2);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #007AFF, #5856D6); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 24px;">groups</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--color-text, #000);" id="totalStudentsOverview">-</div>
+                                    <div style="font-size: 12px; color: var(--ios-text-tertiary, #8E8E93); font-weight: 500;">Total Students</div>
+                                </div>
+                            </div>
                         </div>
-                        <div style="background:transparent; border:1.5px solid rgba(52,199,89,0.3); border-radius:20px; padding:16px; text-align:center;">
-                            <div style="font-size:28px; font-weight:700; color:#34C759;" id="avgAttendanceOverview">-</div>
-                            <div style="font-size:12px; color:#666; margin-top:4px;" id="avgAttendanceLabel">📈 Avg Attendance</div>
+                        
+                        <!-- iOS Style Stat Card - Avg Attendance -->
+                        <div class="ios-stat-card" style="background: linear-gradient(135deg, rgba(52,199,89,0.1) 0%, rgba(48,209,88,0.1) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(52,199,89,0.15); border: 1px solid rgba(52,199,89,0.2);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #34C759, #30D158); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 24px;">trending_up</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--color-text, #000);" id="avgAttendanceOverview">-</div>
+                                    <div style="font-size: 12px; color: var(--ios-text-tertiary, #8E8E93); font-weight: 500;">Avg Attendance</div>
+                                </div>
+                            </div>
                         </div>
-                        <div style="background:transparent; border:1.5px solid rgba(255,149,0,0.3); border-radius:20px; padding:16px; text-align:center;">
-                            <div style="font-size:28px; font-weight:700; color:#FF9500;" id="sectionStudentsCount">-</div>
-                            <div style="font-size:12px; color:#666; margin-top:4px;" id="sectionStudentsLabel">🧑‍🎓 Section Students</div>
+                        
+                        <!-- iOS Style Stat Card - Section Students -->
+                        <div class="ios-stat-card" style="background: linear-gradient(135deg, rgba(255,149,0,0.1) 0%, rgba(255,159,10,0.1) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(255,149,0,0.15); border: 1px solid rgba(255,149,0,0.2);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #FF9500, #FF9F0A); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 24px;">school</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--color-text, #000);" id="sectionStudentsCount">-</div>
+                                    <div style="font-size: 12px; color: var(--ios-text-tertiary, #8E8E93); font-weight: 500;">Section Students</div>
+                                </div>
+                            </div>
                         </div>
-                        <div style="background:transparent; border:1.5px solid rgba(255,59,48,0.3); border-radius:20px; padding:16px; text-align:center;">
-                            <div style="font-size:28px; font-weight:700; color:#FF3B30;" id="atRiskCount">-</div>
-                            <div style="font-size:12px; color:#666; margin-top:4px;" id="atRiskLabel">⚠️ At Risk</div>
+                        
+                        <!-- iOS Style Stat Card - At Risk -->
+                        <div class="ios-stat-card" style="background: linear-gradient(135deg, rgba(255,59,48,0.1) 0%, rgba(255,69,58,0.1) 100%); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(255,59,48,0.15); border: 1px solid rgba(255,59,48,0.2);">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #FF3B30, #FF453A); display: flex; align-items: center; justify-content: center;">
+                                    <span class="material-symbols-outlined" style="color: white; font-size: 24px;">warning</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 24px; font-weight: 700; color: var(--color-text, #000);" id="atRiskCount">-</div>
+                                    <div style="font-size: 12px; color: var(--ios-text-tertiary, #8E8E93); font-weight: 500;">At Risk</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id="overviewContent" style="margin-top:16px;">
@@ -3902,42 +3937,51 @@
             document.getElementById('sectionStudentsCount').textContent = sectionCount;
             document.getElementById('atRiskCount').textContent = atRisk;
 
-            // Update labels
-            const sectionLabel = section === 'All' ? 'All Sections' : section;
-            document.getElementById('totalStudentsLabel').textContent = `📊 ${sectionLabel}`;
-            document.getElementById('avgAttendanceLabel').textContent = `📈 Avg (${sectionLabel})`;
-            document.getElementById('sectionStudentsLabel').textContent = `🧑‍🎓 ${sectionLabel}`;
-            document.getElementById('atRiskLabel').textContent = `⚠️ At Risk (${sectionLabel})`;
+            // Note: Labels are now static in the HTML, no longer dynamic
 
-            // Update Top 5
-            const top5 = scores.slice(0, 5);
+
+            // Update Top 5 -> Changed to show ALL students with iOS Contacts style
             const topContainer = document.getElementById('overviewTop5Container');
 
-            let html = `<h4 style="margin:0 0 12px 0; font-size:14px; color:var(--md-sys-color-on-surface-variant);">🏆 Top 5 ${sectionLabel}</h4>`;
+            let html = `<h4 style="margin:0 0 12px 0; font-size:13px; font-weight: 600; color: var(--ios-text-tertiary, #8E8E93); text-transform: uppercase; letter-spacing: 0.5px;">📋 Students (${scores.length})</h4>`;
+            html += `<div class="ios-contacts-list" style="display: flex; flex-direction: column; gap: 8px;">`;
 
-            if (top5.length === 0) {
+            if (scores.length === 0) {
                 html += '<div class="empty-state"><span class="material-symbols-outlined">search_off</span><div>No students in this section</div></div>';
             } else {
-                top5.forEach((student, i) => {
-                    const tierClass = student.tier;
-                    const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
-                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
+                scores.forEach((student, i) => {
+                    const scoreColor = student.score >= 90 ? '#34C759' : student.score >= 75 ? '#007AFF' : student.score >= 50 ? '#FF9500' : '#FF3B30';
+                    const initials = student.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
                     const escapedName = student.name.replace(/'/g, "\\'");
+
+                    // iOS Focus style - each card is separate with glassmorphic background
                     html += `
-                        <div class="ranking-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
-                            <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
-                            <div class="ranking-info" style="flex:1;">
-                                <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
-                                <div style="font-size:12px; color:#8E8E93; margin-top:2px;">${student.category}</div>
+                        <div class="ios-focus-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" 
+                             style="display: flex; align-items: center; padding: 16px 20px; gap: 16px; cursor: pointer; 
+                                    background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                                    border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.3);">
+                            <!-- Avatar -->
+                            <div style="width: 40px; height: 40px; border-radius: 50%; 
+                                        background: linear-gradient(135deg, #007AFF, #5856D6); 
+                                        display: flex; align-items: center; justify-content: center; 
+                                        font-size: 14px; font-weight: 600; color: white; flex-shrink: 0;">
+                                ${initials}
                             </div>
-                            <div style="text-align:right;">
-                                <div style="font-size:20px; font-weight:700; color:#007AFF;">${student.score}%</div>
+                            <!-- Info -->
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 17px; font-weight: 400; color: var(--color-text, #000); letter-spacing: -0.4px; 
+                                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${student.name}</div>
+                                <div style="font-size: 13px; color: var(--ios-text-tertiary, #8E8E93); margin-top: 1px;">${student.category}</div>
                             </div>
+                            <!-- Score -->
+                            <div style="font-size: 17px; font-weight: 600; color: ${scoreColor};">${student.score}%</div>
+                            <span class="material-symbols-outlined" style="font-size: 18px; color: var(--ios-text-tertiary, #C7C7CC);">chevron_right</span>
                         </div>
                     `;
                 });
             }
 
+            html += '</div>';
             topContainer.innerHTML = html;
         }
 
@@ -4087,31 +4131,44 @@
                 return;
             }
 
-            let html = '';
+            let html = '<div class="ios-contacts-list" style="display: flex; flex-direction: column; gap: 12px;">';
             filtered.forEach((student) => {
-                const tierClass = student.tier;
-                const scoreClass = student.score >= 90 ? 'score-excellent' : student.score >= 75 ? 'score-good' : student.score >= 50 ? 'score-warning' : 'score-danger';
-
                 // Use original rank (stored in student object), not filtered index
                 const rank = student.originalRank;
                 const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 
                 // Use name + category for reliable lookup
                 const escapedName = student.name.replace(/'/g, "\\'");
+
+                // iOS style colors based on score
+                const scoreColor = student.score >= 90 ? '#34C759' : student.score >= 75 ? '#007AFF' : student.score >= 50 ? '#FF9500' : '#FF3B30';
+
+                // Get initials for avatar (not used now, but keeping for reference)
+                const initials = student.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+                // iOS style rank badge - medals for top 3, rank numbers for others
+                const rankBadge = rank <= 3
+                    ? `<div style="width: 40px; height: 40px; border-radius: 50%; background: ${rank === 1 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : rank === 2 ? 'linear-gradient(135deg, #C0C0C0, #A8A8A8)' : 'linear-gradient(135deg, #CD7F32, #B87333)'}; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); flex-shrink: 0;">${medal}</div>`
+                    : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #007AFF, #5856D6); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; color: white; flex-shrink: 0;">${rank}</div>`;
+
                 html += `
-                    <div class="ranking-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" style="cursor:pointer; display:flex; align-items:center; padding:14px; gap:12px;">
-                        <div class="ranking-position ${tierClass}" style="width:36px; text-align:center; font-size:18px;">${medal}</div>
-                        <div class="ranking-info" style="flex:1;">
-                            <div class="ranking-name" style="font-size:15px; font-weight:600; color:#1C1C1E;">${student.name}</div>
-                            <div style="font-size:12px; color:#8E8E93; margin-top:2px;">${student.category}</div>
+                    <div class="ios-focus-card" onclick="openStudentDashboardFromRanking('${escapedName}', '${student.category}')" 
+                         style="display: flex; align-items: center; padding: 16px 20px; gap: 16px; cursor: pointer; 
+                                background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                                border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.3);">
+                        ${rankBadge}
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 17px; font-weight: 400; color: var(--color-text, #000); letter-spacing: -0.4px; 
+                                        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${student.name}</div>
+                            <div style="font-size: 13px; color: var(--ios-text-tertiary, #8E8E93); margin-top: 1px;">${student.category}</div>
                         </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:20px; font-weight:700; color:#007AFF;">${student.score}%</div>
-                        </div>
+                        <div style="font-size: 17px; font-weight: 600; color: ${scoreColor};">${student.score}%</div>
+                        <span class="material-symbols-outlined" style="font-size: 18px; color: var(--ios-text-tertiary, #C7C7CC);">chevron_right</span>
                     </div>
                 `;
             });
 
+            html += '</div>';
             container.innerHTML = html;
         }
 

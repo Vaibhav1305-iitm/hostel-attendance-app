@@ -10,8 +10,8 @@ android {
         applicationId "com.vssnagar.attendance"
         minSdk 21        // Works on Android 5.0 and above (covers 99% of devices)
         targetSdk 34     // Latest Android version
-        versionCode 3  // Increment this for each new version (1, 2, 3, etc.)
-        versionName "1.2" // This is what users see (1.0, 1.1, 2.0, etc.)
+        versionCode 4  // Increment this for each new version (1, 2, 3, etc.)
+        versionName "1.3" // This is what users see (1.0, 1.1, 2.0, etc.)
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

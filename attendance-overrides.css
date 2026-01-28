@@ -606,22 +606,73 @@ body {
 
 /* ========================================
    Admin Panel Modal - Full Screen Slide Over (like Sync Tracker)
+   Mobile Optimized for Android WebView
    ======================================== */
 .admin-panel-modal {
     position: fixed;
     top: 0;
-    right: -100%;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     background-color: var(--color-bg, #F2F2F7);
     z-index: 2000;
-    transition: right 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
     box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
     overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .admin-panel-modal.open {
-    right: 0;
+    transform: translateX(0);
+}
+
+/* Admin Panel Content Container */
+#adminPanelContent {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 20px));
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+/* Mobile-optimized admin sections */
+.admin-panel-modal .admin-section {
+    display: none;
+    padding: 0;
+}
+
+.admin-panel-modal .admin-section.active {
+    display: block;
+}
+
+/* Better grid layout for mobile */
+.admin-panel-modal .stat-card {
+    margin-bottom: 12px;
+    padding: 14px;
+    border-radius: 14px;
+}
+
+/* Responsive grids for mobile */
+@media (max-width: 400px) {
+    .admin-panel-modal [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .admin-panel-modal .admin-tab-new {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .admin-panel-modal .admin-tab-new .material-symbols-outlined {
+        font-size: 16px;
+    }
+
+    .admin-panel-modal .admin-header-title {
+        font-size: 22px;
+    }
 }
 
 /* ========================================
@@ -1021,10 +1072,11 @@ body.hide-fab .fab {
    ======================================== */
 .admin-header {
     background: linear-gradient(135deg, var(--ios-blue, #007AFF), #5856D6);
-    padding: 20px;
-    padding-top: calc(20px + env(safe-area-inset-top, 20px));
+    padding: 16px;
+    padding-top: calc(16px + env(safe-area-inset-top, 20px));
     color: white;
     margin: -16px -16px 16px -16px;
+    border-radius: 0 0 20px 20px;
 }
 
 .admin-header-title {
@@ -2909,4 +2961,141 @@ button:active,
 .attendance-readonly .ios-dock-bar {
     opacity: 0.5;
     pointer-events: none;
+}
+
+/* ========================================
+   Admin Panel Mobile Optimization
+   For Android WebView / Mobile Devices
+   ======================================== */
+
+/* Admin Panel Content - Compact Layout */
+.admin-panel-modal .fab {
+    width: 100% !important;
+    justify-content: center !important;
+    position: static !important;
+    margin: 0 !important;
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+}
+
+/* Compact stat cards for mobile */
+.admin-panel-modal [style*="font-size:28px"] {
+    font-size: 22px !important;
+}
+
+.admin-panel-modal [style*="font-size:20px"] {
+    font-size: 18px !important;
+}
+
+/* Better buttons spacing */
+.admin-panel-modal button {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+/* Scrollable tabs on small screens */
+.admin-panel-modal .admin-tabs-new {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+/* Rankings table mobile fixes */
+.admin-panel-modal table {
+    font-size: 12px;
+    width: 100%;
+}
+
+.admin-panel-modal th,
+.admin-panel-modal td {
+    padding: 8px 6px;
+    text-align: center;
+}
+
+.admin-panel-modal select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+/* Compact cards */
+.admin-panel-modal .stat-card {
+    padding: 12px;
+}
+
+.admin-panel-modal .stat-card h3 {
+    font-size: 14px !important;
+}
+
+.admin-panel-modal .stat-card p {
+    font-size: 12px !important;
+}
+
+/* ========================================
+   iOS Native Rankings List Styling
+   ======================================== */
+#rankingsContent {
+    background: transparent;
+    /* Each card has its own background */
+}
+
+.ios-ranking-item {
+    position: relative;
+}
+
+.ios-ranking-item:active {
+    background: var(--ios-fill, rgba(120, 120, 128, 0.12)) !important;
+}
+
+/* iOS style separator - partial line from left edge */
+.ios-ranking-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 62px;
+    right: 16px;
+    height: 0.5px;
+    background-color: var(--ios-separator, rgba(60, 60, 67, 0.12));
+}
+
+/* iOS Stat Grid in Admin Panel */
+.ios-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 360px) {
+    .ios-stat-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ios-ranking-item:not(:last-child)::after {
+        left: 54px;
+    }
+}
+
+/* ========================================
+   iOS Focus Style Cards
+   ======================================== */
+.ios-focus-card {
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ios-focus-card:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+.ios-contacts-list {
+    padding-bottom: 80px;
+    /* Space for safe area */
+    gap: 12px !important;
+    /* Gap between separate cards */
 }
