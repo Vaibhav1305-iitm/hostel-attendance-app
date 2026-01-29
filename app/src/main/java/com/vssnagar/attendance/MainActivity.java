@@ -10,6 +10,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -27,13 +28,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * Main Activity
  * This activity loads your Google Apps Script web app in a WebView.
- * Think of WebView as a mini-browser inside your app.
+ * Downloads are handled via JavaScript interface (WebAppInterface).
  */
 public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
     private TextView noInternetText;
     private static final int NOTIFICATION_PERMISSION_CODE = 100;
+    private static final int STORAGE_PERMISSION_CODE = 101;
 
     // Your GitHub Pages hosted web app URL
     private static final String WEB_APP_URL = "https://vaibhav1305-iitm.github.io/hostel-attendance-app/";
@@ -47,8 +49,9 @@ public class MainActivity extends AppCompatActivity {
         webView = findViewById(R.id.webView);
         noInternetText = findViewById(R.id.noInternetText);
 
-        // Request notification permission (Android 13+)
+        // Request permissions
         requestNotificationPermission();
+        requestStoragePermission();
 
         // Schedule daily attendance check at 11:30 PM
         scheduleDailyAttendanceCheck();
@@ -84,9 +87,16 @@ public class MainActivity extends AppCompatActivity {
         // Make the WebView fit the screen properly
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
+        
+        // Allow mixed content (http in https)
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         // Add JavaScript Interface for communication with web app
+        // This is how the web app can send download data to Android
         webView.addJavascriptInterface(new WebAppInterface(this), "Android");
+
+        // Set WebChromeClient for better JavaScript support
+        webView.setWebChromeClient(new WebChromeClient());
 
         // This makes sure all links open INSIDE the app, not in external browser
         webView.setWebViewClient(new WebViewClient() {
@@ -96,7 +106,58 @@ public class MainActivity extends AppCompatActivity {
                 view.loadUrl(url);
                 return true;
             }
+            
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Inject download helper script after page loads
+                injectDownloadHelper();
+            }
         });
+    }
+
+    /**
+     * Inject JavaScript helper to intercept downloads and route them through Android interface
+     */
+    private void injectDownloadHelper() {
+        String js = "javascript:(function() {" +
+            // Check if Android interface exists
+            "if (typeof Android === 'undefined') { console.log('Android interface not found'); return; }" +
+            
+            // Override the default download behavior for anchor tags with download attribute
+            "document.addEventListener('click', function(e) {" +
+            "  var anchor = e.target.closest('a[download]');" +
+            "  if (anchor && anchor.href && anchor.href.startsWith('blob:')) {" +
+            "    e.preventDefault();" +
+            "    e.stopPropagation();" +
+            "    var fileName = anchor.download || 'download';" +
+            "    fetch(anchor.href).then(r => r.blob()).then(blob => {" +
+            "      var reader = new FileReader();" +
+            "      reader.onloadend = function() {" +
+            "        var base64 = reader.result.split(',')[1];" +
+            "        var mimeType = blob.type || 'application/octet-stream';" +
+            "        Android.downloadFileSimple(base64, fileName, mimeType);" +
+            "      };" +
+            "      reader.readAsDataURL(blob);" +
+            "    }).catch(function(err) { console.log('Download error:', err); });" +
+            "    return false;" +
+            "  }" +
+            "}, true);" +
+            
+            // Helper function that web app can call directly
+            "window.androidDownload = function(blob, fileName, mimeType) {" +
+            "  var reader = new FileReader();" +
+            "  reader.onloadend = function() {" +
+            "    var base64 = reader.result.split(',')[1];" +
+            "    Android.downloadFileSimple(base64, fileName, mimeType || blob.type);" +
+            "  };" +
+            "  reader.readAsDataURL(blob);" +
+            "};" +
+            
+            "console.log('Android download helper injected!');" +
+            "})();";
+        
+        webView.evaluateJavascript(js, null);
     }
 
     /**
@@ -192,6 +253,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * Request storage permission for Android 9 and below
+     */
+    private void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        STORAGE_PERMISSION_CODE);
+            }
+        }
+    }
+
+    /**
      * Handle permission request result
      */
     @Override
@@ -201,8 +276,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == NOTIFICATION_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == STORAGE_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Storage permission granted", Toast.LENGTH_SHORT).show();
             }
         }
     }

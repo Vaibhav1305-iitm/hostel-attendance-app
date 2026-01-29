@@ -36,6 +36,10 @@
         "source": "com.vssnagar.attendance.app-main-39:/layout/activity_splash.xml"
     },
     {
+        "merged": "com.vssnagar.attendance.app-merged_res-37:/xml_file_paths.xml.flat",
+        "source": "com.vssnagar.attendance.app-main-39:/xml/file_paths.xml"
+    },
+    {
         "merged": "com.vssnagar.attendance.app-merged_res-37:/mipmap-hdpi_ic_launcher_round.png.flat",
         "source": "com.vssnagar.attendance.app-main-39:/mipmap-hdpi/ic_launcher_round.png"
     },

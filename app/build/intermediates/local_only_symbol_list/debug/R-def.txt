@@ -20,3 +20,4 @@ string no
 string no_internet_message
 string splash_subtitle
 string yes
+xml file_paths
